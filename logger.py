@@ -6,7 +6,10 @@ from datetime import timedelta
 
 from loguru import logger
 
-from config import LOG_ROTATION_TIME
+try:
+    from config import LOG_ROTATION_TIME
+except ImportError:
+    LOG_ROTATION_TIME = '1 day'  # Default fallback
 
 
 log_folder = "logs"

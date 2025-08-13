@@ -1,100 +1,125 @@
-import random
-import secrets
+#!/usr/bin/env python3
+"""
+RioVPN Bot Captcha Handler
+"""
 
+import random
 from typing import Any
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from handlers.texts import CAPTCHA_EMOJIS, CAPTCHA_PROMPT_MSG
 from logger import logger
 
-from .utils import edit_or_send_message
-
+# Import texts with fallbacks
+try:
+    from handlers.texts import CAPTCHA_EMOJIS, CAPTCHA_PROMPT_MSG
+except ImportError:
+    # Default captcha texts
+    CAPTCHA_EMOJIS = ["😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇"]
+    CAPTCHA_PROMPT_MSG = "🔐 Для продолжения решите капчу:"
 
 router = Router()
 
 
-async def generate_captcha(message: Message, state: FSMContext):
-    correct_emoji, correct_text = secrets.choice(list(CAPTCHA_EMOJIS.items()))
-    wrong_emojis = random.sample([e for e in CAPTCHA_EMOJIS.keys() if e != correct_emoji], 3)
-
-    all_emojis = [correct_emoji] + wrong_emojis
-    random.shuffle(all_emojis)
-
-    state_data = await state.get_data()
-
-    if "user_data" not in state_data:
-        from_user = message.from_user
-        if not from_user:
-            logger.warning("[CAPTCHA] ❗ from_user отсутствует — невозможно сохранить user_data")
-            return None
-
-        await state.update_data(
-            user_data={
-                "tg_id": from_user.id,
-                "username": getattr(from_user, "username", None),
-                "first_name": getattr(from_user, "first_name", None),
-                "last_name": getattr(from_user, "last_name", None),
-                "language_code": getattr(from_user, "language_code", None),
-                "is_bot": getattr(from_user, "is_bot", False),
-            }
-        )
-
-    update_data = {
-        "correct_emoji": correct_emoji,
-        "message_id": message.message_id,
-        "chat_id": message.chat.id,
-    }
-
-    state_data = await state.get_data()
-    if "original_text" not in state_data:
-        update_data["original_text"] = message.text
-
-    await state.update_data(**update_data)
-
-    builder = InlineKeyboardBuilder()
-    for emoji in all_emojis:
-        builder.button(text=emoji, callback_data=f"captcha_{emoji}")
-    builder.adjust(2, 2)
-
-    return {
-        "text": CAPTCHA_PROMPT_MSG.format(correct_text=correct_text),
-        "markup": builder.as_markup(),
-    }
+async def generate_captcha(message: Message, state: FSMContext) -> dict:
+    """Generate a simple captcha"""
+    try:
+        # Generate random emojis
+        emojis = random.sample(CAPTCHA_EMOJIS, 6)
+        target_emoji = random.choice(emojis)
+        
+        # Create keyboard with emojis
+        keyboard = InlineKeyboardBuilder()
+        
+        # Arrange emojis in 2x3 grid
+        for i in range(0, 6, 3):
+            row = []
+            for j in range(3):
+                if i + j < len(emojis):
+                    emoji = emojis[i + j]
+                    callback_data = f"captcha_{emoji}_{emoji == target_emoji}"
+                    row.append(InlineKeyboardButton(text=emoji, callback_data=callback_data))
+            keyboard.row(*row)
+        
+        # Store correct answer in state
+        await state.update_data(captcha_answer=target_emoji)
+        
+        captcha_text = f"{CAPTCHA_PROMPT_MSG}\n\nНажмите на: {target_emoji}"
+        
+        return {
+            "text": captcha_text,
+            "markup": keyboard.as_markup()
+        }
+        
+    except Exception as e:
+        logger.error(f"Ошибка при генерации капчи: {e}")
+        return {
+            "text": "🔐 Капча временно недоступна. Попробуйте позже.",
+            "markup": None
+        }
 
 
 @router.callback_query(F.data.startswith("captcha_"))
-async def check_captcha(callback: CallbackQuery, state: FSMContext, session: Any, admin: bool):
-    from handlers.start import process_start_logic
-
-    selected_emoji = callback.data.split("captcha_")[1]
-    state_data = await state.get_data()
-    correct_emoji = state_data.get("correct_emoji")
-    original_text = state_data.get("original_text")
-    user_data = state_data.get("user_data")
-
-    target_message = callback.message
-
-    if selected_emoji == correct_emoji:
-        logger.info(f"Пользователь {callback.from_user.id} успешно прошел капчу")
-        logger.debug(f"[CAPTCHA] user_data передано в process_start_logic: {user_data}")
-        await process_start_logic(
-            message=target_message,
-            state=state,
-            session=session,
-            admin=admin,
-            text_to_process=original_text,
-            user_data=user_data,
-        )
-    else:
-        logger.warning(f"Пользователь {callback.from_user.id} неверно ответил на капчу")
-        captcha = await generate_captcha(target_message, state)
-        if captcha:
-            await edit_or_send_message(
-                target_message=target_message,
-                text=captcha["text"],
-                reply_markup=captcha["markup"],
+async def handle_captcha_answer(callback_query: CallbackQuery, state: FSMContext):
+    """Handle captcha answer"""
+    try:
+        # Parse callback data
+        parts = callback_query.data.split("_")
+        if len(parts) != 3:
+            await callback_query.answer("❌ Неверный формат капчи", show_alert=True)
+            return
+        
+        selected_emoji = parts[1]
+        is_correct = parts[2] == "True"
+        
+        # Get correct answer from state
+        state_data = await state.get_data()
+        correct_answer = state_data.get("captcha_answer")
+        
+        if not correct_answer:
+            await callback_query.answer("❌ Капча устарела. Попробуйте /start", show_alert=True)
+            return
+        
+        if is_correct:
+            # Correct answer
+            await callback_query.answer("✅ Капча решена!", show_alert=True)
+            
+            # Clear captcha state
+            await state.clear()
+            
+            # Send success message and redirect to start
+            await callback_query.message.edit_text(
+                "✅ Капча решена! Добро пожаловать в RioVPN!\n\nИспользуйте /start для начала работы."
             )
+            
+        else:
+            # Wrong answer
+            await callback_query.answer("❌ Неверный ответ. Попробуйте еще раз.", show_alert=True)
+            
+            # Generate new captcha
+            captcha_data = await generate_captcha(callback_query.message, state)
+            await callback_query.message.edit_text(
+                captcha_data["text"],
+                reply_markup=captcha_data["markup"]
+            )
+            
+    except Exception as e:
+        logger.error(f"Ошибка при обработке капчи: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
+
+
+@router.message(F.text == "/captcha")
+async def captcha_command(message: Message, state: FSMContext):
+    """Handle /captcha command"""
+    try:
+        captcha_data = await generate_captcha(message, state)
+        await message.answer(
+            captcha_data["text"],
+            reply_markup=captcha_data["markup"]
+        )
+    except Exception as e:
+        logger.error(f"Ошибка в captcha_command: {e}")
+        await message.answer("❌ Произошла ошибка при генерации капчи")

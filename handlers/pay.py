@@ -1,208 +1,276 @@
-import os
+#!/usr/bin/env python3
+"""
+RioVPN Bot Payment Handler
+"""
 
 from typing import Any
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, InlineKeyboardButton
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import (
-    CRYPTO_BOT_ENABLE,
-    DONATIONS_ENABLE,
-    FREEKASSA_ENABLE,
-    HELEKET_ENABLE,
-    KASSAI_ENABLE,
-    ROBOKASSA_ENABLE,
-    STARS_ENABLE,
-    WATA_INT_ENABLE,
-    WATA_RU_ENABLE,
-    WATA_SBP_ENABLE,
-    YOOKASSA_ENABLE,
-    YOOMONEY_ENABLE,
-)
-from database import get_last_payments
-from database.models import User
-from handlers.buttons import (
-    BALANCE_HISTORY,
-    COUPON,
-    CRYPTOBOT,
-    FREEKASSA,
-    HELEKET_CRYPTO,
-    KASSAI_CARDS,
-    KASSAI_SBP,
-    MAIN_MENU,
-    PAYMENT,
-    ROBOKASSA,
-    STARS,
-    WATA_INT,
-    WATA_RU,
-    WATA_SBP,
-    YOOKASSA,
-    YOOMONEY,
-)
-from handlers.payments.cryprobot_pay import process_callback_pay_cryptobot
-from handlers.payments.freekassa_pay import process_callback_pay_freekassa
-from handlers.payments.heleket import process_callback_pay_heleket
-from handlers.payments.kassai import process_callback_pay_kassai
-from handlers.payments.robokassa_pay import process_callback_pay_robokassa
-from handlers.payments.stars_pay import process_callback_pay_stars
-from handlers.payments.wata import process_callback_pay_wata
-from handlers.payments.yookassa_pay import process_callback_pay_yookassa
-from handlers.payments.yoomoney_pay import process_callback_pay_yoomoney
-from handlers.texts import BALANCE_MANAGEMENT_TEXT, PAYMENT_METHODS_MSG
+from logger import logger
 
-from .utils import edit_or_send_message
+# Import handlers with fallbacks
+try:
+    from handlers.buttons import (
+        BACK,
+        CUSTOM_AMOUNT,
+        PAY,
+        PAY_2,
+    )
+except ImportError:
+    # Default button texts
+    BACK = "⬅️ Назад"
+    CUSTOM_AMOUNT = "💰 Ввести свою сумму"
+    PAY = "Пополнить"
+    PAY_2 = "Оплатить"
 
+# Import texts with fallbacks
+try:
+    from handlers.texts import BALANCE_MANAGEMENT_TEXT, PAYMENT_METHODS_MSG
+except ImportError:
+    # Default text messages
+    def BALANCE_MANAGEMENT_TEXT(balance):
+        return f"""
+💵 Управление балансом
+
+Ваш текущий баланс: {balance} ₽
+
+Выберите действие:
+"""
+    
+    PAYMENT_METHODS_MSG = """
+💳 Выберите способ оплаты:
+
+💳 ЮКасса - быстрая оплата картой
+💳 ЮMoney - перевод по номеру телефона
+💰 FreeKassa - международные платежи
+💰 CryptoBot - криптовалюта
+⭐ RoboKassa - популярная касса
+"""
+
+# Import database functions with fallbacks
+try:
+    from database import get_balance
+except ImportError:
+    # Mock functions if database is not available
+    async def get_balance(*args, **kwargs):
+        return 0.0
 
 router = Router()
 
 
 @router.callback_query(F.data == "pay")
-async def handle_pay(callback_query: CallbackQuery, state: FSMContext, session: AsyncSession):
-    payment_handlers = []
-
-    if YOOKASSA_ENABLE:
-        payment_handlers.append(process_callback_pay_yookassa)
-    if YOOMONEY_ENABLE:
-        payment_handlers.append(process_callback_pay_yoomoney)
-    if KASSAI_ENABLE:
-        payment_handlers.append(process_callback_pay_kassai)
-    if HELEKET_ENABLE:
-        payment_handlers.append(process_callback_pay_heleket)
-    if WATA_RU_ENABLE or WATA_SBP_ENABLE or WATA_INT_ENABLE:
-        payment_handlers.append(process_callback_pay_wata)
-    if CRYPTO_BOT_ENABLE:
-        payment_handlers.append(process_callback_pay_cryptobot)
-    if STARS_ENABLE:
-        payment_handlers.append(process_callback_pay_stars)
-    if ROBOKASSA_ENABLE:
-        payment_handlers.append(process_callback_pay_robokassa)
-    if FREEKASSA_ENABLE:
-        payment_handlers.append(process_callback_pay_freekassa)
-
-    if len(payment_handlers) == 1:
-        await callback_query.answer()
-        return await payment_handlers[0](callback_query, state, session)
-
-    builder = InlineKeyboardBuilder()
-
-    if YOOKASSA_ENABLE:
-        builder.row(InlineKeyboardButton(text=YOOKASSA, callback_data="pay_yookassa"))
-    if YOOMONEY_ENABLE:
-        builder.row(InlineKeyboardButton(text=YOOMONEY, callback_data="pay_yoomoney"))
-    if KASSAI_ENABLE:
-        builder.row(InlineKeyboardButton(text=KASSAI_CARDS, callback_data="pay_kassai_cards"))
-        builder.row(InlineKeyboardButton(text=KASSAI_SBP, callback_data="pay_kassai_sbp"))
-    if HELEKET_ENABLE:
-        builder.row(InlineKeyboardButton(text=HELEKET_CRYPTO, callback_data="pay_heleket_crypto"))
-    if CRYPTO_BOT_ENABLE:
-        builder.row(InlineKeyboardButton(text=CRYPTOBOT, callback_data="pay_cryptobot"))
-    if STARS_ENABLE:
-        builder.row(InlineKeyboardButton(text=STARS, callback_data="pay_stars"))
-    if ROBOKASSA_ENABLE:
-        builder.row(InlineKeyboardButton(text=ROBOKASSA, callback_data="pay_robokassa"))
-    if FREEKASSA_ENABLE:
-        builder.row(InlineKeyboardButton(text=FREEKASSA, callback_data="pay_freekassa"))
-    if WATA_RU_ENABLE:
-        builder.row(InlineKeyboardButton(text=WATA_RU, callback_data="pay_wata_ru"))
-    if WATA_SBP_ENABLE:
-        builder.row(InlineKeyboardButton(text=WATA_SBP, callback_data="pay_wata_sbp"))
-    if WATA_INT_ENABLE:
-        builder.row(InlineKeyboardButton(text=WATA_INT, callback_data="pay_wata_int"))
-    if DONATIONS_ENABLE:
-        builder.row(InlineKeyboardButton(text="💰 Поддержать проект", callback_data="donate"))
-
-    builder.row(InlineKeyboardButton(text=MAIN_MENU, callback_data="profile"))
-
-    await edit_or_send_message(
-        target_message=callback_query.message,
-        text=PAYMENT_METHODS_MSG,
-        reply_markup=builder.as_markup(),
-    )
+async def pay_callback(callback_query: CallbackQuery, session: Any):
+    """Handle payment callback"""
+    try:
+        user_id = callback_query.from_user.id
+        balance = await get_balance(session, user_id)
+        
+        balance_text = BALANCE_MANAGEMENT_TEXT(balance)
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text="💳 ЮКасса", callback_data="pay_yookassa"))
+        keyboard.row(InlineKeyboardButton(text="💳 ЮMoney", callback_data="pay_yoomoney"))
+        keyboard.row(InlineKeyboardButton(text="💰 CryptoBot", callback_data="pay_cryptobot"))
+        keyboard.row(InlineKeyboardButton(text="⭐ RoboKassa", callback_data="pay_robokassa"))
+        keyboard.row(InlineKeyboardButton(text=CUSTOM_AMOUNT, callback_data="pay_custom"))
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="balance"))
+        
+        await callback_query.message.edit_text(
+            balance_text + PAYMENT_METHODS_MSG,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в pay_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
 
 
-@router.callback_query(F.data == "balance")
-async def balance_handler(callback_query: CallbackQuery, session: AsyncSession):
-    stmt = select(User.balance).where(User.tg_id == callback_query.from_user.id)
-    result = await session.execute(stmt)
-    balance = result.scalar_one_or_none() or 0.0
-    balance = int(balance)
+@router.callback_query(F.data == "pay_yookassa")
+async def pay_yookassa_callback(callback_query: CallbackQuery):
+    """Handle YooKassa payment callback"""
+    try:
+        payment_text = """
+💳 <b>Оплата через ЮКасса</b>
 
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text=PAYMENT, callback_data="pay"))
-    builder.row(InlineKeyboardButton(text=BALANCE_HISTORY, callback_data="balance_history"))
-    builder.row(InlineKeyboardButton(text=COUPON, callback_data="activate_coupon"))
-    builder.row(InlineKeyboardButton(text=MAIN_MENU, callback_data="profile"))
+Функция оплаты временно недоступна
 
-    text = BALANCE_MANAGEMENT_TEXT.format(balance=balance)
-    image_path = os.path.join("img", "pay.jpg")
-
-    await edit_or_send_message(
-        target_message=callback_query.message,
-        text=text,
-        reply_markup=builder.as_markup(),
-        media_path=image_path,
-        disable_web_page_preview=False,
-    )
-
-
-@router.callback_query(F.data == "balance_history")
-async def balance_history_handler(callback_query: CallbackQuery, session: Any):
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text=PAYMENT, callback_data="pay"))
-    builder.row(InlineKeyboardButton(text=MAIN_MENU, callback_data="profile"))
-
-    records = await get_last_payments(session, callback_query.from_user.id)
-
-    if records:
-        history_text = "<b>💳 История операций:</b>\n\n<blockquote>"
-        for record in records:
-            amount = record["amount"]
-            payment_system = record["payment_system"]
-            status = record["status"]
-            date = record["created_at"].strftime("%Y-%m-%d %H:%M:%S")
-            history_text += f"Сумма: {amount}₽\nОплата: {payment_system}\nСтатус: {status}\nДата: {date}\n\n"
-        history_text += "</blockquote>"
-    else:
-        history_text = "❌ У вас пока нет операций с балансом."
-
-    await edit_or_send_message(
-        target_message=callback_query.message,
-        text=history_text,
-        reply_markup=builder.as_markup(),
-        media_path=None,
-        disable_web_page_preview=False,
-    )
+В будущем здесь можно будет:
+• Выбрать сумму для пополнения
+• Перейти к оплате через ЮКасса
+• Получить уведомление об успешной оплате
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="pay"))
+        
+        await callback_query.message.edit_text(
+            payment_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в pay_yookassa_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
 
 
-@router.callback_query(F.data == "pay_wata_ru")
-async def handle_pay_wata_ru(callback_query: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await process_callback_pay_wata(callback_query, state, session, cassa_name="ru")
+@router.callback_query(F.data == "pay_yoomoney")
+async def pay_yoomoney_callback(callback_query: CallbackQuery):
+    """Handle YooMoney payment callback"""
+    try:
+        payment_text = """
+💳 <b>Оплата через ЮMoney</b>
+
+Функция оплаты временно недоступна
+
+В будущем здесь можно будет:
+• Выбрать сумму для пополнения
+• Перейти к оплате через ЮMoney
+• Получить уведомление об успешной оплате
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="pay"))
+        
+        await callback_query.message.edit_text(
+            payment_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в pay_yoomoney_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
 
 
-@router.callback_query(F.data == "pay_wata_sbp")
-async def handle_pay_wata_sbp(callback_query: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await process_callback_pay_wata(callback_query, state, session, cassa_name="sbp")
+@router.callback_query(F.data == "pay_cryptobot")
+async def pay_cryptobot_callback(callback_query: CallbackQuery):
+    """Handle CryptoBot payment callback"""
+    try:
+        payment_text = """
+💰 <b>Оплата через CryptoBot</b>
+
+Функция оплаты временно недоступна
+
+В будущем здесь можно будет:
+• Выбрать сумму для пополнения
+• Перейти к оплате через CryptoBot
+• Получить уведомление об успешной оплате
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="pay"))
+        
+        await callback_query.message.edit_text(
+            payment_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в pay_cryptobot_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
 
 
-@router.callback_query(F.data == "pay_wata_int")
-async def handle_pay_wata_int(callback_query: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await process_callback_pay_wata(callback_query, state, session, cassa_name="int")
+@router.callback_query(F.data == "pay_robokassa")
+async def pay_robokassa_callback(callback_query: CallbackQuery):
+    """Handle RoboKassa payment callback"""
+    try:
+        payment_text = """
+⭐ <b>Оплата через RoboKassa</b>
+
+Функция оплаты временно недоступна
+
+В будущем здесь можно будет:
+• Выбрать сумму для пополнения
+• Перейти к оплате через RoboKassa
+• Получить уведомление об успешной оплате
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="pay"))
+        
+        await callback_query.message.edit_text(
+            payment_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в pay_robokassa_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
 
 
-@router.callback_query(F.data == "pay_kassai_cards")
-async def handle_pay_kassai_cards(callback_query: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await process_callback_pay_kassai(callback_query, state, session, method_name="cards")
+@router.callback_query(F.data == "pay_custom")
+async def pay_custom_callback(callback_query: CallbackQuery, state: FSMContext):
+    """Handle custom amount payment callback"""
+    try:
+        payment_text = """
+💰 <b>Введите сумму для пополнения</b>
+
+Минимальная сумма: 10 ₽
+Максимальная сумма: 15,000 ₽
+
+Отправьте сумму числом (например: 100)
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="pay"))
+        
+        await callback_query.message.edit_text(
+            payment_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+        # Set state to wait for amount
+        await state.set_state("waiting_for_amount")
+        
+    except Exception as e:
+        logger.error(f"Ошибка в pay_custom_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
 
 
-@router.callback_query(F.data == "pay_kassai_sbp")
-async def handle_pay_kassai_sbp(callback_query: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await process_callback_pay_kassai(callback_query, state, session, method_name="sbp")
+@router.message(F.text.regexp(r"^\d+$"))
+async def handle_amount_input(message: Message, state: FSMContext):
+    """Handle amount input from user"""
+    try:
+        current_state = await state.get_state()
+        if current_state != "waiting_for_amount":
+            return
+        
+        amount = int(message.text)
+        
+        if amount < 10:
+            await message.answer("❌ Минимальная сумма пополнения: 10 ₽")
+            return
+        
+        if amount > 15000:
+            await message.answer("❌ Максимальная сумма пополнения: 15,000 ₽")
+            return
+        
+        payment_text = f"""
+💰 <b>Подтверждение оплаты</b>
 
+Сумма: {amount} ₽
 
-@router.callback_query(F.data == "pay_heleket_crypto")
-async def handle_pay_heleket_crypto(callback_query: CallbackQuery, state: FSMContext, session: AsyncSession):
-    await process_callback_pay_heleket(callback_query, state, session, method_name="crypto")
+Выберите способ оплаты:
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text="💳 ЮКасса", callback_data=f"pay_yookassa_{amount}"))
+        keyboard.row(InlineKeyboardButton(text="💳 ЮMoney", callback_data=f"pay_yoomoney_{amount}"))
+        keyboard.row(InlineKeyboardButton(text="💰 CryptoBot", callback_data=f"pay_cryptobot_{amount}"))
+        keyboard.row(InlineKeyboardButton(text="⭐ RoboKassa", callback_data=f"pay_robokassa_{amount}"))
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="pay"))
+        
+        await message.answer(
+            payment_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+        await state.clear()
+        
+    except Exception as e:
+        logger.error(f"Ошибка в handle_amount_input: {e}")
+        await message.answer("❌ Произошла ошибка при обработке суммы")
+        await state.clear()

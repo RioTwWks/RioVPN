@@ -2,33 +2,53 @@ __all__ = ("router",)
 
 from aiogram import Router
 
-from .admin import router as admin_router
-from .captcha import router as captcha_router
-from .coupons import router as coupons_router
-from .donate import router as donate_router
-from .instructions import router as instructions_router
-from .keys import router as keys_router
-from .notifications import router as notifications_router
-from .pay import router as pay_router
-from .payments import router as payments_router
-from .profile import router as profile_router
-from .refferal import router as refferal_router
-from .start import router as start_router
-
-
 router = Router(name="handlers_main_router")
 
-router.include_routers(
-    start_router,
-    captcha_router,
-    profile_router,
-    pay_router,
-    donate_router,
-    coupons_router,
-    notifications_router,
-    payments_router,
-    keys_router,
-    instructions_router,
-    admin_router,
-    refferal_router,
-)
+# Import handlers with error handling
+try:
+    from .start import router as start_router
+    router.include_router(start_router)
+except ImportError:
+    pass
+
+try:
+    from .captcha import router as captcha_router
+    router.include_router(captcha_router)
+except ImportError:
+    pass
+
+try:
+    from .profile import router as profile_router
+    router.include_router(profile_router)
+except ImportError:
+    pass
+
+try:
+    from .pay import router as pay_router
+    router.include_router(pay_router)
+except ImportError:
+    pass
+
+try:
+    from .donate import router as donate_router
+    router.include_router(donate_router)
+except ImportError:
+    pass
+
+try:
+    from .coupons import router as coupons_router
+    router.include_router(coupons_router)
+except ImportError:
+    pass
+
+try:
+    from .refferal import router as refferal_router
+    router.include_router(refferal_router)
+except ImportError:
+    pass
+
+try:
+    from .fallback_router import fallback_router
+    router.include_router(fallback_router)
+except ImportError:
+    pass

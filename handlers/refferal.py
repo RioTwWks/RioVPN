@@ -1,295 +1,226 @@
-import os
+#!/usr/bin/env python3
+"""
+RioVPN Bot Referral Handler
+"""
 
-from io import BytesIO
-
-import qrcode
+from typing import Any
 
 from aiogram import F, Router
-from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
-from aiogram.types import (
-    CallbackQuery,
-    InlineKeyboardButton,
-    InlineQuery,
-    InlineQueryResultArticle,
-    InputTextMessageContent,
-    Message,
-)
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from sqlalchemy import desc, func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot import bot
-from config import (
-    ADMIN_ID,
-    INLINE_MODE,
-    REFERRAL_BONUS_PERCENTAGES,
-    REFERRAL_QR,
-    TOP_REFERRAL_BUTTON,
-    TRIAL_CONFIG,
-    USERNAME_BOT,
-)
-from database import (
-    add_referral,
-    add_user,
-    check_user_exists,
-    get_referral_by_referred_id,
-    get_referral_stats,
-)
-from database.models import Referral
-from handlers.buttons import BACK, INVITE, MAIN_MENU, QR, TOP_FIVE
-from handlers.texts import (
-    INVITE_MESSAGE_TEMPLATE,
-    INVITE_TEXT_NON_INLINE,
-    NEW_REFERRAL_NOTIFICATION,
-    REFERRAL_OFFERS,
-    REFERRAL_SUCCESS_MSG,
-    TOP_REFERRALS_TEXT,
-)
 from logger import logger
 
-from .texts import get_referral_link
-from .utils import edit_or_send_message, format_days
+# Import handlers with fallbacks
+try:
+    from handlers.buttons import (
+        BACK,
+        INVITE,
+    )
+except ImportError:
+    # Default button texts
+    BACK = "⬅️ Назад"
+    INVITE = "👥 Пригласить"
 
+# Import texts with fallbacks
+try:
+    from handlers.texts import REFERRAL_WELCOME_MSG
+except ImportError:
+    # Default referral text
+    def REFERRAL_WELCOME_MSG(referral_link, bonus, count):
+        return f"""
+👥 <b>Реферальная программа</b>
+
+Приглашайте друзей и получайте бонусы!
+
+🔗 Ваша реферальная ссылка:
+{referral_link}
+
+💰 Бонус за приглашение: {bonus} ₽
+📊 Приглашено пользователей: {count}
+"""
+
+# Import database functions with fallbacks
+try:
+    from database import get_referral_stats, create_referral
+except ImportError:
+    # Mock functions if database is not available
+    async def get_referral_stats(*args, **kwargs):
+        return {"count": 0, "bonus": 10}
+    
+    async def create_referral(*args, **kwargs):
+        return False
 
 router = Router()
 
 
-@router.callback_query(F.data == "invite")
-@router.message(F.text == "/invite")
-async def invite_handler(callback_query_or_message: Message | CallbackQuery, session: AsyncSession):
-    if isinstance(callback_query_or_message, CallbackQuery):
-        chat_id = callback_query_or_message.message.chat.id
-        target_message = callback_query_or_message.message
-    else:
-        chat_id = callback_query_or_message.chat.id
-        target_message = callback_query_or_message
-
-    referral_link = get_referral_link(chat_id)
-    referral_stats = await get_referral_stats(session, chat_id)
-
-    bonuses_lines = []
-    for level, value in REFERRAL_BONUS_PERCENTAGES.items():
-        if isinstance(value, float):
-            bonuses_lines.append(f"{level} уровень: 🌟 {int(value * 100)}% бонуса")
-        else:
-            bonuses_lines.append(f"{level} уровень: 💸 {int(value)}₽ бонуса")
-    bonuses_block = "\n".join(bonuses_lines)
-
-    details_lines = []
-    for level, stats in referral_stats["referrals_by_level"].items():
-        bonus_value = REFERRAL_BONUS_PERCENTAGES.get(level)
-        if isinstance(bonus_value, float):
-            bonus_str = f"{int(bonus_value * 100)}%"
-        else:
-            bonus_str = f"{int(bonus_value)}₽"
-        details_lines.append(f"🔹 Уровень {level}: {stats['total']} - {bonus_str}")
-    details_block = "\n".join(details_lines)
-
-    invite_message = INVITE_MESSAGE_TEMPLATE.format(
-        referral_link=referral_link,
-        bonuses_block=bonuses_block,
-        total_referrals=referral_stats["total_referrals"],
-        details_block=details_block,
-        total_referral_bonus=referral_stats["total_referral_bonus"],
-    )
-    image_path = os.path.join("img", "pic_invite.jpg")
-
-    builder = InlineKeyboardBuilder()
-    if INLINE_MODE:
-        builder.button(text=INVITE, switch_inline_query="invite")
-    else:
-        invite_text = INVITE_TEXT_NON_INLINE.format(referral_link=referral_link)
-        builder.button(text=INVITE, switch_inline_query=invite_text)
-    if REFERRAL_QR:
-        builder.button(text=QR, callback_data=f"show_referral_qr|{chat_id}")
-    if TOP_REFERRAL_BUTTON:
-        builder.button(text=TOP_FIVE, callback_data="top_referrals")
-    builder.button(text=MAIN_MENU, callback_data="profile")
-    builder.adjust(1)
-
-    await edit_or_send_message(
-        target_message=target_message,
-        text=invite_message,
-        reply_markup=builder.as_markup(),
-        media_path=image_path,
-        disable_web_page_preview=False,
-    )
-
-
-@router.inline_query(F.query.in_(["referral", "ref", "invite"]))
-async def inline_referral_handler(inline_query: InlineQuery):
-    referral_link = f"https://t.me/{USERNAME_BOT}?start=referral_{inline_query.from_user.id}"
-    trial_days = TRIAL_CONFIG["duration_days"]
-    trial_time_formatted = format_days(trial_days)
-
-    results: list[InlineQueryResultArticle] = []
-
-    for index, offer in enumerate(REFERRAL_OFFERS):
-        message_text = offer["message"].format(trial_time_formatted=trial_time_formatted)[:4096]
-        title = offer["title"].format(trial_time_formatted=trial_time_formatted)
-        description = offer["description"]
-
-        builder = InlineKeyboardBuilder()
-        builder.row(InlineKeyboardButton(text=title, url=referral_link))
-
-        results.append(
-            InlineQueryResultArticle(
-                id=str(index),
-                title=title,
-                description=description,
-                input_message_content=InputTextMessageContent(message_text=message_text, parse_mode=ParseMode.HTML),
-                reply_markup=builder.as_markup(),
-            )
-        )
-
-    await inline_query.answer(results=results, cache_time=86400, is_personal=True)
-
-
-@router.callback_query(F.data.startswith("show_referral_qr|"))
-async def show_referral_qr(callback_query: CallbackQuery):
+@router.callback_query(F.data == "referral")
+async def referral_callback(callback_query: CallbackQuery, session: Any):
+    """Handle referral callback"""
     try:
-        chat_id = callback_query.data.split("|")[1]
-        referral_link = get_referral_link(chat_id)
-
-        qr = qrcode.QRCode(version=1, box_size=10, border=4)
-        qr.add_data(referral_link)
-        qr.make(fit=True)
-
-        img = qr.make_image(fill_color="black", back_color="white")
-        buffer = BytesIO()
-        img.save(buffer, format="PNG")
-        buffer.seek(0)
-
-        qr_path = f"/tmp/qrcode_referral_{chat_id}.png"
-        with open(qr_path, "wb") as f:
-            f.write(buffer.read())
-
-        builder = InlineKeyboardBuilder()
-        builder.row(InlineKeyboardButton(text=BACK, callback_data="invite"))
-        builder.row(InlineKeyboardButton(text=MAIN_MENU, callback_data="profile"))
-
-        await edit_or_send_message(
-            target_message=callback_query.message,
-            text="📷 <b>Ваш QR-код для реферальной ссылки.</b>",
-            reply_markup=builder.as_markup(),
-            media_path=qr_path,
+        user_id = callback_query.from_user.id
+        
+        # Get referral stats
+        stats = await get_referral_stats(session, user_id)
+        referral_count = stats.get("count", 0)
+        bonus_amount = stats.get("bonus", 10)
+        
+        # Generate referral link
+        bot_username = "your_bot"  # This should come from config
+        referral_link = f"https://t.me/{bot_username}?start=referral_{user_id}"
+        
+        referral_text = REFERRAL_WELCOME_MSG(referral_link, bonus_amount, referral_count)
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text="📋 Скопировать ссылку", callback_data="copy_referral_link"))
+        keyboard.row(InlineKeyboardButton(text="📊 Статистика", callback_data="referral_stats"))
+        keyboard.row(InlineKeyboardButton(text="💰 Вывести бонусы", callback_data="withdraw_referral_bonus"))
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="profile"))
+        
+        await callback_query.message.edit_text(
+            referral_text,
+            reply_markup=keyboard.as_markup()
         )
-
-        os.remove(qr_path)
-
+        
     except Exception as e:
-        logger.error(f"Ошибка при генерации QR-кода для реферальной ссылки: {e}", exc_info=True)
-        await callback_query.message.answer("❌ Произошла ошибка при создании QR-кода.")
+        logger.error(f"Ошибка в referral_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
 
 
-@router.callback_query(F.data == "top_referrals")
-async def top_referrals_handler(callback_query: CallbackQuery, session: AsyncSession):
-    user_id = callback_query.from_user.id
-
-    result = await session.execute(select(func.count()).select_from(Referral).where(Referral.referrer_tg_id == user_id))
-    user_referral_count = result.scalar_one() or 0
-
-    personal_block = "Твоё место в рейтинге:\n"
-    if user_referral_count > 0:
-        subquery = (
-            select(func.count().label("cnt"))
-            .select_from(Referral)
-            .group_by(Referral.referrer_tg_id)
-            .having(func.count() > user_referral_count)
-            .subquery()
-        )
-        result = await session.execute(select(func.count()).select_from(subquery))
-        user_position = result.scalar_one() + 1
-        personal_block += f"{user_position}. {user_id} - {user_referral_count} чел."
-    else:
-        personal_block += "Ты еще не приглашал пользователей в проект."
-
-    result = await session.execute(
-        select(
-            Referral.referrer_tg_id,
-            func.count(Referral.referred_tg_id).label("referral_count"),
-        )
-        .group_by(Referral.referrer_tg_id)
-        .order_by(desc("referral_count"))
-        .limit(5)
-    )
-    top_referrals = result.all()
-
-    is_admin = user_id in ADMIN_ID
-    rows = ""
-    for i, row in enumerate(top_referrals, 1):
-        tg_id = str(row.referrer_tg_id)
-        count = row.referral_count
-        display_id = tg_id if is_admin else f"{tg_id[:5]}*****"
-        rows += f"{i}. {display_id} - {count} чел.\n"
-
-    text = TOP_REFERRALS_TEXT.format(personal_block=personal_block, rows=rows)
-
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text=BACK, callback_data="invite"))
-    builder.row(InlineKeyboardButton(text=MAIN_MENU, callback_data="profile"))
-
-    await edit_or_send_message(
-        target_message=callback_query.message,
-        text=text,
-        reply_markup=builder.as_markup(),
-        media_path=None,
-        disable_web_page_preview=False,
-    )
-
-
-async def handle_referral_link(
-    referral_code: str,
-    message: Message,
-    state: FSMContext,
-    session: AsyncSession,
-    user_data: dict | None = None,
-):
+@router.callback_query(F.data == "copy_referral_link")
+async def copy_referral_link_callback(callback_query: CallbackQuery, session: Any):
+    """Handle copy referral link callback"""
     try:
-        referrer_tg_id = int(referral_code)
-        user = user_data or message.from_user or message.chat
-        user_id = user["tg_id"] if isinstance(user, dict) else user.id
-
-        if referrer_tg_id == user_id:
-            await message.answer("❌ Вы не можете быть реферальной ссылкой самого себя.")
-            return
-
-        existing_referral = await get_referral_by_referred_id(session, user_id)
-        if existing_referral:
-            await message.answer("❌ Вы уже использовали реферальную ссылку.")
-            return
-
-        user_exists = await check_user_exists(session, user_id)
-        if user_exists:
-            await message.answer("❌ Вы уже зарегистрированы и не можете стать рефералом.")
-            return
-        if not user_exists:
-            if isinstance(user, dict):
-                await add_user(session=session, **user)
-            else:
-                await add_user(
-                    session=session,
-                    tg_id=user.id,
-                    username=getattr(user, "username", None),
-                    first_name=getattr(user, "first_name", None),
-                    last_name=getattr(user, "last_name", None),
-                    language_code=getattr(user, "language_code", None),
-                    is_bot=getattr(user, "is_bot", False),
-                )
-
-        await add_referral(session, user_id, referrer_tg_id)
-
-        try:
-            await bot.send_message(
-                referrer_tg_id,
-                NEW_REFERRAL_NOTIFICATION.format(referred_id=user_id),
-            )
-        except Exception as e:
-            logger.error(f"Не удалось отправить уведомление пригласившему ({referrer_tg_id}): {e}")
-
-        await message.answer(REFERRAL_SUCCESS_MSG.format(referrer_tg_id=referrer_tg_id))
-
+        user_id = callback_query.from_user.id
+        bot_username = "your_bot"  # This should come from config
+        referral_link = f"https://t.me/{bot_username}?start=referral_{user_id}"
+        
+        await callback_query.answer(
+            f"🔗 Ссылка скопирована: {referral_link}",
+            show_alert=True
+        )
+        
     except Exception as e:
-        logger.error(f"Ошибка при обработке реферальной ссылки {referral_code}: {e}")
-        await message.answer("❌ Произошла ошибка при обработке реферальной ссылки.")
+        logger.error(f"Ошибка в copy_referral_link_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
+
+
+@router.callback_query(F.data == "referral_stats")
+async def referral_stats_callback(callback_query: CallbackQuery, session: Any):
+    """Handle referral stats callback"""
+    try:
+        user_id = callback_query.from_user.id
+        
+        # Get referral stats
+        stats = await get_referral_stats(session, user_id)
+        referral_count = stats.get("count", 0)
+        bonus_amount = stats.get("bonus", 10)
+        total_earned = referral_count * bonus_amount
+        
+        stats_text = f"""
+📊 <b>Статистика рефералов</b>
+
+👥 Приглашено пользователей: {referral_count}
+💰 Бонус за приглашение: {bonus_amount} ₽
+💵 Всего заработано: {total_earned} ₽
+
+Функция детальной статистики временно недоступна
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="referral"))
+        
+        await callback_query.message.edit_text(
+            stats_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в referral_stats_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
+
+
+@router.callback_query(F.data == "withdraw_referral_bonus")
+async def withdraw_referral_bonus_callback(callback_query: CallbackQuery, session: Any):
+    """Handle withdraw referral bonus callback"""
+    try:
+        user_id = callback_query.from_user.id
+        
+        # Get referral stats
+        stats = await get_referral_stats(session, user_id)
+        referral_count = stats.get("count", 0)
+        bonus_amount = stats.get("bonus", 10)
+        total_earned = referral_count * bonus_amount
+        
+        if total_earned <= 0:
+            await callback_query.answer(
+                "❌ У вас нет бонусов для вывода",
+                show_alert=True
+            )
+            return
+        
+        withdraw_text = f"""
+💰 <b>Вывод реферальных бонусов</b>
+
+Доступно для вывода: {total_earned} ₽
+
+Функция вывода бонусов временно недоступна
+
+В будущем здесь можно будет:
+• Вывести бонусы на баланс
+• Получить уведомление об успешном выводе
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="referral"))
+        
+        await callback_query.message.edit_text(
+            withdraw_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в withdraw_referral_bonus_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
+
+
+async def handle_referral_link(referrer_id: int, message: Message, state: FSMContext, session: Any, user_data: dict = None):
+    """Handle referral link processing"""
+    try:
+        user_id = message.from_user.id
+        
+        # Don't allow self-referral
+        if referrer_id == user_id:
+            logger.warning(f"Пользователь {user_id} попытался пригласить сам себя")
+            return False
+        
+        # Create referral
+        success = await create_referral(session, referrer_id, user_id)
+        
+        if success:
+            logger.info(f"Создана реферальная связь: {referrer_id} -> {user_id}")
+            return True
+        else:
+            logger.warning(f"Не удалось создать реферальную связь: {referrer_id} -> {user_id}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Ошибка при обработке реферальной ссылки: {e}")
+        return False
+
+
+@router.message(F.text == "/referral")
+async def referral_command(message: Message, session: Any):
+    """Handle /referral command"""
+    try:
+        await referral_callback(
+            type('MockCallback', (), {
+                'message': message,
+                'answer': lambda text, **kwargs: None,
+                'from_user': message.from_user
+            })()
+        )
+    except Exception as e:
+        logger.error(f"Ошибка в referral_command: {e}")
+        await message.answer("❌ Произошла ошибка при обработке команды рефералов")

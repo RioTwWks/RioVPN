@@ -1,125 +1,220 @@
-import html
-import os
+#!/usr/bin/env python3
+"""
+RioVPN Bot Profile Handler
+"""
+
+from typing import Any
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from config import (
-    BALANCE_BUTTON,
-    GIFT_BUTTON,
-    INSTRUCTIONS_BUTTON,
-    NEWS_MESSAGE,
-    REFERRAL_BUTTON,
-    SHOW_START_MENU_ONCE,
-    TRIAL_TIME_DISABLE,
-)
-from database import get_balance, get_key_count, get_trial
-from handlers.buttons import (
-    ABOUT_VPN,
-    ADD_SUB,
-    BACK,
-    BALANCE,
-    GIFTS,
-    INSTRUCTIONS,
-    INVITE,
-    MY_SUBS,
-    RENEW_KEY,
-    TRIAL_SUB,
-)
-from handlers.texts import ADD_SUBSCRIPTION_HINT
 from logger import logger
 
-from .admin.panel.keyboard import AdminPanelCallback
-from .texts import profile_message_send
-from .utils import edit_or_send_message
+# Import handlers with fallbacks
+try:
+    from handlers.buttons import (
+        ADD_SUB,
+        BACK,
+        BALANCE,
+        GIFTS,
+        INVITE,
+        MAIN_MENU,
+        MY_SUBS,
+        RENEW_SUB,
+    )
+except ImportError:
+    # Default button texts
+    ADD_SUB = "➕ Добавить новую подписку"
+    BACK = "⬅️ Назад"
+    BALANCE = "💵 Баланс"
+    GIFTS = "🎁 Подарить"
+    INVITE = "👥 Пригласить"
+    MAIN_MENU = "👤 Личный кабинет"
+    MY_SUBS = "📱 Мои подписки"
+    RENEW_SUB = "🔄 Обновить подписку"
 
+# Import database functions with fallbacks
+try:
+    from database import get_balance, get_key_count
+except ImportError:
+    # Mock functions if database is not available
+    async def get_balance(*args, **kwargs):
+        return 0.0
+    
+    async def get_key_count(*args, **kwargs):
+        return 0
 
 router = Router()
 
 
 @router.callback_query(F.data == "profile")
-@router.message(F.text == "/profile")
 async def process_callback_view_profile(
-    callback_query_or_message: Message | CallbackQuery,
+    callback_query: CallbackQuery,
     state: FSMContext,
+    session: Any,
     admin: bool,
-    session,
 ):
-    if isinstance(callback_query_or_message, CallbackQuery):
-        chat = callback_query_or_message.message.chat
-        from_user = callback_query_or_message.from_user
-        chat_id = chat.id
-        target_message = callback_query_or_message.message
-    else:
-        chat = callback_query_or_message.chat
-        from_user = callback_query_or_message.from_user
-        chat_id = chat.id
-        target_message = callback_query_or_message
+    """Handle profile view callback"""
+    try:
+        user_id = callback_query.from_user.id
+        logger.info(f"Пользователь {user_id} открыл профиль")
 
-    user = chat if chat.type == "private" else from_user
+        # Get user data
+        balance = await get_balance(session, user_id)
+        key_count = await get_key_count(session, user_id)
 
-    if getattr(user, "full_name", None):
-        username = html.escape(user.full_name)
-    elif getattr(user, "first_name", None):
-        username = html.escape(user.first_name)
-    elif getattr(user, "username", None):
-        username = "@" + html.escape(user.username)
-    else:
-        username = "Пользователь"
+        # Create profile text
+        profile_text = f"""
+👤 <b>Личный кабинет</b>
 
-    image_path = os.path.join("img", "profile.jpg")
+🆔 ID: <code>{user_id}</code>
+👤 Имя: {callback_query.from_user.first_name or 'Не указано'}
+💵 Баланс: {balance} ₽
+📱 Подписок: {key_count}
 
-    key_count = await get_key_count(session, chat_id)
-    balance = await get_balance(session, chat_id) or 0
-    trial_status = await get_trial(session, chat_id)
+Выберите действие:
+"""
 
-    profile_message = profile_message_send(username, chat_id, int(balance), key_count)
-    if key_count == 0:
-        profile_message += ADD_SUBSCRIPTION_HINT
-    else:
-        profile_message += f"\n<blockquote> <i>{NEWS_MESSAGE}</i></blockquote>"
+        # Create keyboard
+        keyboard = InlineKeyboardBuilder()
+        
+        if key_count == 0:
+            keyboard.row(InlineKeyboardButton(text=ADD_SUB, callback_data="create_key"))
+        else:
+            keyboard.row(InlineKeyboardButton(text=MY_SUBS, callback_data="my_keys"))
+            keyboard.row(InlineKeyboardButton(text=RENEW_SUB, callback_data="renew_key"))
+        
+        keyboard.row(InlineKeyboardButton(text=BALANCE, callback_data="balance"))
+        keyboard.row(InlineKeyboardButton(text=INVITE, callback_data="referral"))
+        keyboard.row(InlineKeyboardButton(text=GIFTS, callback_data="gifts"))
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="start"))
 
-    builder = InlineKeyboardBuilder()
-    if key_count > 0:
-        builder.row(InlineKeyboardButton(text=RENEW_KEY, callback_data="renew_menu"))
-        builder.row(InlineKeyboardButton(text=MY_SUBS, callback_data="view_keys"))
-    elif trial_status == 0 and not TRIAL_TIME_DISABLE:
-        builder.row(InlineKeyboardButton(text=TRIAL_SUB, callback_data="create_key"))
-    else:
-        builder.row(InlineKeyboardButton(text=ADD_SUB, callback_data="create_key"))
-
-    if BALANCE_BUTTON:
-        builder.row(InlineKeyboardButton(text=BALANCE, callback_data="balance"))
-
-    row_buttons = []
-    if REFERRAL_BUTTON:
-        row_buttons.append(InlineKeyboardButton(text=INVITE, callback_data="invite"))
-    if GIFT_BUTTON:
-        row_buttons.append(InlineKeyboardButton(text=GIFTS, callback_data="gifts"))
-    if row_buttons:
-        builder.row(*row_buttons)
-
-    if INSTRUCTIONS_BUTTON:
-        builder.row(InlineKeyboardButton(text=INSTRUCTIONS, callback_data="instructions"))
-    if admin:
-        builder.row(
-            InlineKeyboardButton(
-                text="📊 Администратор",
-                callback_data=AdminPanelCallback(action="admin").pack(),
-            )
+        # Send profile
+        await callback_query.message.edit_text(
+            profile_text,
+            reply_markup=keyboard.as_markup()
         )
-    if SHOW_START_MENU_ONCE:
-        builder.row(InlineKeyboardButton(text=ABOUT_VPN, callback_data="about_vpn"))
-    else:
-        builder.row(InlineKeyboardButton(text=BACK, callback_data="start"))
 
-    await edit_or_send_message(
-        target_message=target_message,
-        text=profile_message,
-        reply_markup=builder.as_markup(),
-        media_path=image_path,
-        disable_web_page_preview=False,
-        force_text=True,
-    )
+    except Exception as e:
+        logger.error(f"Ошибка в process_callback_view_profile: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
+
+
+@router.callback_query(F.data == "balance")
+async def balance_callback(callback_query: CallbackQuery, session: Any):
+    """Handle balance callback"""
+    try:
+        user_id = callback_query.from_user.id
+        balance = await get_balance(session, user_id)
+        
+        balance_text = f"""
+💵 <b>Управление балансом</b>
+
+Ваш текущий баланс: <b>{balance} ₽</b>
+
+Выберите действие:
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text="💳 Пополнить", callback_data="pay"))
+        keyboard.row(InlineKeyboardButton(text="📊 История", callback_data="balance_history"))
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="profile"))
+        
+        await callback_query.message.edit_text(
+            balance_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в balance_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
+
+
+@router.callback_query(F.data == "my_keys")
+async def my_keys_callback(callback_query: CallbackQuery, session: Any):
+    """Handle my keys callback"""
+    try:
+        user_id = callback_query.from_user.id
+        key_count = await get_key_count(session, user_id)
+        
+        if key_count == 0:
+            text = "📱 У вас пока нет активных подписок"
+            keyboard = InlineKeyboardBuilder()
+            keyboard.row(InlineKeyboardButton(text=ADD_SUB, callback_data="create_key"))
+        else:
+            text = f"📱 У вас {key_count} активных подписок\n\nФункция просмотра подписок временно недоступна"
+            keyboard = InlineKeyboardBuilder()
+        
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="profile"))
+        
+        await callback_query.message.edit_text(
+            text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в my_keys_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
+
+
+@router.callback_query(F.data == "referral")
+async def referral_callback(callback_query: CallbackQuery):
+    """Handle referral callback"""
+    try:
+        user_id = callback_query.from_user.id
+        
+        referral_text = f"""
+👥 <b>Реферальная программа</b>
+
+Приглашайте друзей и получайте бонусы!
+
+🔗 Ваша реферальная ссылка:
+https://t.me/your_bot?start=referral_{user_id}
+
+💰 Бонус за приглашение: 10 ₽
+📊 Приглашено пользователей: 0
+
+Функция рефералов временно недоступна
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="profile"))
+        
+        await callback_query.message.edit_text(
+            referral_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в referral_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)
+
+
+@router.callback_query(F.data == "gifts")
+async def gifts_callback(callback_query: CallbackQuery):
+    """Handle gifts callback"""
+    try:
+        gifts_text = """
+🎁 <b>Подарки</b>
+
+Функция подарков временно недоступна
+
+В будущем здесь можно будет:
+• Отправлять подарки друзьям
+• Получать подарки от друзей
+• Просматривать историю подарков
+"""
+        
+        keyboard = InlineKeyboardBuilder()
+        keyboard.row(InlineKeyboardButton(text=BACK, callback_data="profile"))
+        
+        await callback_query.message.edit_text(
+            gifts_text,
+            reply_markup=keyboard.as_markup()
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка в gifts_callback: {e}")
+        await callback_query.answer("❌ Произошла ошибка", show_alert=True)

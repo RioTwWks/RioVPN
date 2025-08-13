@@ -14,3 +14,4 @@ from .tariffs import *
 from .temporary_data import *
 from .tracking_sources import *
 from .users import *
+from .models import Base
