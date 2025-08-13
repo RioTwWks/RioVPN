@@ -1,4 +1,7 @@
+import logging
 import re
+
+logging.basicConfig(level=logging.DEBUG, filename='decode.log', encoding='utf-8', filemode='a')
 
 def decode_xor(encoded_data: bytes) -> str:
     """Декодирует данные с помощью XOR по заданному ключу"""
@@ -22,17 +25,17 @@ def analyze_and_extract(encoded_data: bytes):
     """Анализирует и декодирует данные"""
     decoded = decode_xor(encoded_data)
     
-    print("🔍 Результат декодирования:")
+    logging.debug(f"🔍 Результат декодирования:")
     if len(decoded) > 500:
-        print(decoded[:300] + "..." + decoded[-100:])
+        logging.debug(f"{decoded[:300]}...{decoded[-100:]}")
     else:
-        print(decoded)
+        logging.debug(f"{decoded}")
     
-    print("\n🔎 Анализ содержимого:")
+    logging.debug(f"\n🔎 Анализ содержимого:")
     
     # Проверка на вложенный код
     if "exec(" in decoded or "eval(" in decoded:
-        print("⚠️  Обнаружены вложенные exec/eval - возможна многослойная обфускация")
+        logging.debug(f"⚠️  Обнаружены вложенные exec/eval - возможна многослойная обфускация")
         
     # Проверка на опасные команды
     dangerous_patterns = {
@@ -51,10 +54,10 @@ def analyze_and_extract(encoded_data: bytes):
             found_dangers.append(f"• {description} ({pattern})")
     
     if found_dangers:
-        print("🚨 Обнаружены потенциально опасные конструкции:")
-        print("\n".join(found_dangers))
+        logging.debug(f"🚨 Обнаружены потенциально опасные конструкции:")
+        logging.debug(f"\n".join(found_dangers))
     else:
-        print("✅ Потенциально опасные конструкции не обнаружены")
+        logging.debug(f"✅ Потенциально опасные конструкции не обнаружены")
     
     # Проверка на следующую стадию обфускации
     obfuscation_patterns = [
@@ -71,10 +74,10 @@ def analyze_and_extract(encoded_data: bytes):
             found_obfuscation.append(f"• {pattern}")
     
     if found_obfuscation:
-        print("\n🔧 Признаки дополнительной обфускации:")
-        print("\n".join(found_obfuscation))
+        logging.debug(f"\n🔧 Признаки дополнительной обфускации:")
+        logging.debug(f"\n".join(found_obfuscation))
     else:
-        print("\nℹ️ Признаки дополнительной обфускации не обнаружены")
+        logging.debug(f"\nℹ️ Признаки дополнительной обфускации не обнаружены")
 
 # Как использовать:
 # 1. Найдите в вашем коде вызов лямбда-функции:
@@ -83,7 +86,7 @@ def analyze_and_extract(encoded_data: bytes):
 # 3. Вызовите функцию анализа:
 
 # Пример вызова:
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     # Закодированные данные из вашего кода (пример)
     # ВАЖНО: замените на реальные данные из вызова лямбды!
     encoded_data = b'\x14\xfbP\xfd'
@@ -91,7 +94,68 @@ if __name__ == "__main__":
     analyze_and_extract(encoded_data)
     
     # Для сохранения в файл
-    """decoded = decode_xor(encoded_data)
+    decoded = decode_xor(encoded_data)
     with open("decoded_stage.py", "w") as f:
         f.write(decoded if isinstance(decoded, str) else decoded.decode('latin1'))
-    print("\n💾 Результат сохранен в decoded_stage.py")"""
+    logging.debug(f"\n💾 Результат сохранен в decoded_stage.py")"""
+
+
+
+
+def extract_and_decode_all(filename):
+    with open(filename, "r", encoding="utf-8") as f:
+        code = f.read()
+    # Находит все байтовые строки, передаваемые в Nvm8L6FkudRf
+    pattern = r"Nvm8L6FkudRf\s*\(\s*b'(.*?)'\s*\)"
+    matches = re.findall(pattern, code, re.DOTALL)
+    logging.debug(f"Найдено {len(matches)} вызовов Nvm8L6FkudRf:")
+    for i, hex_bytes in enumerate(matches, 1):
+        # Преобразуем строку байтов в bytes
+        try:
+            encoded_data = bytes.fromhex(hex_bytes.replace("\\x", ""))
+        except Exception:
+            # Если не hex, пробуем eval
+            try:
+                encoded_data = eval(f"b'{hex_bytes}'")
+            except Exception as e:
+                logging.debug(f"{i}) Ошибка парсинга: {e}")
+                continue
+        logging.debug(f"\n{i}) Аргумент: b'{hex_bytes}'")
+        analyze_and_extract(encoded_data)
+
+"""if __name__ == "__main__":
+    # ...ваш существующий код...
+    # Добавьте вызов для автоматического декодирования:
+    extract_and_decode_all("decompressed_code.py")"""
+
+
+
+
+def replace_nvm8_calls(src_path, dst_path):
+    with open(src_path, "r", encoding="utf-8") as f:
+        code = f.read()
+
+    # Найти все вызовы Nvm8L6FkudRf(b'...')
+    pattern = r"Nvm8L6FkudRf\s*\(\s*b'(.*?)'\s*\)"
+    matches = re.findall(pattern, code, re.DOTALL)
+
+    for hex_bytes in matches:
+        try:
+            encoded_data = bytes.fromhex(hex_bytes.replace("\\x", ""))
+        except Exception:
+            try:
+                encoded_data = eval(f"b'{hex_bytes}'")
+            except Exception:
+                continue
+        decoded = decode_xor(encoded_data)
+        # Экранируем кавычки и переносы строк
+        safe_decoded = repr(decoded)
+        code = code.replace(f"Nvm8L6FkudRf(b'{hex_bytes}')", safe_decoded)
+
+    with open(dst_path, "w", encoding="utf-8") as f:
+        f.write(code)
+    print(f"✅ Замена завершена. Результат сохранён в {dst_path}")
+
+if __name__ == "__main__":
+    # Заменить все вызовы Nvm8L6FkudRf(b'...') на декодированные строки
+    replace_nvm8_calls("decompressed_code.py", "decompressed_code_decoded.py")
