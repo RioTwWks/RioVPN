@@ -76,7 +76,7 @@ if not os.path.exists(installed_marker):
     if os.name == 'nt':  # Windows
         pip_python = os.path.join('venv', 'Scripts', 'python.exe')
     else:  # Unix/Linux
-        pip_python = 'venv/bin/pip'  # python
+        pip_python = 'venv/bin/python'  # python
     
     subprocess.run([
         pip_python,
@@ -115,7 +115,7 @@ def init_alembic():
     if os.name == 'nt':  # Windows
         alembic_python = os.path.join('venv', 'Scripts', 'python.exe')
     else:  # Unix/Linux
-        alembic_python = 'venv/bin/pip'  # python
+        alembic_python = 'venv/bin/python'  # python
     
     subprocess.run([
         alembic_python,
@@ -202,7 +202,7 @@ def fix_broken_revision():
         if os.name == 'nt':  # Windows
             alembic_python = os.path.join('venv', 'Scripts', 'python.exe')
         else:  # Unix/Linux
-            alembic_python = 'venv/bin/pip'  # python
+            alembic_python = 'venv/bin/python'  # python
         
         subprocess.run([
             alembic_python,
@@ -227,7 +227,7 @@ def run_migrations():
         if os.name == 'nt':  # Windows
             alembic_python = os.path.join('venv', 'Scripts', 'python.exe')
         else:  # Unix/Linux
-            alembic_python = 'venv/bin/pip'  # python
+            alembic_python = 'venv/bin/python'  # python
         
         result = subprocess.run([
             alembic_python,
@@ -538,7 +538,7 @@ async def on_startup(application):
     scheduler.add_job(daily_stats_task, CronTrigger(
         hour=0,
         minute=0,
-        timezone='venv/bin/pip'  # UTC
+        timezone='UTC+7'  # UTC
     ))
     scheduler.start()
     
