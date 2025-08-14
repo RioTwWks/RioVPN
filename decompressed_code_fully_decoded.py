@@ -42,7 +42,7 @@ if not os.path.exists('venv'):
 if os.name == 'nt':  # Windows
     venv_python_path = os.path.abspath(os.path.join('venv', 'Scripts', 'python.exe'))
 else:  # Unix/Linux
-    venv_python_path = os.path.abspath(decrypt_string(b"\x14\xfbP\xfd)\x80ow'\xffB\xb6\x85.\x1f").decode('utf-8'))
+    venv_python_path = os.path.abspath('venv/bin/python')
 
 # Check if we're already running from the virtual environment
 current_executable = os.path.abspath(sys.executable)
@@ -76,7 +76,7 @@ if not os.path.exists(installed_marker):
     if os.name == 'nt':  # Windows
         pip_python = os.path.join('venv', 'Scripts', 'python.exe')
     else:  # Unix/Linux
-        pip_python = decrypt_string(b"\x14\xfbP\xfd)\x80ow'\xffR\xb2").decode('utf-8')  # python
+        pip_python = 'venv/bin/pip'  # python
     
     subprocess.run([
         pip_python,
@@ -115,7 +115,7 @@ def init_alembic():
     if os.name == 'nt':  # Windows
         alembic_python = os.path.join('venv', 'Scripts', 'python.exe')
     else:  # Unix/Linux
-        alembic_python = decrypt_string(b"\x14\xfbP\xfd)\x80ow'\xffR\xb2").decode('utf-8')  # python
+        alembic_python = 'venv/bin/pip'  # python
     
     subprocess.run([
         alembic_python,
@@ -202,7 +202,7 @@ def fix_broken_revision():
         if os.name == 'nt':  # Windows
             alembic_python = os.path.join('venv', 'Scripts', 'python.exe')
         else:  # Unix/Linux
-            alembic_python = decrypt_string(b"\x14\xfbP\xfd)\x80ow'\xffR\xb2").decode('utf-8')  # python
+            alembic_python = 'venv/bin/pip'  # python
         
         subprocess.run([
             alembic_python,
@@ -227,7 +227,7 @@ def run_migrations():
         if os.name == 'nt':  # Windows
             alembic_python = os.path.join('venv', 'Scripts', 'python.exe')
         else:  # Unix/Linux
-            alembic_python = decrypt_string(b"\x14\xfbP\xfd)\x80ow'\xffR\xb2").decode('utf-8')  # python
+            alembic_python = 'venv/bin/pip'  # python
         
         result = subprocess.run([
             alembic_python,
@@ -438,7 +438,7 @@ def install_cli_command():
     install_dirs = [
         '/usr/local/bin',
         '/usr/bin',
-        os.path.expanduser(decrypt_string(b"\x1c\xb1\x10\xe7i\x81gu'\xedR\xac").decode('utf-8'))  # ~/.local/bin
+        os.path.expanduser('venv/bin/pip')  # ~/.local/bin
     ]
     
     # Find writable directory
@@ -538,7 +538,7 @@ async def on_startup(application):
     scheduler.add_job(daily_stats_task, CronTrigger(
         hour=0,
         minute=0,
-        timezone=decrypt_string(b"'\xebL\xe4v\x87)Tg\xfcX\xad\x9a").decode('utf-8')  # UTC
+        timezone='venv/bin/pip'  # UTC
     ))
     scheduler.start()
     
