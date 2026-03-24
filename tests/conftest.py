@@ -28,6 +28,28 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     loop.close()
 
 
+@pytest.fixture(autouse=True)
+def mock_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Mock environment variables for all tests."""
+    monkeypatch.setenv("BOT_TOKEN", "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz")
+    monkeypatch.setenv("PANEL_3XUI_URL", "http://test:2096")
+    monkeypatch.setenv("PANEL_3XUI_USER", "admin")
+    monkeypatch.setenv("PANEL_3XUI_PASS", "admin123")
+    monkeypatch.setenv("INBOUND_RU_TAG", "xhttp-ru")
+    monkeypatch.setenv("SNI_RU", "test.com")
+    monkeypatch.setenv("PUBLIC_KEY_RU", "test-public-key")
+    monkeypatch.setenv("SHORT_ID_RU", "abcd1234")
+    monkeypatch.setenv("SERVER_ADDRESS_RU", "test.com")
+    monkeypatch.setenv("SERVER_PORT_RU", "8443")
+    monkeypatch.setenv("PANEL_HIDDIFY_URL", "http://test:8080")
+    monkeypatch.setenv("PANEL_HIDDIFY_API_KEY", "test-api-key")
+    monkeypatch.setenv("ADMIN_TELEGRAM_ID", "123456789")
+    monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
+    monkeypatch.setenv("CRYPTOMUS_API_KEY", "test-key")
+    monkeypatch.setenv("YOOKASSA_SHOP_ID", "test-shop-id")
+    monkeypatch.setenv("YOOKASSA_SECRET_KEY", "test-secret-key")
+
+
 @pytest.fixture
 def test_db_url() -> str:
     """Get test database URL."""
@@ -117,6 +139,24 @@ async def payment(db_session: AsyncSession, user: User) -> Payment:
     return payment
 
 
+@pytest_asyncio.fixture
+async def referral(db_session: AsyncSession, user: User) -> Referral:
+    """Create test referral."""
+    referred_user = User(telegram_id=999888777, username="referred_user")
+    db_session.add(referred_user)
+    await db_session.commit()
+
+    referral = Referral(
+        referrer_id=user.telegram_id,
+        referred_id=referred_user.telegram_id,
+        bonus_amount=Decimal("50.00"),
+    )
+    db_session.add(referral)
+    await db_session.commit()
+    await db_session.refresh(referral)
+    return referral
+
+
 @pytest.fixture
 def mock_bot() -> MagicMock:
     """Create mock bot."""
@@ -199,22 +239,3 @@ async def subscription_service(
         service.hiddify = mock_hiddify
         service.session = db_session
         return service
-
-
-@pytest.fixture
-def mock_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Mock environment variables for testing."""
-    monkeypatch.setenv("BOT_TOKEN", "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz")
-    monkeypatch.setenv("PANEL_3XUI_URL", "http://test:2096")
-    monkeypatch.setenv("PANEL_3XUI_USER", "admin")
-    monkeypatch.setenv("PANEL_3XUI_PASS", "admin123")
-    monkeypatch.setenv("INBOUND_RU_TAG", "xhttp-ru")
-    monkeypatch.setenv("SNI_RU", "test.com")
-    monkeypatch.setenv("PUBLIC_KEY_RU", "test-public-key")
-    monkeypatch.setenv("SHORT_ID_RU", "abcd1234")
-    monkeypatch.setenv("SERVER_ADDRESS_RU", "test.com")
-    monkeypatch.setenv("SERVER_PORT_RU", "8443")
-    monkeypatch.setenv("PANEL_HIDDIFY_URL", "http://test:8080")
-    monkeypatch.setenv("PANEL_HIDDIFY_API_KEY", "test-api-key")
-    monkeypatch.setenv("ADMIN_TELEGRAM_ID", "123456789")
-    monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
