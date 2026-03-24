@@ -297,6 +297,11 @@
 - [x] Service tests (Subscription, Referral, Tiers)
 - [x] Handler tests (Commands, Callbacks, Admin)
 - [x] Integration tests (Workflows, Health checks)
+- [x] CI/CD pipeline (GitHub Actions)
+- [x] Automated testing on push
+- [x] Security scanning (bandit, safety)
+- [x] Docker build automation
+- [x] Scheduled dependency checks
 
 **Next Steps:**
 - [ ] Deploy to production server

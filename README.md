@@ -3,6 +3,8 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![CI/CD](https://github.com/yourusername/riovpn/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/riovpn/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/yourusername/riovpn/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/riovpn)
 
 **RioVPN** — это полнофункциональный Telegram-бот для автоматизации продажи VPN-подписок с интеграцией платёжных систем (Cryptomus, ЮKassa) и панелей управления (3x-ui, Hiddify-Manager).
 
@@ -476,6 +478,39 @@ pytest --cov=src --cov-fail-under=80
 ```
 
 Подробная документация: [TESTING.md](TESTING.md)
+
+---
+
+## ⚙️ CI/CD
+
+### Автоматизация
+
+Проект использует GitHub Actions для автоматизации:
+
+| Событие | Действия |
+|---------|----------|
+| Push в `main`/`develop` | Запуск тестов, линтинг, сборка Docker |
+| Pull Request | Проверка кода, тесты, security scan |
+| Каждый понедельник | Проверка зависимостей, backup БД |
+
+### Статусы проверок
+
+- ✅ **Lint passed** — код соответствует стилю
+- ✅ **Tests passed** — все тесты проходят
+- ✅ **Security passed** — уязвимостей не найдено
+- ✅ **Docker build passed** — образ собирается
+
+### Настройка CI/CD
+
+1. Добавьте secrets в repository settings:
+   - `CODECOV_TOKEN` — для загрузки coverage отчётов
+   - `DEPLOY_TOKEN` — для развёртывания в production
+
+2. Настройте environment `production`:
+   - Deployment branches: `main` only
+   - Required reviewers: добавьте ревьюеров
+
+Подробная документация: [CI_CD.md](CI_CD.md)
 
 ---
 

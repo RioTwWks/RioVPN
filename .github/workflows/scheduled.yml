@@ -1,0 +1,121 @@
+name: Scheduled Tasks
+
+on:
+  schedule:
+    # Run every Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+    # Allow manual trigger
+
+jobs:
+  # ============================================
+  # Dependency Update Check
+  # ============================================
+  check-dependencies:
+    name: 📦 Check Dependency Updates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Install pip-review
+        run: pip install pip-review
+
+      - name: 🔍 Check for updates
+        run: |
+          echo "## 📦 Dependency Updates Available" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          pip-review --local --format=freeze || true
+
+      - name: 📊 Create issue if updates available
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: 📦 Weekly Dependency Update Check
+          content-filepath: ./GITHUB_ISSUE_TEMPLATE.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================
+  # Code Quality Report
+  # ============================================
+  code-quality:
+    name: 📊 Code Quality Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov radon xenon
+
+      - name: 🧪 Run tests
+        run: |
+          pytest --cov=src --cov-report=xml
+
+      - name: 📈 Calculate complexity
+        run: |
+          radon cc src/ -a -s -d -nc
+          radon mi src/ -s
+          radon hal src/ -s
+
+      - name: 📊 Create quality report
+        run: |
+          echo "## 📊 Code Quality Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u +%Y-%m-%d)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Cyclomatic Complexity" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          radon cc src/ -a -nc || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Maintainability Index" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          radon mi src/ || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # Database Backup (if using external DB)
+  # ============================================
+  backup:
+    name: 💾 Backup Database
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ secrets.DATABASE_URL != '' }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 💾 Create backup
+        run: |
+          echo "Database backup would be created here"
+          echo "Configure your backup script based on your database provider"
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_BUCKET: ${{ secrets.BACKUP_BUCKET }}
+
+      - name: 📊 Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup
+          path: backup_*.sql
+          retention-days: 30

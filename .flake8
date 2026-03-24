@@ -1,0 +1,27 @@
+[flake8]
+max-line-length = 127
+max-complexity = 10
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    .env,
+    build,
+    dist,
+    migrations/versions/*,
+    htmlcov,
+    .pytest_cache
+ignore =
+    E203,  # whitespace before ':'
+    W503,  # line break before binary operator
+    F811,  # redefinition of unused name
+per-file-ignores =
+    src/models/__init__.py:F401
+    src/services/__init__.py:F401
+    src/bot/handlers/__init__.py:F401
+    tests/conftest.py:F401
+    tests/*.py:S101,D103
+count = True
+statistics = True
+show-source = True
