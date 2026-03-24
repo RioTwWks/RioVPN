@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch, MagicMock
 
+from src.models.referral import Referral
+from src.models.user import User
+from src.models.subscription import SubscriptionType, SubscriptionStatus
 from src.services.subscription import SubscriptionService
 from src.services.referral import ReferralService
 from src.services.tiers import (
@@ -15,7 +18,6 @@ from src.services.tiers import (
     format_speed,
     TierType,
 )
-from src.models.subscription import SubscriptionType, SubscriptionStatus
 
 
 class TestSubscriptionService:

@@ -9,6 +9,7 @@ from src.bot.handlers.command import handle_start, handle_my
 from src.bot.handlers.callback import handle_my_subscription
 from src.bot.handlers.referral import handle_referral, process_referral_start
 from src.bot.handlers.admin import handle_stats, is_admin
+from src.models.user import User
 
 
 class TestCommandHandlers:

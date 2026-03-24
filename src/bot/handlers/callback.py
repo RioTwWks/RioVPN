@@ -5,7 +5,8 @@ from datetime import timedelta
 from typing import Optional
 
 from aiogram import F, Router
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
 
 from src.bot.keyboards import (
