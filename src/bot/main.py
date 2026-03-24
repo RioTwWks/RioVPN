@@ -89,7 +89,7 @@ async def main() -> None:
 
     # Setup graceful shutdown (Unix only)
     import platform
-    
+
     if platform.system() != "Windows":
         loop = asyncio.get_running_loop()
         stop_event = asyncio.Event()
