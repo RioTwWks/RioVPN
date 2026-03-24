@@ -21,8 +21,8 @@ from src.services.subscription import SubscriptionService
 from src.services.three_xui import ThreeXuiService
 
 
-def pytest_configure(config):
-    """Set environment variables before any tests run."""
+def pytest_load_initial_conftests(early_config, parser, args):
+    """Set environment variables before any imports."""
     os.environ["BOT_TOKEN"] = "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
     os.environ["PANEL_3XUI_URL"] = "http://test:2096"
     os.environ["PANEL_3XUI_USER"] = "admin"
