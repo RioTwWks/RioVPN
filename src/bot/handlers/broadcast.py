@@ -190,9 +190,6 @@ async def handle_cancel(message: Message, state: FSMContext) -> None:
 
 def get_broadcast_confirm_keyboard() -> Optional['InlineKeyboardMarkup']:
     """Get broadcast confirmation keyboard."""
-    from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-    from aiogram.utils.keyboard import InlineKeyboardBuilder
-
     builder = InlineKeyboardBuilder()
     builder.button(text="✅ Отправить", callback_data="broadcast_confirm")
     builder.button(text="❌ Отмена", callback_data="broadcast_cancel")

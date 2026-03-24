@@ -256,8 +256,6 @@ class TestAdminHandlers:
         from src.core import config
         importlib.reload(config)
 
-        from src.bot.handlers.admin import is_admin
-
         result = asyncio.run(is_admin(123456789))
         assert result is True
 
@@ -268,8 +266,6 @@ class TestAdminHandlers:
         import importlib
         from src.core import config
         importlib.reload(config)
-
-        from src.bot.handlers.admin import is_admin
 
         result = asyncio.run(is_admin(999999999))
         assert result is False
