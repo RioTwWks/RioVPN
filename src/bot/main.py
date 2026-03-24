@@ -9,6 +9,7 @@ from aiogram import Bot, Dispatcher
 
 from src.bot.config import create_bot, create_dispatcher, on_startup, on_shutdown, setup_routers
 from src.bot.notifications import init_notifications
+from src.core.config import settings
 from src.core.database import init_db
 from src.core.logging import setup_logging
 from src.workers.scheduler import create_scheduler
@@ -51,8 +52,11 @@ async def main() -> None:
     """Main bot runner."""
     global _bot, _scheduler
 
-    # Setup logging
-    setup_logging("INFO")
+    # Setup logging with config
+    setup_logging(
+        level=settings.log_level,
+        log_dir=settings.log_dir,
+    )
 
     # Create bot and dispatcher
     _bot = create_bot()

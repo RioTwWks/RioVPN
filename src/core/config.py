@@ -56,6 +56,10 @@ class Settings(BaseSettings):
     DEFAULT_TRAFFIC_LIMIT_RU: Optional[int] = Field(None, description="RU traffic limit (bytes)")
     DEFAULT_TRAFFIC_LIMIT_EU: Optional[int] = Field(None, description="EU traffic limit (bytes)")
 
+    # Logging
+    LOG_DIR: Optional[str] = Field("logs", description="Directory for log files")
+    LOG_LEVEL: str = Field("INFO", description="Logging level")
+
     # Property aliases for backward compatibility
     @property
     def bot_token(self) -> str:
@@ -132,6 +136,14 @@ class Settings(BaseSettings):
     @property
     def default_traffic_limit_eu(self) -> Optional[int]:
         return self.DEFAULT_TRAFFIC_LIMIT_EU
+
+    @property
+    def log_dir(self) -> Optional[str]:
+        return self.LOG_DIR
+
+    @property
+    def log_level(self) -> str:
+        return self.LOG_LEVEL
 
 
 # Global settings instance

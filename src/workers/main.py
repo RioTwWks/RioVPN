@@ -4,6 +4,7 @@ import asyncio
 import logging
 import signal
 
+from src.core.config import settings
 from src.core.logging import setup_logging
 from src.workers.scheduler import run_scheduler
 
@@ -12,8 +13,11 @@ logger = logging.getLogger(__name__)
 
 async def main() -> None:
     """Main worker runner."""
-    # Setup logging
-    setup_logging("INFO")
+    # Setup logging with config
+    setup_logging(
+        level=settings.log_level,
+        log_dir=settings.log_dir,
+    )
 
     logger.info("Worker starting...")
 
