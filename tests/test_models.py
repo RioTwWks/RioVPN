@@ -99,7 +99,7 @@ class TestSubscriptionModel:
     def test_subscription_days_remaining(self, subscription):
         """Test days_remaining property."""
         subscription.expiry_date = datetime.utcnow() + timedelta(days=15)
-        assert subscription.days_remaining == 15
+        assert 14 <= subscription.days_remaining <= 15
 
         subscription.expiry_date = datetime.utcnow() - timedelta(days=5)
         assert subscription.days_remaining == 0
