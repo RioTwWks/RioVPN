@@ -1,7 +1,7 @@
 """Application configuration from environment variables."""
 
 import os
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import Field, ConfigDict
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -59,6 +59,20 @@ class Settings(BaseSettings):
     # Logging
     LOG_DIR: Optional[str] = Field("logs", description="Directory for log files")
     LOG_LEVEL: str = Field("INFO", description="Logging level")
+
+    # Proxy for Telegram connection
+    # Proxy mode: 'direct' (no proxy), 'socks5', 'http', 'ssh_tunnel'
+    # - 'direct': Direct connection (default)
+    # - 'socks5': SOCKS5 proxy (e.g., local 3x-ui inbound or v2ray client)
+    # - 'http': HTTP proxy
+    # - 'ssh_tunnel': SSH tunnel mode (uses same settings as socks5/http)
+    PROXY_MODE: Literal["direct", "socks5", "http", "ssh_tunnel"] = Field(
+        "direct",
+        description="Proxy connection mode",
+    )
+    PROXY_URL: Optional[str] = Field(None, description="Proxy URL (e.g., socks5://127.0.0.1:10808)")
+    PROXY_LOGIN: Optional[str] = Field(None, description="Proxy authentication login (optional)")
+    PROXY_PASSWORD: Optional[str] = Field(None, description="Proxy authentication password (optional)")
 
     # Property aliases for backward compatibility
     @property
@@ -144,6 +158,22 @@ class Settings(BaseSettings):
     @property
     def log_level(self) -> str:
         return self.LOG_LEVEL
+
+    @property
+    def proxy_mode(self) -> str:
+        return self.PROXY_MODE
+
+    @property
+    def proxy_url(self) -> Optional[str]:
+        return self.PROXY_URL
+
+    @property
+    def proxy_login(self) -> Optional[str]:
+        return self.PROXY_LOGIN
+
+    @property
+    def proxy_password(self) -> Optional[str]:
+        return self.PROXY_PASSWORD
 
 
 # Global settings instance

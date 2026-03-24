@@ -193,6 +193,13 @@ DATABASE_URL=sqlite+aiosqlite:///vpn_bot.db
 # Defaults (в байтах, пустое = безлимит)
 # DEFAULT_TRAFFIC_LIMIT_RU=10737418240
 # DEFAULT_TRAFFIC_LIMIT_EU=21474836480
+
+# Proxy for Telegram (if Telegram is blocked in your region)
+# See PROXY_GUIDE.md for detailed setup instructions
+# PROXY_MODE=direct  # Options: direct, socks5, http, ssh_tunnel
+# PROXY_URL=socks5://127.0.0.1:10808
+# PROXY_LOGIN=
+# PROXY_PASSWORD=
 ```
 
 ### Описание переменных
@@ -216,6 +223,10 @@ DATABASE_URL=sqlite+aiosqlite:///vpn_bot.db
 | `YOOKASSA_SECRET_KEY` | ❌ | Секретный ключ ЮKassa |
 | `ADMIN_TELEGRAM_ID` | ✅ | Telegram ID администратора |
 | `DATABASE_URL` | ✅ | URL подключения к БД |
+| `PROXY_MODE` | ❌ | Режим прокси: `direct`, `socks5`, `http`, `ssh_tunnel` |
+| `PROXY_URL` | ❌ | URL прокси (например, `socks5://127.0.0.1:10808`) |
+| `PROXY_LOGIN` | ❌ | Логин для аутентификации прокси |
+| `PROXY_PASSWORD` | ❌ | Пароль для аутентификации прокси |
 
 ---
 
@@ -602,6 +613,96 @@ docker-compose up -d --build
 | **Payments** | Cryptomus, YooKassa |
 | **VPN Panels** | 3x-ui, Hiddify-Manager |
 | **Deployment** | Docker, Docker Compose |
+
+---
+
+## 🔌 Настройка прокси для Telegram
+
+В регионах, где Telegram заблокирован, для работы бота требуется прокси. RioVPN поддерживает несколько способов подключения:
+
+### Режимы прокси (PROXY_MODE)
+
+| Режим | Описание | Когда использовать |
+|-------|----------|-------------------|
+| `direct` | Прямое подключение (без прокси) | По умолчанию, если Telegram доступен |
+| `socks5` | SOCKS5 прокси | Сервер с 3x-ui или локальный v2ray-клиент |
+| `http` | HTTP прокси | Если доступен только HTTP-прокси |
+| `ssh_tunnel` | SSH туннель | Тестирование через SSH-туннель к серверу |
+
+### Сценарий 1: Production на сервере с 3x-ui
+
+Если у вас уже настроен `3x-ui` с рабочим `outbound` для обхода блокировок:
+
+1. **Создайте локальный Inbound в 3x-ui:**
+   - Protocol: `socks`
+   - Listen: `127.0.0.1` (важно для безопасности!)
+   - Port: `10808` (или любой свободный)
+   - Tag: `local-bot-proxy`
+
+2. **Добавьте правило Routing:**
+   - Inbound Tag: `local-bot-proxy`
+   - Outbound Tag: ваш рабочий `outbound` (например, `proxy` или `vless-out`)
+   - Убедитесь, что правило выше правил `direct`
+
+3. **Настройте `.env`:**
+   ```bash
+   PROXY_MODE=socks5
+   PROXY_URL=socks5://127.0.0.1:10808
+   ```
+
+### Сценарий 2: Локальная разработка через SSH-туннель
+
+Для тестирования без установки v2ray-клиента на локальную машину:
+
+1. **Подключите SSH-туннель:**
+   ```bash
+   ssh -L 10808:127.0.0.1:10808 user@your-server-ip
+   ```
+
+2. **Настройте `.env`:**
+   ```bash
+   PROXY_MODE=ssh_tunnel
+   PROXY_URL=socks5://127.0.0.1:10808
+   ```
+
+### Сценарий 3: Локальный v2ray/Hiddify клиент
+
+1. **Экспортируйте ссылку** из вашей панели (3x-ui или Hiddify)
+
+2. **Импортируйте в клиент** (v2rayN, Hiddify, Clash Verge):
+   - Включите режим System Proxy или узнайте порт SOCKS5
+
+3. **Настройте `.env`:**
+   ```bash
+   PROXY_MODE=socks5
+   PROXY_URL=socks5://127.0.0.1:10808
+   # Если требуется аутентификация:
+   # PROXY_LOGIN=username
+   # PROXY_PASSWORD=password
+   ```
+
+### Примеры URL прокси
+
+```bash
+# SOCKS5 без аутентификации
+PROXY_URL=socks5://127.0.0.1:10808
+
+# SOCKS5 с аутентификацией
+PROXY_URL=socks5://127.0.0.1:10808
+PROXY_LOGIN=myuser
+PROXY_PASSWORD=mypass
+
+# HTTP прокси
+PROXY_MODE=http
+PROXY_URL=http://127.0.0.1:8080
+
+# Прямое подключение (прокси отключён)
+PROXY_MODE=direct
+```
+
+### Дополнительная документация
+
+Подробные инструкции и troubleshooting см. в [PROXY_GUIDE.md](PROXY_GUIDE.md).
 
 ---
 
