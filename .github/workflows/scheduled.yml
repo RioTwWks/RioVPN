@@ -99,13 +99,13 @@ jobs:
     name: 💾 Backup Database
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: ${{ secrets.DATABASE_URL != '' }}
 
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
       - name: 💾 Create backup
+        if: ${{ vars.DATABASE_URL != '' }}
         run: |
           echo "Database backup would be created here"
           echo "Configure your backup script based on your database provider"
@@ -114,6 +114,7 @@ jobs:
           BACKUP_BUCKET: ${{ secrets.BACKUP_BUCKET }}
 
       - name: 📊 Upload backup artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: database-backup

@@ -13,9 +13,9 @@ exclude =
     htmlcov,
     .pytest_cache
 ignore =
-    E203,  # whitespace before ':'
-    W503,  # line break before binary operator
-    F811,  # redefinition of unused name
+    E203,
+    W503,
+    F811
 per-file-ignores =
     src/models/__init__.py:F401
     src/services/__init__.py:F401
