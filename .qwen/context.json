@@ -1,0 +1,404 @@
+{
+  "project_identity": {
+    "name": "Telegram VPN Subscription Bot",
+    "version": "1.0.0",
+    "status": "development",
+    "type": "telegram-bot",
+    "domain": "vpn-subscription-automation",
+    "language": "ru",
+    "created": "2024",
+    "last_updated": "2024"
+  },
+  
+  "project_goals": {
+    "primary": "Автоматизация продажи VPN-подписок через Telegram",
+    "secondary": [
+      "Интеграция с 3x-ui панелью для RU-клиентов",
+      "Интеграция с Hiddify-Manager для EU-клиентов",
+      "Автоматическая обработка платежей",
+      "Контроль трафика и срока действия подписок",
+      "Минимизация ручного вмешательства администратора"
+    ]
+  },
+  
+  "vpn_types": {
+    "ru": {
+      "name": "Россия (обход белых списков)",
+      "panel": "3x-ui",
+      "protocol": "VLESS + Reality + XHTTP",
+      "use_case": "Обход блокировок мобильных операторов РФ",
+      "client_identifier": "email = user_<telegram_id>",
+      "link_generation": "manual template from panel settings",
+      "api_auth": "basic (login/password)"
+    },
+    "eu": {
+      "name": "Европа (выход в мировой интернет)",
+      "panel": "Hiddify-Manager",
+      "protocol": "VLESS / Hysteria2",
+      "use_case": "Доступ к зарубежным ресурсам",
+      "client_identifier": "uuid (returned by API)",
+      "link_generation": "provided by Hiddify API",
+      "api_auth": "header (Hiddify-API-Key)"
+    }
+  },
+  
+  "database_context": {
+    "current": "SQLite (MVP)",
+    "production": "PostgreSQL",
+    "orm": "SQLAlchemy 2.x async",
+    "migrations": "Alembic",
+    "core_models": [
+      {
+        "name": "User",
+        "purpose": "Хранение Telegram пользователей",
+        "key_field": "telegram_id (unique)"
+      },
+      {
+        "name": "Subscription",
+        "purpose": "Активные подписки клиентов",
+        "key_fields": ["user_id", "type", "status", "expiry_date", "panel_uuid"]
+      },
+      {
+        "name": "Payment",
+        "purpose": "История платежей",
+        "key_fields": ["user_id", "amount", "status", "external_id"]
+      },
+      {
+        "name": "Settings",
+        "purpose": "Динамическая конфигурация",
+        "key_fields": ["key", "value"]
+      }
+    ],
+    "relationships": {
+      "User → Subscription": "one-to-many",
+      "User → Payment": "one-to-many",
+      "Subscription → Panel": "many-to-one (via panel_uuid)"
+    }
+  },
+  
+  "api_integrations_context": {
+    "3x-ui": {
+      "base_url_env": "PANEL_3XUI_URL",
+      "auth_method": "HTTP Basic Auth",
+      "protocol": "HTTP/HTTPS",
+      "rate_limit": "unknown (implement retry)",
+      "critical_endpoints": [
+        "/panel/api/inbounds/list",
+        "/panel/api/inbounds/addClient",
+        "/panel/api/inbounds/delClient",
+        "/panel/api/inbounds/getClientTraffic/:email"
+      ],
+      "client_lifecycle": {
+        "create": "addClient with email=user_<telegram_id>",
+        "update": "updateClient for renewal",
+        "delete": "delClient for expiration/block",
+        "traffic": "getClientTraffic for sync"
+      }
+    },
+    "hiddify": {
+      "base_url_env": "PANEL_HIDDIFY_URL",
+      "api_version": "v2",
+      "auth_method": "Header Hiddify-API-Key",
+      "protocol": "HTTPS only",
+      "rate_limit": "unknown (implement retry)",
+      "critical_endpoints": [
+        "/admin/user/",
+        "/admin/user/<uuid>",
+        "/admin/users/"
+      ],
+      "client_lifecycle": {
+        "create": "POST /admin/user/ with expiry_time, data_limit",
+        "update": "PUT /admin/user/<uuid> for renewal",
+        "delete": "DELETE /admin/user/<uuid> for expiration/block",
+        "traffic": "GET /admin/user/<uuid> includes traffic info"
+      }
+    },
+    "payments": {
+      "providers": ["Cryptomus", "YooKassa", "Telegram Stars"],
+      "webhook_required": true,
+      "payment_flow": [
+        "create_payment → redirect/user pays → webhook → verify → activate_subscription"
+      ],
+      "states": ["pending", "paid", "failed", "refunded"]
+    }
+  },
+  
+  "bot_workflow_context": {
+    "user_journey": {
+      "new_user": [
+        "/start → welcome message → show subscription types",
+        "/buy → select type (RU/EU) → select period → show price",
+        "confirm → create payment → wait for webhook",
+        "payment success → create client in panel → send vless link"
+      ],
+      "existing_user": [
+        "/my → show current subscription status",
+        "/renew → extend subscription → payment → update panel",
+        "/support → show support contact"
+      ],
+      "expired_subscription": [
+        "worker detects expiry → update status → block in panel",
+        "user notified 3 days before expiry",
+        "user can /renew to reactivate"
+      ]
+    },
+    "admin_workflow": {
+      "commands": ["/stats", "/broadcast", "/suspend", "/grant"],
+      "access_control": "ADMIN_TELEGRAM_ID check required",
+      "audit_logging": "all admin actions must be logged"
+    }
+  },
+  
+  "background_tasks_context": {
+    "scheduler": "APScheduler AsyncIOScheduler",
+    "tasks": [
+      {
+        "name": "check_expiring_subscriptions",
+        "frequency": "every 1 hour",
+        "purpose": "Find subscriptions expiring soon, send reminders",
+        "actions": ["query DB", "send notifications", "update status"]
+      },
+      {
+        "name": "sync_traffic",
+        "frequency": "every 24 hours",
+        "purpose": "Sync used traffic from panels to DB",
+        "actions": ["call 3x-ui API", "call Hiddify API", "update DB", "block if exceeded"]
+      },
+      {
+        "name": "process_webhooks",
+        "frequency": "async (on demand)",
+        "purpose": "Handle payment provider callbacks",
+        "actions": ["verify signature", "update payment status", "activate subscription"]
+      }
+    ]
+  },
+  
+  "security_context": {
+    "secrets_storage": "environment variables only",
+    "never_commit": [".env", "*.key", "*.pem", "credentials"],
+    "admin_access": "telegram_id whitelist",
+    "api_security": {
+      "3x-ui": "HTTPS recommended, strong password",
+      "hiddify": "HTTPS required, API key rotation supported",
+      "payments": "webhook signature verification required"
+    },
+    "logging": {
+      "log_sensitive": false,
+      "levels": ["INFO", "WARNING", "ERROR", "CRITICAL"],
+      "rotation": true,
+      "never_log": ["BOT_TOKEN", "API_KEY", "password", "full_payment_data"]
+    }
+  },
+  
+  "configuration_context": {
+    "env_variables_required": [
+      "BOT_TOKEN",
+      "PANEL_3XUI_URL",
+      "PANEL_3XUI_USER",
+      "PANEL_3XUI_PASS",
+      "PANEL_HIDDIFY_URL",
+      "PANEL_HIDDIFY_API_KEY",
+      "INBOUND_RU_TAG",
+      "SNI_RU",
+      "PUBLIC_KEY_RU",
+      "SHORT_ID_RU",
+      "SERVER_ADDRESS_RU",
+      "SERVER_PORT_RU",
+      "DEFAULT_TRAFFIC_LIMIT_RU",
+      "DEFAULT_TRAFFIC_LIMIT_EU",
+      "CRYPTOMUS_API_KEY",
+      "YOOKASSA_SHOP_ID",
+      "YOOKASSA_SECRET_KEY",
+      "ADMIN_TELEGRAM_ID",
+      "DATABASE_URL"
+    ],
+    "db_settings_table": [
+      "PRICES (JSON)",
+      "PAYMENT_METHODS (list)",
+      "FEATURE_FLAGS (JSON)",
+      "MAINTENANCE_MODE (boolean)"
+    ]
+  },
+  
+  "development_context": {
+    "current_phase": "MVP",
+    "phases": [
+      {
+        "name": "MVP",
+        "status": "in_progress",
+        "deliverables": [
+          "Basic bot commands (/start, /buy, /my)",
+          "3x-ui integration (RU)",
+          "Hiddify integration (EU)",
+          "SQLite database",
+          "Manual payment confirmation"
+        ]
+      },
+      {
+        "name": "Payments",
+        "status": "planned",
+        "deliverables": [
+          "Cryptomus integration",
+          "YooKassa integration",
+          "Telegram Stars",
+          "Webhook handling",
+          "Automatic payment confirmation"
+        ]
+      },
+      {
+        "name": "Subscription Management",
+        "status": "planned",
+        "deliverables": [
+          "Auto-renewal",
+          "Expiration notifications",
+          "Traffic sync worker",
+          "Auto-block on expiry/traffic"
+        ]
+      },
+      {
+        "name": "Admin & Analytics",
+        "status": "planned",
+        "deliverables": [
+          "/stats command",
+          "/broadcast command",
+          "Sales analytics",
+          "User analytics"
+        ]
+      },
+      {
+        "name": "Scaling",
+        "status": "planned",
+        "deliverables": [
+          "PostgreSQL migration",
+          "Docker Compose",
+          "Monitoring (Sentry)",
+          "Load balancing"
+        ]
+      }
+    ],
+    "git_workflow": {
+      "main": "production",
+      "develop": "development",
+      "feature": "feature/* for new features"
+    }
+  },
+  
+  "file_relationships": {
+    "spec.md": {
+      "purpose": "Основная спецификация проекта",
+      "priority": "highest",
+      "contains": ["Требования", "Архитектура", "API эндпоинты", "Модели БД"]
+    },
+    ".qwen/mcp.json": {
+      "purpose": "Конфигурация для Qwen CLI",
+      "priority": "high",
+      "contains": ["Проектные настройки", "Тех стек", "Структура"]
+    },
+    ".qwen/rules.md": {
+      "purpose": "Правила разработки и кодирования",
+      "priority": "high",
+      "contains": ["Стандарты кода", "Безопасность", "Best practices"]
+    },
+    ".qwen/skills.json": {
+      "purpose": "Навыки и возможности Qwen CLI",
+      "priority": "medium",
+      "contains": ["API интеграции", "Паттерны", "Компетенции"]
+    },
+    ".qwen/context.json": {
+      "purpose": "Контекст проекта для AI-ассистента",
+      "priority": "medium",
+      "contains": ["Состояние проекта", "Связи компонентов", "Приоритеты"]
+    }
+  },
+  
+  "qwen_cli_guidance": {
+    "when_generating_code": {
+      "always_check": [
+        "spec.md for model definitions",
+        ".qwen/rules.md for coding standards",
+        ".qwen/skills.json for API patterns",
+        ".qwen/context.json for project state"
+      ],
+      "always_apply": [
+        "async/await for I/O",
+        "type hints",
+        "Google-style docstrings",
+        "error handling with logging",
+        "env variables for secrets",
+        "SQLAlchemy 2.x async patterns"
+      ],
+      "never_do": [
+        "hardcode credentials",
+        "use sync I/O in async context",
+        "log sensitive data",
+        "skip input validation",
+        "ignore API errors"
+      ]
+    },
+    "when_asked_to_modify": {
+      "database_schema": "ask before changing, update spec.md",
+      "api_integration": "verify against official docs",
+      "security_settings": "require explicit confirmation",
+      "payment_flow": "test thoroughly before commit"
+    }
+  },
+  
+  "known_constraints": {
+    "technical": [
+      "Python 3.11+ required for async features",
+      "SQLAlchemy 2.x async only (no sync patterns)",
+      "aiogram 3.x (not 2.x)",
+      "All external APIs must have retry logic"
+    ],
+    "business": [
+      "RU subscriptions require specific Reality parameters",
+      "EU subscriptions depend on Hiddify API availability",
+      "Payment webhooks must be idempotent",
+      "Admin access strictly limited by Telegram ID"
+    ],
+    "security": [
+      "No secrets in code or git",
+      "HTTPS required for all external APIs",
+      "Payment data must be handled securely",
+      "Rate limiting on panel API calls"
+    ]
+  },
+  
+  "testing_context": {
+    "framework": "pytest + pytest-asyncio",
+    "coverage_targets": [
+      "payment_flow (critical)",
+      "subscription_creation (critical)",
+      "api_integrations (critical)",
+      "background_tasks (important)",
+      "bot_handlers (important)"
+    ],
+    "mocking_strategy": {
+      "external_apis": "aioresponses",
+      "database": "async_session_mock",
+      "telegram": "aiogram test utilities"
+    }
+  },
+  
+  "deployment_context": {
+    "development": {
+      "database": "SQLite",
+      "environment": "local .env",
+      "logging": "console + file"
+    },
+    "production": {
+      "database": "PostgreSQL",
+      "environment": "Docker secrets / env vars",
+      "logging": "stdout + Sentry (optional)",
+      "containerization": "Docker Compose",
+      "services": ["bot", "worker", "database"]
+    }
+  },
+  
+  "contact_and_support": {
+    "admin_contact": "ADMIN_TELEGRAM_ID from env",
+    "support_command": "/support",
+    "error_reporting": "logs + Sentry (optional)",
+    "user_notifications": "Telegram messages via bot"
+  }
+}

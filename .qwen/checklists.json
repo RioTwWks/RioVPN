@@ -1,0 +1,26 @@
+{
+  "pre_commit": [
+    "Type hints добавлены",
+    "Docstrings в Google style",
+    "Async для всех I/O операций",
+    "Error handling с логированием",
+    "Нет hardcoded secrets",
+    "Тесты проходят"
+  ],
+  "pre_deploy": [
+    ".env не в git",
+    "Миграции применены",
+    "Логирование настроено",
+    "Health check работает",
+    "Backup БД сделан",
+    "Docker image собран"
+  ],
+  "security_review": [
+    "Все секреты в env variables",
+    "HTTPS для всех API",
+    "Admin access по Telegram ID",
+    "Input validation реализован",
+    "Rate limiting настроен",
+    "Sensitive data не логируется"
+  ]
+}

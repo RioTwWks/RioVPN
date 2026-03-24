@@ -1,0 +1,193 @@
+{
+  "project": {
+    "name": "Telegram VPN Subscription Bot",
+    "version": "1.0.0",
+    "description": "Telegram-бот для автоматизации продажи VPN-подписок (RU/ EU)",
+    "language": "ru",
+    "domain": "vpn, telegram-bot, payments, api-integration"
+  },
+  
+  "tech_stack": {
+    "python_version": "3.11+",
+    "bot_framework": "aiogram 3.x",
+    "http_client": "aiohttp",
+    "database": "SQLite (MVP) → PostgreSQL (production)",
+    "orm": "SQLAlchemy 2.x (async)",
+    "scheduler": "APScheduler или asyncio + Cron",
+    "containerization": "Docker Compose",
+    "migrations": "Alembic"
+  },
+  
+  "architecture": {
+    "components": [
+      "Telegram Bot - взаимодействие с пользователем",
+      "Database - хранение пользователей, подписок, платежей",
+      "3x-ui API - управление RU клиентами",
+      "Hiddify-Manager API - управление EU клиентами",
+      "Payment Gateway - Cryptomus/YooKassa/Telegram Stars",
+      "Background Worker - проверка подписок и трафика"
+    ],
+    "project_structure": {
+      "src/": {
+        "bot/": "handlers, keyboards, middlewares",
+        "core/": "config, database, logging",
+        "services/": "3x-ui, hiddify, payments",
+        "models/": "SQLAlchemy models",
+        "utils/": "helpers, validators",
+        "workers/": "background tasks"
+      },
+      "tests/": "unit и integration тесты",
+      "docker/": "Dockerfile, docker-compose.yml",
+      "migrations/": "Alembic миграции"
+    }
+  },
+  
+  "database_models": {
+    "User": {
+      "fields": ["id", "telegram_id", "username", "created_at"],
+      "constraints": ["telegram_id UNIQUE"]
+    },
+    "Subscription": {
+      "fields": ["id", "user_id", "type", "status", "start_date", "expiry_date", "traffic_limit", "traffic_used", "panel_uuid", "inbound_tag", "link"],
+      "enums": {
+        "type": ["ru", "eu"],
+        "status": ["active", "expired", "blocked"]
+      }
+    },
+    "Payment": {
+      "fields": ["id", "user_id", "amount", "status", "external_id", "created_at"]
+    },
+    "Settings": {
+      "fields": ["key", "value", "updated_at"]
+    }
+  },
+  
+  "api_integrations": {
+    "3x-ui": {
+      "base_url": "PANEL_3XUI_URL",
+      "auth": "basic (login/password)",
+      "endpoints": [
+        "GET /panel/api/inbounds/list",
+        "POST /panel/api/inbounds/addClient",
+        "POST /panel/api/inbounds/updateClient",
+        "POST /panel/api/inbounds/delClient",
+        "GET /panel/api/inbounds/getClientTraffic/:email"
+      ]
+    },
+    "hiddify": {
+      "base_url": "PANEL_HIDDIFY_URL/api/v2/",
+      "auth": "header Hiddify-API-Key",
+      "endpoints": [
+        "POST /admin/user/",
+        "GET /admin/user/<uuid>",
+        "PUT /admin/user/<uuid>",
+        "DELETE /admin/user/<uuid>",
+        "GET /admin/users/"
+      ]
+    },
+    "payments": {
+      "providers": ["Cryptomus", "YooKassa", "Telegram Stars"],
+      "webhook": "required for async payment confirmation"
+    }
+  },
+  
+  "bot_commands": {
+    "user": [
+      "/start - приветствие, меню",
+      "/buy - выбор подписки",
+      "/my - текущая подписка",
+      "/renew - продление",
+      "/support - поддержка",
+      "/referral - реферальная программа"
+    ],
+    "admin": [
+      "/stats - статистика",
+      "/broadcast - рассылка",
+      "/suspend <telegram_id> - приостановить",
+      "/grant <telegram_id> [type] [days] - выдать вручную"
+    ]
+  },
+  
+  "configuration": {
+    "env_variables": [
+      "BOT_TOKEN",
+      "PANEL_3XUI_URL",
+      "PANEL_3XUI_USER",
+      "PANEL_3XUI_PASS",
+      "PANEL_HIDDIFY_URL",
+      "PANEL_HIDDIFY_API_KEY",
+      "INBOUND_RU_TAG",
+      "SNI_RU",
+      "PUBLIC_KEY_RU",
+      "SHORT_ID_RU",
+      "SERVER_ADDRESS_RU",
+      "SERVER_PORT_RU",
+      "CRYPTOMUS_API_KEY",
+      "YOOKASSA_SHOP_ID",
+      "YOOKASSA_SECRET_KEY",
+      "ADMIN_TELEGRAM_ID"
+    ],
+    "settings_table": [
+      "DEFAULT_TRAFFIC_LIMIT_RU",
+      "DEFAULT_TRAFFIC_LIMIT_EU",
+      "PRICES (JSON)",
+      "PAYMENT_METHODS (list)"
+    ]
+  },
+  
+  "coding_guidelines": {
+    "async": "все I/O операции должны быть асинхронными",
+    "error_handling": "логирование всех ошибок с уровнем ERROR",
+    "security": "секреты только из переменных окружения",
+    "validation": "валидация всех входных данных",
+    "logging": "INFO для операций, ERROR для ошибок, ротация логов",
+    "testing": "покрытие критических путей тестами",
+    "type_hints": "использовать аннотации типов Python",
+    "docstrings": "Google style для всех функций и классов"
+  },
+  
+  "security_requirements": {
+    "secrets": "только environment variables",
+    "admin_access": "проверка Telegram ID для админ-команд",
+    "api_https": "HTTPS для всех API вызовов",
+    "input_sanitization": "очистка всех пользовательских данных",
+    "rate_limiting": "ограничение запросов к API панелей",
+    "audit_logging": "логирование всех критических операций"
+  },
+  
+  "development_workflow": {
+    "phases": [
+      "MVP: базовые команды + интеграция панелей + ручная оплата",
+      "Payments: автоматические платежи через шлюзы",
+      "Subscription Management: уведомления, авто-отключение, продление",
+      "Admin & Analytics: статистика, админ-панель",
+      "Scaling: PostgreSQL, Docker, мониторинг"
+    ],
+    "git_branches": {
+      "main": "production",
+      "develop": "development",
+      "feature/*": "новые функции"
+    }
+  },
+  
+  "vless_link_templates": {
+    "ru": "vless://<uuid>@<server>:<port>?encryption=none&flow=xtls-rprx-vision&security=reality&sni=<sni>&fp=chrome&pbk=<public_key>&sid=<short_id>&type=xhttp&path=%2F&mode=auto#<tag>",
+    "eu": "получается напрямую от Hiddify API"
+  },
+  
+  "background_tasks": {
+    "subscription_check": "каждый час - проверка expiry_date",
+    "traffic_sync": "раз в сутки - синхронизация трафика с панелями",
+    "payment_webhook": "асинхронная обработка уведомлений",
+    "reminder_notifications": "за 3 дня до окончания подписки"
+  },
+  
+  "qwen_cli_instructions": {
+    "context_aware": "всегда учитывать spec.md при генерации кода",
+    "model_consistency": "использовать указанные SQLAlchemy модели",
+    "api_compliance": "следовать документации 3x-ui и Hiddify API",
+    "error_recovery": "добавлять retry логику для API вызовов",
+    "config_driven": "все настраиваемые параметры из БД settings или env",
+    "modular_design": "разделять логику по сервисам (bot, services, workers)"
+  }
+}

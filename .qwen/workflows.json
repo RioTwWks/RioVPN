@@ -1,0 +1,1051 @@
+{
+  "meta": {
+    "project": "Telegram VPN Subscription Bot",
+    "version": "1.0.0",
+    "last_updated": "2024",
+    "based_on": "spec.md v1.0"
+  },
+  
+  "development_workflows": {
+    "feature_development": {
+      "name": "Разработка новой функции",
+      "phases": [
+        {
+          "step": 1,
+          "name": "Анализ требований",
+          "actions": [
+            "Изучить spec.md для понимания контекста",
+            "Проверить .qwen/context.json для текущего состояния",
+            "Определить затронутые компоненты (bot/services/db)"
+          ],
+          "output": "Список изменяемых файлов"
+        },
+        {
+          "step": 2,
+          "name": "Создание ветки",
+          "actions": [
+            "git checkout develop",
+            "git pull origin develop",
+            "git checkout -b feature/<feature-name>"
+          ],
+          "output": "Новая feature ветка"
+        },
+        {
+          "step": 3,
+          "name": "Реализация кода",
+          "actions": [
+            "Использовать сниппеты из .qwen/snippets.json",
+            "Следовать правилам из .qwen/rules.md",
+            "Применять навыки из .qwen/skills.json",
+            "Добавить type hints и docstrings",
+            "Реализовать error handling"
+          ],
+          "output": "Готовый код функции"
+        },
+        {
+          "step": 4,
+          "name": "Тестирование",
+          "actions": [
+            "Написать unit тесты",
+            "Запустить pytest --cov=src",
+            "Проверить покрытие критических путей",
+            "Протестировать вручную в Telegram"
+          ],
+          "output": "Проходящие тесты"
+        },
+        {
+          "step": 5,
+          "name": "Code Review",
+          "actions": [
+            "Проверить чек-лист из .qwen/rules.md",
+            "Убедиться что нет hardcoded secrets",
+            "Проверить логику обработки ошибок"
+          ],
+          "output": "Approved код"
+        },
+        {
+          "step": 6,
+          "name": "Merge",
+          "actions": [
+            "git commit -m 'feat: описание'",
+            "git push origin feature/<feature-name>",
+            "Создать Pull Request",
+            "После approve: git merge develop"
+          ],
+          "output": "Код в develop ветке"
+        }
+      ]
+    },
+    
+    "bug_fix": {
+      "name": "Исправление бага",
+      "phases": [
+        {
+          "step": 1,
+          "name": "Диагностика",
+          "actions": [
+            "Изучить логи (logs/bot.log)",
+            "Воспроизвести баг локально",
+            "Определить корневую причину",
+            "Проверить .qwen/troubleshooting.md"
+          ],
+          "output": "Описание причины бага"
+        },
+        {
+          "step": 2,
+          "name": "Создание ветки",
+          "actions": [
+            "git checkout develop",
+            "git checkout -b fix/<bug-description>"
+          ],
+          "output": "Новая fix ветка"
+        },
+        {
+          "step": 3,
+          "name": "Исправление",
+          "actions": [
+            "Внести минимальные необходимые изменения",
+            "Добавить тест на регрессию",
+            "Проверить что исправление не ломает другие функции"
+          ],
+          "output": "Исправленный код"
+        },
+        {
+          "step": 4,
+          "name": "Верификация",
+          "actions": [
+            "Запустить все тесты",
+            "Проверить что баг больше не воспроизводится",
+            "Проверить логи на отсутствие ошибок"
+          ],
+          "output": "Подтверждение исправления"
+        },
+        {
+          "step": 5,
+          "name": "Merge",
+          "actions": [
+            "git commit -m 'fix: описание бага'",
+            "git push origin fix/<bug-description>",
+            "Создать Pull Request",
+            "Срочный merge в develop и main"
+          ],
+          "output": "Баг исправлен"
+        }
+      ]
+    },
+    
+    "database_migration": {
+      "name": "Миграция базы данных",
+      "phases": [
+        {
+          "step": 1,
+          "name": "Подготовка",
+          "actions": [
+            "Определить изменения в моделях",
+            "Обновить spec.md раздел 4",
+            "Сделать backup текущей БД"
+          ],
+          "output": "План миграции"
+        },
+        {
+          "step": 2,
+          "name": "Создание миграции",
+          "actions": [
+            "alembic revision --autogenerate -m 'описание'",
+            "Проверить сгенерированный файл в migrations/versions/",
+            "При необходимости отредактировать вручную"
+          ],
+          "output": "Файл миграции"
+        },
+        {
+          "step": 3,
+          "name": "Тестирование",
+          "actions": [
+            "alembic upgrade head (на test БД)",
+            "Проверить что данные сохранились",
+            "Проверить rollback: alembic downgrade -1"
+          ],
+          "output": "Протестированная миграция"
+        },
+        {
+          "step": 4,
+          "name": "Применение",
+          "actions": [
+            "Применить на production",
+            "Проверить работу бота",
+            "Обновить .qwen/context.json"
+          ],
+          "output": "Миграция применена"
+        }
+      ]
+    }
+  },
+  
+  "bot_user_workflows": {
+    "new_user_registration": {
+      "name": "Регистрация нового пользователя",
+      "trigger": "Пользователь нажимает /start",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Получить telegram_id и username из сообщения",
+          "component": "bot/handlers/start.py"
+        },
+        {
+          "order": 2,
+          "action": "Проверить существует ли пользователь в БД",
+          "component": "repositories/user_repository.py",
+          "method": "get_by_telegram_id"
+        },
+        {
+          "order": 3,
+          "action": "Если нет — создать запись User",
+          "component": "repositories/user_repository.py",
+          "method": "create"
+        },
+        {
+          "order": 4,
+          "action": "Отправить приветственное сообщение с меню",
+          "component": "bot/handlers/start.py",
+          "response": "message + inline_keyboard"
+        },
+        {
+          "order": 5,
+          "action": "Залогировать событие",
+          "component": "core/logging_config.py",
+          "level": "INFO"
+        }
+      ],
+      "error_handling": {
+        "database_error": "Логировать ERROR, показать пользователю 'Временная ошибка'",
+        "telegram_error": "Логировать ERROR, retry через 5 секунд"
+      }
+    },
+    
+    "subscription_purchase": {
+      "name": "Покупка подписки",
+      "trigger": "Пользователь нажимает /buy или кнопку 'Купить подписку'",
+      "steps": [
+        {
+          "order": 1,
+          "state": "selecting_type",
+          "action": "Показать выбор типа подписки (RU/EU)",
+          "component": "bot/handlers/buy.py",
+          "ui": "Inline keyboard с 2 кнопками"
+        },
+        {
+          "order": 2,
+          "state": "selecting_period",
+          "action": "Показать выбор срока (1/3/6/12 месяцев)",
+          "component": "bot/handlers/buy.py",
+          "ui": "Inline keyboard с 4 кнопками"
+        },
+        {
+          "order": 3,
+          "state": "confirming_payment",
+          "action": "Показать итоговую стоимость и кнопку оплаты",
+          "component": "bot/handlers/buy.py",
+          "data": "Цена из settings table"
+        },
+        {
+          "order": 4,
+          "action": "Создать запись Payment со статусом 'pending'",
+          "component": "services/payments/",
+          "table": "payments"
+        },
+        {
+          "order": 5,
+          "action": "Создать платёж в платёжной системе",
+          "component": "services/payments/cryptomus.py или yookassa.py",
+          "output": "payment_url"
+        },
+        {
+          "order": 6,
+          "action": "Отправить пользователю ссылку на оплату",
+          "component": "bot/handlers/buy.py",
+          "ui": "Message с кнопкой 'Оплатить'"
+        },
+        {
+          "order": 7,
+          "action": "Ожидать webhook от платёжной системы",
+          "component": "bot/handlers/payment_webhook.py",
+          "timeout": "30 минут"
+        },
+        {
+          "order": 8,
+          "action": "При успешной оплате — создать клиента в панели",
+          "component": "services/3xui_client.py или hiddify_client.py",
+          "condition": "payment status == 'paid'"
+        },
+        {
+          "order": 9,
+          "action": "Создать запись Subscription в БД",
+          "component": "repositories/subscription_repository.py",
+          "fields": ["user_id", "type", "status", "expiry_date", "panel_uuid", "link"]
+        },
+        {
+          "order": 10,
+          "action": "Отправить пользователю VPN ссылку и инструкцию",
+          "component": "bot/handlers/buy.py",
+          "ui": "Message с vless:// ссылкой"
+        },
+        {
+          "order": 11,
+          "action": "Обновить Payment статус на 'paid'",
+          "component": "repositories/payment_repository.py"
+        }
+      ],
+      "error_handling": {
+        "payment_failed": "Обновить Payment статус на 'failed', уведомить пользователя",
+        "panel_api_error": "Логировать ERROR, создать тикет в поддержку, вернуть деньги",
+        "timeout": "Если webhook не пришёл за 30 мин — проверить статус вручную"
+      },
+      "fsm_states": ["selecting_type", "selecting_period", "confirming_payment", "waiting_payment"]
+    },
+    
+    "subscription_renewal": {
+      "name": "Продление подписки",
+      "trigger": "Пользователь нажимает /renew или кнопку продления",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Получить активную подписку пользователя из БД",
+          "component": "repositories/subscription_repository.py",
+          "query": "WHERE user_id = ? AND status = 'active'"
+        },
+        {
+          "order": 2,
+          "action": "Показать текущий статус и дату окончания",
+          "component": "bot/handlers/renew.py",
+          "data": ["expiry_date", "traffic_used", "traffic_limit"]
+        },
+        {
+          "order": 3,
+          "action": "Предложить выбрать срок продления",
+          "component": "bot/handlers/renew.py",
+          "ui": "Inline keyboard"
+        },
+        {
+          "order": 4,
+          "action": "Создать платёж (аналогично покупке)",
+          "component": "services/payments/"
+        },
+        {
+          "order": 5,
+          "action": "После оплаты — обновить expiry_date в БД",
+          "component": "repositories/subscription_repository.py",
+          "calculation": "expiry_date += selected_period"
+        },
+        {
+          "order": 6,
+          "action": "Обновить expiry_time в панели (3x-ui или Hiddify)",
+          "component": "services/3xui_client.py или hiddify_client.py",
+          "method": "update_client или update_user"
+        },
+        {
+          "order": 7,
+          "action": "Отправить подтверждение продления",
+          "component": "bot/handlers/renew.py",
+          "ui": "Message с новой датой окончания"
+        }
+      ],
+      "error_handling": {
+        "no_active_subscription": "Показать сообщение 'Нет активной подписки'",
+        "panel_update_failed": "Логировать ERROR, создать тикет, не блокировать доступ"
+      }
+    },
+    
+    "view_subscription": {
+      "name": "Просмотр текущей подписки",
+      "trigger": "Пользователь нажимает /my или кнопку 'Моя подписка'",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Получить активную подписку из БД",
+          "component": "repositories/subscription_repository.py",
+          "query": "WHERE user_id = ? ORDER BY expiry_date DESC"
+        },
+        {
+          "order": 2,
+          "action": "Если подписки нет — показать сообщение",
+          "component": "bot/handlers/my_subscription.py",
+          "response": "❌ У вас нет активной подписки"
+        },
+        {
+          "order": 3,
+          "action": "Рассчитать оставшиеся дни",
+          "component": "bot/handlers/my_subscription.py",
+          "calculation": "(expiry_date - now).days"
+        },
+        {
+          "order": 4,
+          "action": "Получить актуальный трафик из панели",
+          "component": "services/3xui_client.py или hiddify_client.py",
+          "optional": true
+        },
+        {
+          "order": 5,
+          "action": "Сформировать и отправить сообщение",
+          "component": "bot/handlers/my_subscription.py",
+          "data": ["type", "status", "expiry_date", "days_left", "traffic", "link"]
+        }
+      ]
+    }
+  },
+  
+  "payment_workflows": {
+    "cryptomus_payment": {
+      "name": "Обработка платежа Cryptomus",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Создать платёж через API Cryptomus",
+          "endpoint": "POST /v1/payment",
+          "data": ["amount", "currency", "order_id", "url_return"]
+        },
+        {
+          "order": 2,
+          "action": "Получить payment_url и отправить пользователю",
+          "component": "bot/handlers/buy.py"
+        },
+        {
+          "order": 3,
+          "action": "Ожидать webhook на /webhook/cryptomus",
+          "component": "bot/handlers/payment_webhook.py"
+        },
+        {
+          "order": 4,
+          "action": "Верифицировать подпись webhook",
+          "component": "services/payments/cryptomus.py",
+          "method": "verify_signature"
+        },
+        {
+          "order": 5,
+          "action": "Проверить статус платежа",
+          "condition": "status == 'paid'"
+        },
+        {
+          "order": 6,
+          "action": "Найти Payment по order_id в БД",
+          "component": "repositories/payment_repository.py"
+        },
+        {
+          "order": 7,
+          "action": "Активировать подписку (создать в панели)",
+          "component": "services/subscription_service.py"
+        },
+        {
+          "order": 8,
+          "action": "Обновить Payment статус на 'paid'",
+          "component": "repositories/payment_repository.py"
+        }
+      ],
+      "webhook_verification": {
+        "method": "MD5 signature",
+        "algorithm": "md5(base64(json_data) + api_key)"
+      }
+    },
+    
+    "yookassa_payment": {
+      "name": "Обработка платежа YooKassa",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Создать платёж через API YooKassa",
+          "endpoint": "POST /payments",
+          "data": ["amount", "currency", "return_url", "confirmation"]
+        },
+        {
+          "order": 2,
+          "action": "Получить confirmation_url и отправить пользователю",
+          "component": "bot/handlers/buy.py"
+        },
+        {
+          "order": 3,
+          "action": "Ожидать webhook на /webhook/yookassa",
+          "component": "bot/handlers/payment_webhook.py"
+        },
+        {
+          "order": 4,
+          "action": "Верифицировать webhook через secret_key",
+          "component": "services/payments/yookassa.py",
+          "method": "verify_notification"
+        },
+        {
+          "order": 5,
+          "action": "Проверить статус платежа",
+          "condition": "status == 'succeeded'"
+        },
+        {
+          "order": 6,
+          "action": "Активировать подписку",
+          "component": "services/subscription_service.py"
+        }
+      ],
+      "webhook_verification": {
+        "method": "HMAC-SHA256",
+        "header": "X-Signature-SHA256"
+      }
+    },
+    
+    "telegram_stars_payment": {
+      "name": "Обработка платежа Telegram Stars",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Создать invoice через Bot API",
+          "method": "sendInvoice",
+          "data": ["title", "description", "payload", "currency", "prices"]
+        },
+        {
+          "order": 2,
+          "action": "Пользователь оплачивает в Telegram",
+          "component": "Telegram Client"
+        },
+        {
+          "order": 3,
+          "action": "Получить pre_checkout_query",
+          "component": "bot/handlers/payment.py",
+          "action": "Ответить answerPreCheckoutQuery(ok=True)"
+        },
+        {
+          "order": 4,
+          "action": "Получить successful_payment",
+          "component": "bot/handlers/payment.py"
+        },
+        {
+          "order": 5,
+          "action": "Активировать подписку",
+          "component": "services/subscription_service.py"
+        }
+      ],
+      "notes": "Не требует внешнего webhook, всё через Telegram Bot API"
+    }
+  },
+  
+  "background_worker_workflows": {
+    "subscription_expiry_check": {
+      "name": "Проверка истекающих подписок",
+      "schedule": "Каждый час",
+      "component": "workers/subscription_checker.py",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Найти подписки истекающие через 3 дня",
+          "query": "WHERE status='active' AND expiry_date BETWEEN now AND now+3days"
+        },
+        {
+          "order": 2,
+          "action": "Отправить напоминание каждому пользователю",
+          "component": "bot/",
+          "method": "send_message"
+        },
+        {
+          "order": 3,
+          "action": "Найти просроченные подписки",
+          "query": "WHERE status='active' AND expiry_date < now"
+        },
+        {
+          "order": 4,
+          "action": "Обновить статус на 'expired'",
+          "component": "repositories/subscription_repository.py"
+        },
+        {
+          "order": 5,
+          "action": "Удалить клиента из панели (3x-ui или Hiddify)",
+          "component": "services/3xui_client.py или hiddify_client.py"
+        },
+        {
+          "order": 6,
+          "action": "Залогировать событие",
+          "level": "INFO"
+        }
+      ]
+    },
+    
+    "traffic_sync": {
+      "name": "Синхронизация трафика",
+      "schedule": "Каждые 24 часа",
+      "component": "workers/traffic_sync.py",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Получить все активные RU подписки",
+          "query": "WHERE type='ru' AND status='active'"
+        },
+        {
+          "order": 2,
+          "action": "Для каждой — запросить трафик из 3x-ui",
+          "endpoint": "GET /getClientTraffic/:email",
+          "component": "services/3xui_client.py"
+        },
+        {
+          "order": 3,
+          "action": "Обновить traffic_used в БД",
+          "component": "repositories/subscription_repository.py"
+        },
+        {
+          "order": 4,
+          "action": "Проверить превышение лимита",
+          "condition": "traffic_used >= traffic_limit"
+        },
+        {
+          "order": 5,
+          "action": "Если превышен — заблокировать подписку",
+          "action_detail": "status='blocked', удалить из панели"
+        },
+        {
+          "order": 6,
+          "action": "Повторить шаги 1-5 для EU подписок (Hiddify)",
+          "component": "services/hiddify_client.py"
+        },
+        {
+          "order": 7,
+          "action": "Залогировать результаты синхронизации",
+          "level": "INFO"
+        }
+      ]
+    },
+    
+    "payment_webhook_processor": {
+      "name": "Обработка платёжных вебхуков",
+      "schedule": "Асинхронно (on demand)",
+      "component": "bot/handlers/payment_webhook.py",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Получить webhook запрос",
+          "method": "POST /webhook/:provider"
+        },
+        {
+          "order": 2,
+          "action": "Верифицировать подпись",
+          "component": "services/payments/:provider.py"
+        },
+        {
+          "order": 3,
+          "action": "Найти Payment по external_id",
+          "component": "repositories/payment_repository.py"
+        },
+        {
+          "order": 4,
+          "action": "Проверить что статус ещё 'pending'",
+          "condition": "status == 'pending' (idempotency)"
+        },
+        {
+          "order": 5,
+          "action": "Если paid — активировать подписку",
+          "component": "services/subscription_service.py"
+        },
+        {
+          "order": 6,
+          "action": "Обновить Payment статус",
+          "component": "repositories/payment_repository.py"
+        },
+        {
+          "order": 7,
+          "action": "Отправить уведомление пользователю",
+          "component": "bot/"
+        }
+      ],
+      "idempotency": "Проверка статуса перед обработкой предотвращает дубли"
+    }
+  },
+  
+  "admin_workflows": {
+    "admin_stats": {
+      "name": "Получение статистики",
+      "trigger": "Админ нажимает /stats",
+      "access_control": "ADMIN_TELEGRAM_ID check required",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Проверить права администратора",
+          "component": "middlewares/admin.py"
+        },
+        {
+          "order": 2,
+          "action": "Получить количество пользователей",
+          "query": "SELECT COUNT(*) FROM users"
+        },
+        {
+          "order": 3,
+          "action": "Получить количество активных подписок",
+          "query": "SELECT COUNT(*) FROM subscriptions WHERE status='active'"
+        },
+        {
+          "order": 4,
+          "action": "Получить сумму платежей за период",
+          "query": "SELECT SUM(amount) FROM payments WHERE created_at >= :date"
+        },
+        {
+          "order": 5,
+          "action": "Получить распределение по типам (RU/EU)",
+          "query": "SELECT type, COUNT(*) FROM subscriptions GROUP BY type"
+        },
+        {
+          "order": 6,
+          "action": "Сформировать и отправить отчёт",
+          "component": "bot/handlers/admin.py",
+          "format": "text + optional chart"
+        }
+      ]
+    },
+    
+    "admin_broadcast": {
+      "name": "Рассылка пользователям",
+      "trigger": "Админ нажимает /broadcast",
+      "access_control": "ADMIN_TELEGRAM_ID check required",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Проверить права администратора",
+          "component": "middlewares/admin.py"
+        },
+        {
+          "order": 2,
+          "action": "Запросить текст рассылки",
+          "component": "bot/handlers/admin.py",
+          "state": "waiting_broadcast_message"
+        },
+        {
+          "order": 3,
+          "action": "Получить всех пользователей из БД",
+          "query": "SELECT telegram_id FROM users"
+        },
+        {
+          "order": 4,
+          "action": "Отправить сообщение каждому пользователю",
+          "component": "bot/",
+          "method": "send_message",
+          "rate_limit": "10 сообщений в секунду"
+        },
+        {
+          "order": 5,
+          "action": "Залогировать результаты рассылки",
+          "data": ["sent_count", "failed_count"]
+        },
+        {
+          "order": 6,
+          "action": "Отправить отчёт админу",
+          "component": "bot/handlers/admin.py"
+        }
+      ]
+    },
+    
+    "admin_suspend": {
+      "name": "Приостановка подписки",
+      "trigger": "Админ нажимает /suspend <telegram_id>",
+      "access_control": "ADMIN_TELEGRAM_ID check required",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Проверить права администратора",
+          "component": "middlewares/admin.py"
+        },
+        {
+          "order": 2,
+          "action": "Найти пользователя по telegram_id",
+          "component": "repositories/user_repository.py"
+        },
+        {
+          "order": 3,
+          "action": "Найти активную подписку",
+          "component": "repositories/subscription_repository.py"
+        },
+        {
+          "order": 4,
+          "action": "Обновить статус на 'blocked'",
+          "component": "repositories/subscription_repository.py"
+        },
+        {
+          "order": 5,
+          "action": "Удалить клиента из панели",
+          "component": "services/3xui_client.py или hiddify_client.py"
+        },
+        {
+          "order": 6,
+          "action": "Залогировать действие админа",
+          "level": "WARNING",
+          "data": ["admin_id", "target_user_id", "action"]
+        },
+        {
+          "order": 7,
+          "action": "Подтвердить админу",
+          "component": "bot/handlers/admin.py"
+        }
+      ]
+    },
+    
+    "admin_grant": {
+      "name": "Выдача подписки вручную",
+      "trigger": "Админ нажимает /grant <telegram_id> [type] [days]",
+      "access_control": "ADMIN_TELEGRAM_ID check required",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Проверить права администратора",
+          "component": "middlewares/admin.py"
+        },
+        {
+          "order": 2,
+          "action": "Парсить аргументы (telegram_id, type, days)",
+          "component": "bot/handlers/admin.py"
+        },
+        {
+          "order": 3,
+          "action": "Найти или создать пользователя",
+          "component": "repositories/user_repository.py"
+        },
+        {
+          "order": 4,
+          "action": "Создать клиента в панели",
+          "component": "services/3xui_client.py или hiddify_client.py"
+        },
+        {
+          "order": 5,
+          "action": "Создать запись Subscription в БД",
+          "component": "repositories/subscription_repository.py",
+          "data": ["user_id", "type", "status='active'", "expiry_date=now+days"]
+        },
+        {
+          "order": 6,
+          "action": "Отправить ссылку пользователю",
+          "component": "bot/"
+        },
+        {
+          "order": 7,
+          "action": "Залогировать действие админа",
+          "level": "INFO"
+        }
+      ]
+    }
+  },
+  
+  "deployment_workflows": {
+    "local_development": {
+      "name": "Локальная разработка",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Клонировать репозиторий",
+          "command": "git clone <repo> && cd vpn-bot"
+        },
+        {
+          "order": 2,
+          "action": "Создать виртуальное окружение",
+          "command": "python -m venv venv && source venv/bin/activate"
+        },
+        {
+          "order": 3,
+          "action": "Установить зависимости",
+          "command": "pip install -r requirements.txt"
+        },
+        {
+          "order": 4,
+          "action": "Создать .env из .env.example",
+          "command": "cp .env.example .env"
+        },
+        {
+          "order": 5,
+          "action": "Заполнить .env значениями",
+          "file": ".env"
+        },
+        {
+          "order": 6,
+          "action": "Инициализировать БД",
+          "command": "python -m src.core.database"
+        },
+        {
+          "order": 7,
+          "action": "Запустить бота",
+          "command": "python -m src.bot.main"
+        },
+        {
+          "order": 8,
+          "action": "Запустить воркер (отдельный терминал)",
+          "command": "python -m src.workers.scheduler"
+        }
+      ]
+    },
+    
+    "docker_deployment": {
+      "name": "Docker развёртывание",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Создать .env файл",
+          "file": ".env"
+        },
+        {
+          "order": 2,
+          "action": "Собрать Docker образ",
+          "command": "docker-compose build"
+        },
+        {
+          "order": 3,
+          "action": "Запустить контейнеры",
+          "command": "docker-compose up -d"
+        },
+        {
+          "order": 4,
+          "action": "Проверить статус контейнеров",
+          "command": "docker-compose ps"
+        },
+        {
+          "order": 5,
+          "action": "Проверить логи",
+          "command": "docker-compose logs -f bot"
+        },
+        {
+          "order": 6,
+          "action": "Применить миграции БД",
+          "command": "docker-compose exec bot alembic upgrade head"
+        }
+      ],
+      "services": ["bot", "worker", "db"],
+      "volumes": ["./logs:/app/logs", "postgres_data:/var/lib/postgresql/data"]
+    },
+    
+    "production_update": {
+      "name": "Обновление production",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Сделать backup БД",
+          "command": "docker-compose exec db pg_dump > backup.sql"
+        },
+        {
+          "order": 2,
+          "action": "Пуллить новые изменения",
+          "command": "git pull origin main"
+        },
+        {
+          "order": 3,
+          "action": "Пересобрать образ",
+          "command": "docker-compose build"
+        },
+        {
+          "order": 4,
+          "action": "Остановить контейнеры",
+          "command": "docker-compose down"
+        },
+        {
+          "order": 5,
+          "action": "Запустить новые контейнеры",
+          "command": "docker-compose up -d"
+        },
+        {
+          "order": 6,
+          "action": "Применить миграции",
+          "command": "docker-compose exec bot alembic upgrade head"
+        },
+        {
+          "order": 7,
+          "action": "Проверить работоспособность",
+          "command": "docker-compose logs -f"
+        }
+      ],
+      "rollback": {
+        "trigger": "Если обновление неудачное",
+        "steps": [
+          "docker-compose down",
+          "git revert <commit>",
+          "docker-compose build",
+          "docker-compose up -d",
+          "Восстановить БД из backup"
+        ]
+      }
+    }
+  },
+  
+  "testing_workflows": {
+    "unit_tests": {
+      "name": "Запуск unit тестов",
+      "command": "pytest tests/unit/ -v --cov=src",
+      "requirements": ["pytest", "pytest-asyncio", "pytest-cov"],
+      "coverage_target": "80%"
+    },
+    
+    "integration_tests": {
+      "name": "Запуск integration тестов",
+      "command": "pytest tests/integration/ -v",
+      "requirements": ["test database", "mocked API services"],
+      "notes": "Требует настроенный .env.test"
+    },
+    
+    "manual_testing": {
+      "name": "Ручное тестирование",
+      "checklist": [
+        "Проверить /start — приветствие приходит",
+        "Проверить /buy — выбор типа и срока работает",
+        "Проверить оплату (test mode)",
+        "Проверить получение VPN ссылки",
+        "Проверить /my — отображение подписки",
+        "Проверить /renew — продление работает",
+        "Проверить админ команды",
+        "Проверить фоновые задачи (логи)"
+      ]
+    }
+  },
+  
+  "qwen_cli_workflows": {
+    "code_generation": {
+      "name": "Генерация кода через Qwen CLI",
+      "steps": [
+        {
+          "order": 1,
+          "action": "Изучить контекст",
+          "files": [".qwen/mcp.json", ".qwen/context.json", "spec.md"]
+        },
+        {
+          "order": 2,
+          "action": "Проверить существующие сниппеты",
+          "file": ".qwen/snippets.json"
+        },
+        {
+          "order": 3,
+          "action": "Сгенерировать код с учётом правил",
+          "rules_file": ".qwen/rules.md"
+        },
+        {
+          "order": 4,
+          "action": "Применить навыки",
+          "skills_file": ".qwen/skills.json"
+        },
+        {
+          "order": 5,
+          "action": "Проверить соответствие workflow",
+          "file": ".qwen/workflows.json"
+        }
+      ]
+    },
+    
+    "file_creation_priority": {
+      "name": "Приоритет создания файлов",
+      "order": [
+        "1. Models (src/models/)",
+        "2. Repositories (src/repositories/)",
+        "3. Services (src/services/)",
+        "4. Bot handlers (src/bot/handlers/)",
+        "5. Workers (src/workers/)",
+        "6. Tests (tests/)",
+        "7. Configuration (src/core/)"
+      ]
+    },
+    
+    "context_files_hierarchy": {
+      "name": "Иерархия контекстных файлов",
+      "priority": [
+        {"file": "spec.md", "priority": 1, "description": "Основная спецификация"},
+        {"file": ".qwen/mcp.json", "priority": 2, "description": "Конфигурация проекта"},
+        {"file": ".qwen/rules.md", "priority": 3, "description": "Правила кодирования"},
+        {"file": ".qwen/skills.json", "priority": 4, "description": "Навыки и паттерны"},
+        {"file": ".qwen/context.json", "priority": 5, "description": "Состояние проекта"},
+        {"file": ".qwen/snippets.json", "priority": 6, "description": "Шаблоны кода"},
+        {"file": ".qwen/workflows.json", "priority": 7, "description": "Рабочие процессы"},
+        {"file": ".qwen/troubleshooting.md", "priority": 8, "description": "Устранение проблем"}
+      ]
+    }
+  }
+}

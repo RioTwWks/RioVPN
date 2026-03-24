@@ -1,0 +1,181 @@
+{
+  "meta": {
+    "project": "Telegram VPN Subscription Bot",
+    "version": "1.0.0",
+    "language": "Python 3.11+",
+    "framework": "aiogram 3.x + SQLAlchemy 2.x async"
+  },
+  
+  "snippets": {
+    "models": {
+      "user_model": {
+        "description": "SQLAlchemy модель пользователя Telegram",
+        "file": "src/models/user.py",
+        "code": "from sqlalchemy import Column, Integer, BigInteger, String, DateTime\nfrom sqlalchemy.orm import declarative_base\nfrom datetime import datetime\n\nBase = declarative_base()\n\nclass User(Base):\n    __tablename__ = 'users'\n    \n    id = Column(Integer, primary_key=True)\n    telegram_id = Column(BigInteger, unique=True, nullable=False, index=True)\n    username = Column(String(255), nullable=True)\n    created_at = Column(DateTime, default=datetime.utcnow)\n    \n    def __repr__(self) -> str:\n        return f\"<User(telegram_id={self.telegram_id})>\""
+      },
+      
+      "subscription_model": {
+        "description": "SQLAlchemy модель подписки",
+        "file": "src/models/subscription.py",
+        "code": "from sqlalchemy import Column, Integer, ForeignKey, String, Text, BigInteger, DateTime, Enum\nfrom sqlalchemy.orm import relationship, declarative_base\nfrom datetime import datetime\nimport enum\n\nBase = declarative_base()\n\nclass SubscriptionType(enum.Enum):\n    ru = \"ru\"\n    eu = \"eu\"\n\nclass SubscriptionStatus(enum.Enum):\n    active = \"active\"\n    expired = \"expired\"\n    blocked = \"blocked\"\n\nclass Subscription(Base):\n    __tablename__ = 'subscriptions'\n    \n    id = Column(Integer, primary_key=True)\n    user_id = Column(ForeignKey('users.id'), nullable=False)\n    type = Column(Enum(SubscriptionType), nullable=False)\n    status = Column(Enum(SubscriptionStatus), default=SubscriptionStatus.active)\n    start_date = Column(DateTime, nullable=False, default=datetime.utcnow)\n    expiry_date = Column(DateTime, nullable=False)\n    traffic_limit = Column(BigInteger, nullable=True)\n    traffic_used = Column(BigInteger, default=0)\n    panel_uuid = Column(String(64), nullable=True)\n    inbound_tag = Column(String(255), nullable=True)\n    link = Column(Text, nullable=True)\n    \n    user = relationship(\"User\", backref=\"subscriptions\")\n    \n    def is_active(self) -> bool:\n        return self.status == SubscriptionStatus.active and datetime.utcnow() < self.expiry_date"
+      },
+      
+      "payment_model": {
+        "description": "SQLAlchemy модель платежа",
+        "file": "src/models/payment.py",
+        "code": "from sqlalchemy import Column, Integer, ForeignKey, String, Numeric, DateTime\nfrom sqlalchemy.orm import relationship, declarative_base\nfrom datetime import datetime\n\nBase = declarative_base()\n\nclass Payment(Base):\n    __tablename__ = 'payments'\n    \n    id = Column(Integer, primary_key=True)\n    user_id = Column(ForeignKey('users.id'), nullable=False)\n    amount = Column(Numeric(10, 2), nullable=False)\n    currency = Column(String(3), default='RUB')\n    status = Column(String(50), default='pending')\n    provider = Column(String(50), nullable=False)\n    external_id = Column(String(255), nullable=True)\n    created_at = Column(DateTime, default=datetime.utcnow)\n    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)\n    \n    user = relationship(\"User\", backref=\"payments\")"
+      },
+      
+      "settings_model": {
+        "description": "SQLAlchemy модель настроек",
+        "file": "src/models/settings.py",
+        "code": "from sqlalchemy import Column, String, Text, DateTime\nfrom sqlalchemy.orm import declarative_base\nfrom datetime import datetime\n\nBase = declarative_base()\n\nclass Settings(Base):\n    __tablename__ = 'settings'\n    \n    key = Column(String(255), primary_key=True)\n    value = Column(Text, nullable=False)\n    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)\n    \n    @classmethod\n    async def get(cls, session, key: str, default: str | None = None) -> str | None:\n        from sqlalchemy import select\n        result = await session.execute(select(cls).where(cls.key == key))\n        row = result.scalar_one_or_none()\n        return row.value if row else default\n    \n    @classmethod\n    async def set(cls, session, key: str, value: str) -> None:\n        from sqlalchemy import select, update\n        result = await session.execute(select(cls).where(cls.key == key))\n        row = result.scalar_one_or_none()\n        if row:\n            await session.execute(update(cls).where(cls.key == key).values(value=value, updated_at=datetime.utcnow()))\n        else:\n            session.add(cls(key=key, value=value))"
+      }
+    },
+    
+    "database": {
+      "async_session": {
+        "description": "Асинхронная сессия SQLAlchemy",
+        "file": "src/core/database.py",
+        "code": "from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker\nfrom sqlalchemy.orm import declarative_base\nimport os\n\nDATABASE_URL = os.getenv(\"DATABASE_URL\", \"sqlite+aiosqlite:///vpn_bot.db\")\n\nengine = create_async_engine(DATABASE_URL, echo=False, future=True)\nasync_session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)\n\nBase = declarative_base()\n\nasync def get_session() -> AsyncSession:\n    async with async_session_maker() as session:\n        yield session\n\nasync def init_db():\n    async with engine.begin() as conn:\n        await conn.run_sync(Base.metadata.create_all)"
+      },
+      
+      "repository_pattern": {
+        "description": "Репозиторий для работы с пользователями",
+        "file": "src/repositories/user_repository.py",
+        "code": "from sqlalchemy.ext.asyncio import AsyncSession\nfrom sqlalchemy import select\nfrom src.models.user import User\nfrom typing import Optional\n\nclass UserRepository:\n    def __init__(self, session: AsyncSession):\n        self.session = session\n    \n    async def get_by_telegram_id(self, telegram_id: int) -> Optional[User]:\n        result = await self.session.execute(select(User).where(User.telegram_id == telegram_id))\n        return result.scalar_one_or_none()\n    \n    async def create(self, telegram_id: int, username: str | None = None) -> User:\n        user = User(telegram_id=telegram_id, username=username)\n        self.session.add(user)\n        await self.session.commit()\n        await self.session.refresh(user)\n        return user\n    \n    async def get_or_create(self, telegram_id: int, username: str | None = None) -> User:\n        user = await self.get_by_telegram_id(telegram_id)\n        if not user:\n            user = await self.create(telegram_id, username)\n        return user"
+      }
+    },
+    
+    "bot_handlers": {
+      "start_handler": {
+        "description": "Handler команды /start",
+        "file": "src/bot/handlers/start.py",
+        "code": "from aiogram import Router, F\nfrom aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton\nfrom aiogram.filters import Command\nfrom sqlalchemy.ext.asyncio import AsyncSession\n\nrouter = Router()\n\n@router.message(Command(\"start\"))\nasync def cmd_start(message: Message, session: AsyncSession) -> None:\n    from src.repositories.user_repository import UserRepository\n    \n    user_repo = UserRepository(session)\n    user = await user_repo.get_or_create(\n        telegram_id=message.from_user.id,\n        username=message.from_user.username\n    )\n    \n    keyboard = InlineKeyboardMarkup(inline_keyboard=[\n        [InlineKeyboardButton(text=\"💰 Купить подписку\", callback_data=\"buy\")],\n        [InlineKeyboardButton(text=\"📊 Моя подписка\", callback_data=\"my_subscription\")],\n        [InlineKeyboardButton(text=\"❓ Поддержка\", callback_data=\"support\")]\n    ])\n    \n    await message.answer(\n        f\"👋 Привет, {message.from_user.first_name}!\\n\\n\"\n        \"Я бот для продажи VPN-подписок.\\n\"\n        \"Выберите действие:\",\n        reply_markup=keyboard\n    )"
+      },
+      
+      "buy_handler": {
+        "description": "Handler команды /buy с выбором типа подписки",
+        "file": "src/bot/handlers/buy.py",
+        "code": "from aiogram import Router, F\nfrom aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton\nfrom aiogram.fsm.context import FSMContext\nfrom aiogram.fsm.state import State, StatesGroup\n\nclass BuyStates(StatesGroup):\n    selecting_type = State()\n    selecting_period = State()\n    confirming_payment = State()\n\nrouter = Router()\n\n@router.callback_query(F.data == \"buy\")\nasync def buy_start(callback: CallbackQuery, state: FSMContext) -> None:\n    keyboard = InlineKeyboardMarkup(inline_keyboard=[\n        [InlineKeyboardButton(text=\"🇷🇺 Россия (RU)\", callback_data=\"buy_type_ru\")],\n        [InlineKeyboardButton(text=\"🇪🇺 Европа (EU)\", callback_data=\"buy_type_eu\")],\n        [InlineKeyboardButton(text=\"❌ Отмена\", callback_data=\"cancel\")]\n    ])\n    \n    await callback.message.edit_text(\n        \"🌍 Выберите регион подключения:\",\n        reply_markup=keyboard\n    )\n    await state.set_state(BuyStates.selecting_type)"
+      },
+      
+      "my_subscription_handler": {
+        "description": "Handler просмотра текущей подписки",
+        "file": "src/bot/handlers/my_subscription.py",
+        "code": "from aiogram import Router, F\nfrom aiogram.types import CallbackQuery, Message\nfrom aiogram.filters import Command\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom sqlalchemy import select\nfrom datetime import datetime\n\nrouter = Router()\n\n@router.callback_query(F.data == \"my_subscription\")\n@router.message(Command(\"my\"))\nasync def show_subscription(event: CallbackQuery | Message, session: AsyncSession) -> None:\n    from src.models.subscription import Subscription, SubscriptionStatus\n    from src.models.user import User\n    \n    telegram_id = event.from_user.id\n    \n    result = await session.execute(\n        select(Subscription)\n        .join(User)\n        .where(User.telegram_id == telegram_id)\n        .where(Subscription.status == SubscriptionStatus.active)\n        .order_by(Subscription.expiry_date.desc())\n    )\n    subscription = result.scalar_one_or_none()\n    \n    if not subscription:\n        text = \"❌ У вас нет активной подписки.\\n\\nИспользуйте /buy для покупки.\"\n    else:\n        days_left = (subscription.expiry_date - datetime.utcnow()).days\n        traffic_used = subscription.traffic_used or 0\n        traffic_limit = subscription.traffic_limit or float('inf')\n        \n        text = (\n            f\"✅ Ваша подписка активна\\n\\n\"\n            f\"🌍 Тип: {'🇷🇺 Россия' if subscription.type == 'ru' else '🇪🇺 Европа'}\\n\"\n            f\"📅 Истекает: {subscription.expiry_date.strftime('%d.%m.%Y')}\\n\"\n            f\"⏳ Осталось дней: {days_left}\\n\"\n            f\"📊 Трафик: {traffic_used / 1024 / 1024 / 1024:.2f} GB\"\n        )\n        \n        if subscription.link:\n            text += f\"\\n\\n🔗 Ваша ссылка:\\n`{subscription.link}`\"\n    \n    if isinstance(event, CallbackQuery):\n        await event.message.edit_text(text)\n    else:\n        await event.answer(text)"
+      }
+    },
+    
+    "api_clients": {
+      "3xui_client": {
+        "description": "API клиент для 3x-ui панели",
+        "file": "src/services/3xui_client.py",
+        "code": "import aiohttp\nfrom aiohttp import BasicAuth\nfrom typing import Optional\nimport os\nfrom tenacity import retry, stop_after_attempt, wait_exponential\n\nclass ThreeXUIClient:\n    def __init__(self):\n        self.base_url = os.getenv(\"PANEL_3XUI_URL\")\n        self.auth = BasicAuth(\n            login=os.getenv(\"PANEL_3XUI_USER\"),\n            password=os.getenv(\"PANEL_3XUI_PASS\")\n        )\n    \n    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))\n    async def get_inbounds(self) -> list:\n        async with aiohttp.ClientSession(auth=self.auth) as session:\n            async with session.get(f\"{self.base_url}/panel/api/inbounds/list\") as resp:\n                resp.raise_for_status()\n                data = await resp.json()\n                return data.get('obj', [])\n    \n    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))\n    async def add_client(self, inbound_id: int, email: str, uuid: str, expiry_time: int, traffic_limit: Optional[int] = None) -> bool:\n        client_config = {\n            \"id\": uuid,\n            \"email\": email,\n            \"flow\": \"xtls-rprx-vision\",\n            \"limitIp\": 0,\n            \"totalGB\": traffic_limit or 0,\n            \"expiryTime\": expiry_time,\n            \"enable\": True,\n            \"tgId\": \"\",\n            \"subId\": \"\"\n        }\n        \n        async with aiohttp.ClientSession(auth=self.auth) as session:\n            async with session.post(\n                f\"{self.base_url}/panel/api/inbounds/addClient\",\n                json={\"id\": inbound_id, \"settings\": client_config}\n            ) as resp:\n                resp.raise_for_status()\n                data = await resp.json()\n                return data.get('success', False)\n    \n    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))\n    async def get_client_traffic(self, email: str) -> int:\n        async with aiohttp.ClientSession(auth=self.auth) as session:\n            async with session.get(f\"{self.base_url}/panel/api/inbounds/getClientTraffic/{email}\") as resp:\n                resp.raise_for_status()\n                data = await resp.json()\n                obj = data.get('obj', {})\n                return obj.get('up', 0) + obj.get('down', 0)"
+      },
+      
+      "hiddify_client": {
+        "description": "API клиент для Hiddify-Manager",
+        "file": "src/services/hiddify_client.py",
+        "code": "import aiohttp\nfrom typing import Optional\nimport os\nfrom tenacity import retry, stop_after_attempt, wait_exponential\n\nclass HiddifyClient:\n    def __init__(self):\n        self.base_url = f\"{os.getenv('PANEL_HIDDIFY_URL')}/api/v2/\"\n        self.headers = {\"Hiddify-API-Key\": os.getenv(\"PANEL_HIDDIFY_API_KEY\")}\n    \n    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))\n    async def create_user(self, username: str, expiry_days: int, traffic_limit: Optional[int] = None) -> dict:\n        import time\n        payload = {\n            \"username\": username,\n            \"expiry_time\": int(time.time()) + (expiry_days * 24 * 60 * 60),\n            \"data_limit\": traffic_limit,\n            \"enabled\": True\n        }\n        \n        async with aiohttp.ClientSession(headers=self.headers) as session:\n            async with session.post(f\"{self.base_url}admin/user/\", json=payload) as resp:\n                resp.raise_for_status()\n                return await resp.json()\n    \n    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))\n    async def get_user(self, uuid: str) -> dict:\n        async with aiohttp.ClientSession(headers=self.headers) as session:\n            async with session.get(f\"{self.base_url}admin/user/{uuid}\") as resp:\n                resp.raise_for_status()\n                return await resp.json()\n    \n    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))\n    async def update_user(self, uuid: str, expiry_days: int, traffic_limit: Optional[int] = None) -> dict:\n        import time\n        payload = {\n            \"expiry_time\": int(time.time()) + (expiry_days * 24 * 60 * 60),\n            \"data_limit\": traffic_limit\n        }\n        \n        async with aiohttp.ClientSession(headers=self.headers) as session:\n            async with session.put(f\"{self.base_url}admin/user/{uuid}\", json=payload) as resp:\n                resp.raise_for_status()\n                return await resp.json()\n    \n    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))\n    async def delete_user(self, uuid: str) -> bool:\n        async with aiohttp.ClientSession(headers=self.headers) as session:\n            async with session.delete(f\"{self.base_url}admin/user/{uuid}\") as resp:\n                resp.raise_for_status()\n                return resp.status == 200"
+      }
+    },
+    
+    "payments": {
+      "cryptomus_client": {
+        "description": "Клиент для платёжной системы Cryptomus",
+        "file": "src/services/payments/cryptomus.py",
+        "code": "import aiohttp\nimport hashlib\nimport json\nimport os\nfrom typing import Optional\n\nclass CryptomusClient:\n    def __init__(self):\n        self.api_key = os.getenv(\"CRYPTOMUS_API_KEY\")\n        self.base_url = \"https://api.cryptomus.com/v1\"\n    \n    def _sign(self, data: dict) -> str:\n        json_data = json.dumps(data)\n        b64_data = base64.b64encode(json_data.encode()).decode()\n        sign = hashlib.md5((b64_data + self.api_key).encode()).hexdigest()\n        return sign\n    \n    async def create_payment(self, amount: float, currency: str, order_id: str) -> dict:\n        data = {\n            \"amount\": str(amount),\n            \"currency\": currency,\n            \"order_id\": order_id,\n            \"url_return\": os.getenv(\"BOT_WEBHOOK_URL\")\n        }\n        \n        async with aiohttp.ClientSession() as session:\n            async with session.post(\n                f\"{self.base_url}/payment\",\n                json=data,\n                headers={\"sign\": self._sign(data)}\n            ) as resp:\n                resp.raise_for_status()\n                return await resp.json()\n    \n    async def verify_payment(self, order_id: str) -> dict:\n        data = {\"order_id\": order_id}\n        \n        async with aiohttp.ClientSession() as session:\n            async with session.post(\n                f\"{self.base_url}/payment/status\",\n                json=data,\n                headers={\"sign\": self._sign(data)}\n            ) as resp:\n                resp.raise_for_status()\n                return await resp.json()"
+      },
+      
+      "payment_webhook": {
+        "description": "Webhook handler для обработки платежей",
+        "file": "src/bot/handlers/payment_webhook.py",
+        "code": "from aiohttp import web\nfrom sqlalchemy.ext.asyncio import AsyncSession\nimport logging\n\nlogger = logging.getLogger(__name__)\n\nasync def handle_cryptomus_webhook(request: web.Request) -> web.Response:\n    try:\n        data = await request.json()\n        order_id = data.get('order_id')\n        status = data.get('status')\n        \n        if status == 'paid':\n            # Активировать подписку\n            async with request.app['session_maker']() as session:\n                # Логика активации подписки\n                await session.commit()\n            \n            logger.info(f\"Payment verified: {order_id}\")\n            return web.json_response({\"status\": \"success\"})\n        \n        return web.json_response({\"status\": \"ignored\"})\n    \n    except Exception as e:\n        logger.error(f\"Webhook error: {e}\", exc_info=True)\n        return web.json_response({\"status\": \"error\"}, status=500)"
+      }
+    },
+    
+    "workers": {
+      "subscription_checker": {
+        "description": "Фоновая задача проверки истекающих подписок",
+        "file": "src/workers/subscription_checker.py",
+        "code": "from apscheduler.schedulers.asyncio import AsyncIOScheduler\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom sqlalchemy import select\nfrom datetime import datetime, timedelta\nimport logging\n\nlogger = logging.getLogger(__name__)\n\nasync def check_expiring_subscriptions(session: AsyncSession, bot) -> None:\n    from src.models.subscription import Subscription, SubscriptionStatus\n    from src.models.user import User\n    \n    now = datetime.utcnow()\n    \n    # Найти подписки, истекающие через 3 дня\n    result = await session.execute(\n        select(Subscription, User)\n        .join(User)\n        .where(Subscription.status == SubscriptionStatus.active)\n        .where(Subscription.expiry_date <= now + timedelta(days=3))\n        .where(Subscription.expiry_date > now)\n    )\n    \n    for subscription, user in result.all():\n        days_left = (subscription.expiry_date - now).days\n        try:\n            await bot.send_message(\n                user.telegram_id,\n                f\"⚠️ Ваша подписка истекает через {days_left} дн.\\n\\n\"\n                f\"Используйте /renew для продления.\"\n            )\n            logger.info(f\"Reminder sent to {user.telegram_id}\")\n        except Exception as e:\n            logger.error(f\"Failed to send reminder: {e}\")\n\nasync def check_expired_subscriptions(session: AsyncSession) -> None:\n    from src.models.subscription import Subscription, SubscriptionStatus\n    \n    now = datetime.utcnow()\n    \n    result = await session.execute(\n        select(Subscription)\n        .where(Subscription.status == SubscriptionStatus.active)\n        .where(Subscription.expiry_date <= now)\n    )\n    \n    for subscription in result.scalars().all():\n        subscription.status = SubscriptionStatus.expired\n        logger.info(f\"Subscription {subscription.id} marked as expired\")\n    \n    await session.commit()\n\ndef setup_scheduler(scheduler: AsyncIOScheduler, session_maker, bot) -> None:\n    scheduler.add_job(\n        check_expiring_subscriptions,\n        'interval',\n        hours=1,\n        args=[session_maker, bot],\n        id='check_expiring'\n    )\n    scheduler.add_job(\n        check_expired_subscriptions,\n        'interval',\n        hours=1,\n        args=[session_maker],\n        id='check_expired'\n    )"
+      },
+      
+      "traffic_sync": {
+        "description": "Фоновая задача синхронизации трафика",
+        "file": "src/workers/traffic_sync.py",
+        "code": "from sqlalchemy.ext.asyncio import AsyncSession\nfrom sqlalchemy import select\nimport logging\n\nlogger = logging.getLogger(__name__)\n\nasync def sync_traffic_3xui(session: AsyncSession, client_3xui) -> None:\n    from src.models.subscription import Subscription, SubscriptionStatus, SubscriptionType\n    \n    result = await session.execute(\n        select(Subscription)\n        .where(Subscription.type == SubscriptionType.ru)\n        .where(Subscription.status == SubscriptionStatus.active)\n        .where(Subscription.panel_uuid != None)\n    )\n    \n    for subscription in result.scalars().all():\n        try:\n            traffic = await client_3xui.get_client_traffic(subscription.panel_uuid)\n            subscription.traffic_used = traffic\n            \n            if subscription.traffic_limit and traffic >= subscription.traffic_limit:\n                subscription.status = SubscriptionStatus.blocked\n                logger.info(f\"Subscription {subscription.id} blocked (traffic exceeded)\")\n        except Exception as e:\n            logger.error(f\"Failed to sync traffic for {subscription.id}: {e}\")\n    \n    await session.commit()\n\nasync def sync_traffic_hiddify(session: AsyncSession, client_hiddify) -> None:\n    from src.models.subscription import Subscription, SubscriptionStatus, SubscriptionType\n    \n    result = await session.execute(\n        select(Subscription)\n        .where(Subscription.type == SubscriptionType.eu)\n        .where(Subscription.status == SubscriptionStatus.active)\n        .where(Subscription.panel_uuid != None)\n    )\n    \n    for subscription in result.scalars().all():\n        try:\n            user_data = await client_hiddify.get_user(subscription.panel_uuid)\n            traffic_used = user_data.get('data_used', 0)\n            subscription.traffic_used = traffic_used\n            \n            if subscription.traffic_limit and traffic_used >= subscription.traffic_limit:\n                subscription.status = SubscriptionStatus.blocked\n                logger.info(f\"Subscription {subscription.id} blocked (traffic exceeded)\")\n        except Exception as e:\n            logger.error(f\"Failed to sync traffic for {subscription.id}: {e}\")\n    \n    await session.commit()"
+      }
+    },
+    
+    "utilities": {
+      "config_loader": {
+        "description": "Загрузчик конфигурации из переменных окружения",
+        "file": "src/core/config.py",
+        "code": "import os\nfrom typing import Optional\nfrom pydantic import BaseModel\n\nclass Settings(BaseModel):\n    bot_token: str\n    database_url: str = \"sqlite+aiosqlite:///vpn_bot.db\"\n    \n    # 3x-ui\n    panel_3xui_url: str\n    panel_3xui_user: str\n    panel_3xui_pass: str\n    inbound_ru_tag: str\n    sni_ru: str\n    public_key_ru: str\n    short_id_ru: str\n    server_address_ru: str\n    server_port_ru: int\n    \n    # Hiddify\n    panel_hiddify_url: str\n    panel_hiddify_api_key: str\n    \n    # Payments\n    cryptomus_api_key: Optional[str] = None\n    yookassa_shop_id: Optional[str] = None\n    yookassa_secret_key: Optional[str] = None\n    \n    # Admin\n    admin_telegram_id: int\n    \n    # Defaults\n    default_traffic_limit_ru: Optional[int] = None\n    default_traffic_limit_eu: Optional[int] = None\n    \n    @classmethod\n    def from_env(cls) -> 'Settings':\n        return cls(\n            bot_token=os.getenv(\"BOT_TOKEN\"),\n            database_url=os.getenv(\"DATABASE_URL\", \"sqlite+aiosqlite:///vpn_bot.db\"),\n            panel_3xui_url=os.getenv(\"PANEL_3XUI_URL\"),\n            panel_3xui_user=os.getenv(\"PANEL_3XUI_USER\"),\n            panel_3xui_pass=os.getenv(\"PANEL_3XUI_PASS\"),\n            inbound_ru_tag=os.getenv(\"INBOUND_RU_TAG\"),\n            sni_ru=os.getenv(\"SNI_RU\"),\n            public_key_ru=os.getenv(\"PUBLIC_KEY_RU\"),\n            short_id_ru=os.getenv(\"SHORT_ID_RU\"),\n            server_address_ru=os.getenv(\"SERVER_ADDRESS_RU\"),\n            server_port_ru=int(os.getenv(\"SERVER_PORT_RU\", \"8443\")),\n            panel_hiddify_url=os.getenv(\"PANEL_HIDDIFY_URL\"),\n            panel_hiddify_api_key=os.getenv(\"PANEL_HIDDIFY_API_KEY\"),\n            cryptomus_api_key=os.getenv(\"CRYPTOMUS_API_KEY\"),\n            yookassa_shop_id=os.getenv(\"YOOKASSA_SHOP_ID\"),\n            yookassa_secret_key=os.getenv(\"YOOKASSA_SECRET_KEY\"),\n            admin_telegram_id=int(os.getenv(\"ADMIN_TELEGRAM_ID\", \"0\")),\n            default_traffic_limit_ru=int(os.getenv(\"DEFAULT_TRAFFIC_LIMIT_RU\", \"0\")) or None,\n            default_traffic_limit_eu=int(os.getenv(\"DEFAULT_TRAFFIC_LIMIT_EU\", \"0\")) or None\n        )"
+      },
+      
+      "logging_setup": {
+        "description": "Настройка логирования",
+        "file": "src/core/logging_config.py",
+        "code": "import logging\nimport sys\nfrom logging.handlers import RotatingFileHandler\nimport os\n\ndef setup_logging(level: int = logging.INFO) -> None:\n    os.makedirs('logs', exist_ok=True)\n    \n    formatter = logging.Formatter(\n        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',\n        datefmt='%Y-%m-%d %H:%M:%S'\n    )\n    \n    console_handler = logging.StreamHandler(sys.stdout)\n    console_handler.setFormatter(formatter)\n    \n    file_handler = RotatingFileHandler(\n        'logs/bot.log',\n        maxBytes=10*1024*1024,\n        backupCount=5\n    )\n    file_handler.setFormatter(formatter)\n    \n    root_logger = logging.getLogger()\n    root_logger.setLevel(level)\n    root_logger.addHandler(console_handler)\n    root_logger.addHandler(file_handler)\n    \n    logging.getLogger('aiohttp').setLevel(logging.WARNING)\n    logging.getLogger('sqlalchemy').setLevel(logging.WARNING)"
+      },
+      
+      "vless_link_generator": {
+        "description": "Генератор VLESS ссылок для RU-подписок",
+        "file": "src/utils/vless_generator.py",
+        "code": "from typing import Optional\n\ndef generate_vless_link(\n    uuid: str,\n    server: str,\n    port: int,\n    sni: str,\n    public_key: str,\n    short_id: str,\n    tag: str = \"RU-VPN\"\n) -> str:\n    params = {\n        'encryption': 'none',\n        'flow': 'xtls-rprx-vision',\n        'security': 'reality',\n        'sni': sni,\n        'fp': 'chrome',\n        'pbk': public_key,\n        'sid': short_id,\n        'type': 'xhttp',\n        'path': '/',\n        'mode': 'auto'\n    }\n    \n    query = '&'.join(f\"{k}={v}\" for k, v in params.items())\n    return f\"vless://{uuid}@{server}:{port}?{query}#{tag}\""
+      }
+    },
+    
+    "docker": {
+      "dockerfile": {
+        "description": "Dockerfile для бота",
+        "file": "docker/Dockerfile",
+        "code": "FROM python:3.11-slim\n\nWORKDIR /app\n\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\nCOPY src/ ./src/\nCOPY migrations/ ./migrations/\n\nRUN mkdir -p logs\n\nCMD [\"python\", \"-m\", \"src.bot.main\"]"
+      },
+      
+      "docker_compose": {
+        "description": "Docker Compose для развёртывания",
+        "file": "docker/docker-compose.yml",
+        "code": "version: '3.8'\n\nservices:\n  bot:\n    build: .\n    env_file: .env\n    volumes:\n      - ./logs:/app/logs\n    restart: unless-stopped\n    depends_on:\n      - db\n\n  worker:\n    build: .\n    env_file: .env\n    command: python -m src.workers.scheduler\n    volumes:\n      - ./logs:/app/logs\n    restart: unless-stopped\n    depends_on:\n      - db\n\n  db:\n    image: postgres:15\n    env_file: .env\n    volumes:\n      - postgres_data:/var/lib/postgresql/data\n    restart: unless-stopped\n\nvolumes:\n  postgres_data:"
+      }
+    },
+    
+    "tests": {
+      "pytest_config": {
+        "description": "Конфигурация pytest",
+        "file": "pytest.ini",
+        "code": "[pytest]\nasyncio_mode = auto\ntestpaths = tests\npython_files = test_*.py\npython_functions = test_*\naddopts = -v --cov=src --cov-report=html"
+      },
+      
+      "test_handler": {
+        "description": "Шаблон теста для handler",
+        "file": "tests/test_start_handler.py",
+        "code": "import pytest\nfrom unittest.mock import AsyncMock, patch\nfrom aiogram.types import Message\nfrom src.bot.handlers.start import cmd_start\n\n@pytest.mark.asyncio\nasync def test_cmd_start_creates_user():\n    message = AsyncMock(spec=Message)\n    message.from_user.id = 123456\n    message.from_user.username = \"testuser\"\n    message.from_user.first_name = \"Test\"\n    \n    session = AsyncMock()\n    \n    with patch('src.bot.handlers.start.UserRepository') as mock_repo:\n        mock_repo_instance = AsyncMock()\n        mock_repo.return_value = mock_repo_instance\n        \n        await cmd_start(message, session)\n        \n        mock_repo_instance.get_or_create.assert_called_once_with(\n            telegram_id=123456,\n            username=\"testuser\"\n        )\n        message.answer.assert_called_once()"
+      }
+    },
+    
+    "middlewares": {
+      "session_middleware": {
+        "description": "Middleware для сессии БД",
+        "file": "src/bot/middlewares/session.py",
+        "code": "from aiogram import BaseMiddleware\nfrom aiogram.types import Message, CallbackQuery\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom typing import Callable, Dict, Any, Awaitable\n\nclass DatabaseSessionMiddleware(BaseMiddleware):\n    def __init__(self, session_maker):\n        self.session_maker = session_maker\n    \n    async def __call__(\n        self,\n        handler: Callable[[Message | CallbackQuery, Dict[str, Any]], Awaitable[Any]],\n        event: Message | CallbackQuery,\n        data: Dict[str, Any]\n    ) -> Any:\n        async with self.session_maker() as session:\n            data['session'] = session\n            return await handler(event, data)"
+      },
+      
+      "admin_middleware": {
+        "description": "Middleware для проверки админ-доступа",
+        "file": "src/bot/middlewares/admin.py",
+        "code": "from aiogram import BaseMiddleware\nfrom aiogram.types import Message, CallbackQuery\nfrom typing import Callable, Dict, Any, Awaitable\nimport os\n\nclass AdminMiddleware(BaseMiddleware):\n    def __init__(self):\n        self.admin_ids = set(map(int, os.getenv(\"ADMIN_TELEGRAM_ID\", \"\").split(\",\")))\n    \n    async def __call__(\n        self,\n        handler: Callable[[Message | CallbackQuery, Dict[str, Any]], Awaitable[Any]],\n        event: Message | CallbackQuery,\n        data: Dict[str, Any]\n    ) -> Any:\n        user_id = event.from_user.id\n        \n        if user_id not in self.admin_ids:\n            await event.answer(\"❌ Доступ запрещён\")\n            return\n        \n        return await handler(event, data)"
+      }
+    }
+  },
+  
+  "usage_examples": {
+    "create_new_handler": "@qwen создай handler для команды /renew используя snippet buy_handler как шаблон",
+    "add_new_model": "@qwen создай новую модель Referral на основе snippet user_model",
+    "api_integration": "@qwen добавь метод reset_traffic в 3xui_client используя snippet 3xui_client",
+    "background_task": "@qwen создай новую фоновую задачу для очистки старых платежей используя snippet subscription_checker"
+  }
+}

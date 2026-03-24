@@ -1,0 +1,13 @@
+{
+  "commands": {
+    "generate_model": "qwen-cli --snippet models.user_model --output src/models/user.py",
+    "generate_handler": "qwen-cli --workflow bot_user_workflows.new_user_registration",
+    "run_tests": "pytest tests/ -v --cov=src",
+    "run_migrations": "alembic upgrade head",
+    "create_migration": "alembic revision --autogenerate -m",
+    "docker_build": "docker-compose build",
+    "docker_up": "docker-compose up -d",
+    "docker_logs": "docker-compose logs -f bot",
+    "check_config": "python -m src.core.config_validator"
+  }
+}

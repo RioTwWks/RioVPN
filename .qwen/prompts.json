@@ -1,0 +1,11 @@
+{
+  "prompts": {
+    "new_handler": "Создай aiogram 3.x handler для команды {command} с использованием паттернов из snippets.json",
+    "new_model": "Создай SQLAlchemy 2.x async модель {model_name} следуя spec.md раздел 4",
+    "api_client": "Напиши async API клиент для {service} с retry логикой и error handling",
+    "fix_bug": "Исправь ошибку в {file}: {description} используя troubleshooting.md",
+    "add_test": "Напиши pytest-asyncio тест для {function} с моками внешних API",
+    "refactor": "Рефактори {file} следуя правилам из rules.md",
+    "deploy": "Подготовь инструкцию для деплоя в Docker следуя workflows.json"
+  }
+}

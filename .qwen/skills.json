@@ -1,0 +1,456 @@
+{
+  "project_skills": {
+    "domain": [
+      "vpn-subscription-management",
+      "telegram-bot-development",
+      "payment-gateway-integration",
+      "api-client-development",
+      "background-task-scheduling",
+      "database-orm-design"
+    ],
+    "expertise_level": "senior",
+    "code_quality": "production-ready"
+  },
+  
+  "technical_skills": {
+    "python": {
+      "version": "3.11+",
+      "features": [
+        "async/await",
+        "type-hints",
+        "dataclasses",
+        "context-managers",
+        "decorators"
+      ]
+    },
+    "frameworks": {
+      "aiogram": {
+        "version": "3.x",
+        "components": [
+          "handlers",
+          "keyboards",
+          "middlewares",
+          "filters",
+          "states"
+        ]
+      },
+      "sqlalchemy": {
+        "version": "2.x",
+        "mode": "async",
+        "components": [
+          "models",
+          "sessions",
+          "queries",
+          "relationships"
+        ]
+      },
+      "apscheduler": {
+        "version": "4.x",
+        "mode": "asyncio"
+      }
+    },
+    "http_client": {
+      "library": "aiohttp",
+      "patterns": [
+        "session-management",
+        "retry-logic",
+        "timeout-handling",
+        "error-handling"
+      ]
+    },
+    "database": {
+      "primary": "SQLite",
+      "production": "PostgreSQL",
+      "migrations": "Alembic"
+    }
+  },
+  
+  "api_integration_skills": {
+    "3x-ui": {
+      "base_url_env": "PANEL_3XUI_URL",
+      "auth_type": "basic",
+      "auth_env": ["PANEL_3XUI_USER", "PANEL_3XUI_PASS"],
+      "endpoints": {
+        "list_inbounds": {
+          "method": "GET",
+          "path": "/panel/api/inbounds/list",
+          "description": "Получить список инбаундов и клиентов"
+        },
+        "add_client": {
+          "method": "POST",
+          "path": "/panel/api/inbounds/addClient",
+          "description": "Добавить клиента в существующий инбаунд"
+        },
+        "update_client": {
+          "method": "POST",
+          "path": "/panel/api/inbounds/updateClient",
+          "description": "Изменить лимиты клиента"
+        },
+        "delete_client": {
+          "method": "POST",
+          "path": "/panel/api/inbounds/delClient",
+          "description": "Удалить клиента"
+        },
+        "get_traffic": {
+          "method": "GET",
+          "path": "/panel/api/inbounds/getClientTraffic/:email",
+          "description": "Получить использованный трафик"
+        }
+      },
+      "client_identification": "email = user_<telegram_id>",
+      "link_template": "vless://<uuid>@<server>:<port>?encryption=none&flow=xtls-rprx-vision&security=reality&sni=<sni>&fp=chrome&pbk=<public_key>&sid=<short_id>&type=xhttp&path=%2F&mode=auto#<tag>"
+    },
+    
+    "hiddify": {
+      "base_url_env": "PANEL_HIDDIFY_URL",
+      "api_version": "v2",
+      "auth_type": "header",
+      "auth_header": "Hiddify-API-Key",
+      "auth_env": "PANEL_HIDDIFY_API_KEY",
+      "endpoints": {
+        "create_user": {
+          "method": "POST",
+          "path": "/admin/user/",
+          "description": "Создать пользователя",
+          "params": ["username", "expiry_time", "data_limit"]
+        },
+        "get_user": {
+          "method": "GET",
+          "path": "/admin/user/<uuid>",
+          "description": "Получить информацию о пользователе"
+        },
+        "update_user": {
+          "method": "PUT",
+          "path": "/admin/user/<uuid>",
+          "description": "Изменить пользователя (обновить лимиты, продлить)"
+        },
+        "delete_user": {
+          "method": "DELETE",
+          "path": "/admin/user/<uuid>",
+          "description": "Удалить пользователя"
+        },
+        "list_users": {
+          "method": "GET",
+          "path": "/admin/users/",
+          "description": "Список всех пользователей"
+        }
+      },
+      "client_identification": "uuid (возвращается API)",
+      "link_source": "API response (vless:// or hysteria2://)"
+    },
+    
+    "payments": {
+      "providers": [
+        {
+          "name": "Cryptomus",
+          "env": "CRYPTOMUS_API_KEY",
+          "webhook": true,
+          "currencies": ["RUB", "USD", "EUR", "CRYPTO"]
+        },
+        {
+          "name": "YooKassa",
+          "env": ["YOOKASSA_SHOP_ID", "YOOKASSA_SECRET_KEY"],
+          "webhook": true,
+          "currencies": ["RUB"]
+        },
+        {
+          "name": "Telegram Stars",
+          "env": "BOT_TOKEN",
+          "webhook": false,
+          "currencies": ["STARS"]
+        }
+      ],
+      "webhook_handling": "async",
+      "payment_states": ["pending", "paid", "failed", "refunded"]
+    }
+  },
+  
+  "database_skills": {
+    "models": {
+      "User": {
+        "table": "users",
+        "fields": {
+          "id": "Integer, primary_key",
+          "telegram_id": "BigInteger, unique, not_null",
+          "username": "String",
+          "created_at": "DateTime, default=utcnow"
+        }
+      },
+      "Subscription": {
+        "table": "subscriptions",
+        "fields": {
+          "id": "Integer, primary_key",
+          "user_id": "ForeignKey(users.id), not_null",
+          "type": "Enum(ru, eu), not_null",
+          "status": "Enum(active, expired, blocked), default=active",
+          "start_date": "DateTime, not_null",
+          "expiry_date": "DateTime, not_null",
+          "traffic_limit": "BigInteger, nullable",
+          "traffic_used": "BigInteger, default=0",
+          "panel_uuid": "String(64)",
+          "inbound_tag": "String",
+          "link": "Text"
+        }
+      },
+      "Payment": {
+        "table": "payments",
+        "fields": {
+          "id": "Integer, primary_key",
+          "user_id": "ForeignKey(users.id)",
+          "amount": "Numeric",
+          "status": "String",
+          "external_id": "String",
+          "created_at": "DateTime"
+        }
+      },
+      "Settings": {
+        "table": "settings",
+        "fields": {
+          "key": "String, primary_key",
+          "value": "Text",
+          "updated_at": "DateTime"
+        }
+      }
+    },
+    "session_management": "async with get_session() as session",
+    "transaction_handling": "async with session.begin()",
+    "query_pattern": "await session.execute(select(Model).where(...))"
+  },
+  
+  "bot_command_skills": {
+    "user_commands": {
+      "/start": {
+        "description": "Приветствие, меню выбора подписки",
+        "response_type": "message + inline_keyboard"
+      },
+      "/buy": {
+        "description": "Выбор типа подписки (RU/EU) и срока",
+        "response_type": "message + inline_keyboard",
+        "states": ["selecting_type", "selecting_period", "confirming_payment"]
+      },
+      "/my": {
+        "description": "Текущая подписка, статус, использованный трафик",
+        "response_type": "message"
+      },
+      "/renew": {
+        "description": "Продление подписки",
+        "response_type": "message + inline_keyboard"
+      },
+      "/support": {
+        "description": "Контакт поддержки",
+        "response_type": "message"
+      },
+      "/referral": {
+        "description": "Реферальная программа",
+        "response_type": "message"
+      }
+    },
+    "admin_commands": {
+      "/stats": {
+        "description": "Статистика по продажам, трафику",
+        "access": "admin_only"
+      },
+      "/broadcast": {
+        "description": "Рассылка пользователям",
+        "access": "admin_only"
+      },
+      "/suspend": {
+        "description": "Приостановить подписку",
+        "access": "admin_only",
+        "params": ["telegram_id"]
+      },
+      "/grant": {
+        "description": "Выдать подписку вручную",
+        "access": "admin_only",
+        "params": ["telegram_id", "type", "days"]
+      }
+    },
+    "access_control": {
+      "admin_check": "telegram_id in ADMIN_TELEGRAM_ID",
+      "middleware": "AdminMiddleware"
+    }
+  },
+  
+  "background_task_skills": {
+    "scheduler": {
+      "library": "APScheduler",
+      "mode": "AsyncIOScheduler"
+    },
+    "tasks": {
+      "check_expiring_subscriptions": {
+        "trigger": "interval",
+        "hours": 1,
+        "description": "Проверка истекающих подписок",
+        "actions": [
+          "query subscriptions where expiry_date < now + 3 days",
+          "send reminder notification",
+          "update status if expired"
+        ]
+      },
+      "sync_traffic": {
+        "trigger": "interval",
+        "hours": 24,
+        "description": "Синхронизация трафика с панелями",
+        "actions": [
+          "call 3x-ui getTraffic for each RU subscription",
+          "call Hiddify get_user for each EU subscription",
+          "update traffic_used in database",
+          "block if traffic_limit exceeded"
+        ]
+      },
+      "send_reminders": {
+        "trigger": "cron",
+        "hour": 10,
+        "description": "Уведомления за 3 дня до окончания",
+        "actions": [
+          "find subscriptions expiring in 3 days",
+          "send message with /renew button"
+        ]
+      }
+    }
+  },
+  
+  "security_skills": {
+    "secrets_management": {
+      "source": "environment_variables",
+      "never_hardcode": true,
+      "env_file": ".env.example"
+    },
+    "access_control": {
+      "admin_commands": "telegram_id validation",
+      "api_keys": "env variables only"
+    },
+    "input_validation": {
+      "library": "pydantic",
+      "validate": ["payment_callbacks", "user_input", "api_responses"]
+    },
+    "logging": {
+      "levels": ["INFO", "WARNING", "ERROR", "CRITICAL"],
+      "rotation": true,
+      "sensitive_data": "never log secrets or full payment data"
+    },
+    "https_required": {
+      "panel_apis": true,
+      "payment_webhooks": true
+    }
+  },
+  
+  "error_handling_skills": {
+    "retry_logic": {
+      "library": "tenacity",
+      "max_attempts": 3,
+      "wait_strategy": "exponential",
+      "apply_to": ["panel_api_calls", "payment_api_calls"]
+    },
+    "exception_hierarchy": {
+      "base": "SubscriptionError",
+      "children": [
+        "PanelAPIError",
+        "PaymentError",
+        "DatabaseError",
+        "ValidationError"
+      ]
+    },
+    "user_facing_errors": {
+      "pattern": "log ERROR, show friendly message to user",
+      "never_expose": ["stack_traces", "api_keys", "internal_urls"]
+    }
+  },
+  
+  "testing_skills": {
+    "framework": "pytest",
+    "async_support": "pytest-asyncio",
+    "coverage_targets": [
+      "payment_flow",
+      "subscription_creation",
+      "api_integrations",
+      "background_tasks"
+    ],
+    "mocking": {
+      "external_apis": "aioresponses",
+      "database": "async_session_mock",
+      "telegram_bot": "aiogram_mock"
+    }
+  },
+  
+  "deployment_skills": {
+    "containerization": {
+      "tool": "Docker",
+      "compose": true,
+      "services": ["bot", "worker", "database"]
+    },
+    "migrations": {
+      "tool": "Alembic",
+      "auto_generate": false,
+      "review_required": true
+    },
+    "environment": {
+      "variables": [
+        "BOT_TOKEN",
+        "PANEL_3XUI_URL",
+        "PANEL_3XUI_USER",
+        "PANEL_3XUI_PASS",
+        "PANEL_HIDDIFY_URL",
+        "PANEL_HIDDIFY_API_KEY",
+        "INBOUND_RU_TAG",
+        "SNI_RU",
+        "PUBLIC_KEY_RU",
+        "SHORT_ID_RU",
+        "SERVER_ADDRESS_RU",
+        "SERVER_PORT_RU",
+        "DEFAULT_TRAFFIC_LIMIT_RU",
+        "DEFAULT_TRAFFIC_LIMIT_EU",
+        "CRYPTOMUS_API_KEY",
+        "YOOKASSA_SHOP_ID",
+        "YOOKASSA_SECRET_KEY",
+        "ADMIN_TELEGRAM_ID",
+        "DATABASE_URL"
+      ]
+    }
+  },
+  
+  "code_generation_rules": {
+    "always": [
+      "use async/await for all I/O",
+      "add type hints to all functions",
+      "add Google-style docstrings",
+      "log errors with exc_info=True",
+      "validate all user input",
+      "use environment variables for secrets",
+      "follow spec.md models and architecture",
+      "add retry logic for external APIs",
+      "handle exceptions gracefully",
+      "use SQLAlchemy 2.x async patterns"
+    ],
+    "never": [
+      "hardcode secrets or credentials",
+      "use synchronous I/O in async context",
+      "log sensitive information",
+      "ignore API errors",
+      "commit .env files",
+      "skip input validation",
+      "use deprecated aiogram 2.x patterns",
+      "use SQLAlchemy 1.x sync patterns"
+    ]
+  },
+  
+  "qwen_cli_behavior": {
+    "context_files": [
+      ".qwen/mcp.json",
+      ".qwen/rules.md",
+      "spec.md"
+    ],
+    "priority": "spec.md > rules.md > mcp.json",
+    "ask_before": [
+      "changing database schema",
+      "adding new external dependencies",
+      "modifying API integration patterns"
+    ],
+    "auto_apply": [
+      "type hints",
+      "docstrings",
+      "error handling",
+      "logging"
+    ]
+  }
+}
