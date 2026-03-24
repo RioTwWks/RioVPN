@@ -208,6 +208,15 @@ async def handle_my_subscription(callback: CallbackQuery) -> None:
                     f"📊 <b>Трафик:</b> {used_gb:.2f} ГБ из {limit_gb:.2f} ГБ\n"
                 )
 
+            # Build keyboard with renew button
+            builder = InlineKeyboardBuilder()
+            builder.button(
+                text="💳 Продлить",
+                callback_data=f"renew_sub_{subscription.id}"
+            )
+            builder.button(text="« Назад в меню", callback_data="main_menu")
+            builder.adjust(1)
+
             await callback.message.edit_text(
                 f"📱 <b>Ваша подписка</b>\n\n"
                 f"{status_emoji} <b>Статус:</b> {subscription.status.value}\n"
@@ -218,7 +227,7 @@ async def handle_my_subscription(callback: CallbackQuery) -> None:
                 f"\n"
                 f"🔗 <b>Ссылка для подключения:</b>\n"
                 f"<code>{subscription.link}</code>",
-                reply_markup=get_start_keyboard(),
+                reply_markup=builder.as_markup(),
             )
 
     await callback.answer()

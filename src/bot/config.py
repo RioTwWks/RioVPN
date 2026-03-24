@@ -71,12 +71,14 @@ def setup_routers() -> Router:
         callback_router,
         command_router,
         payment_router,
+        renewal_router,
     )
 
     root_router = Router()
     root_router.include_router(command_router)
     root_router.include_router(callback_router)
     root_router.include_router(payment_router)
+    root_router.include_router(renewal_router)
     root_router.include_router(admin_router)
 
     return root_router

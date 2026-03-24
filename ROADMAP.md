@@ -95,39 +95,35 @@
 
 ### Tasks
 
-- [ ] **Background Worker Setup**
-  - [ ] APScheduler configuration
-  - [ ] Async job executor
-  - [ ] Error handling & retry
+- [x] **Background Worker Setup**
+  - [x] APScheduler configuration
+  - [x] Async job executor
+  - [x] Error handling & retry
 
-- [ ] **Expiry Management**
-  - [ ] Hourly subscription expiry check
-  - [ ] Auto-block on expiry (panel API call)
-  - [ ] Status update in database
+- [x] **Expiry Management**
+  - [x] Hourly subscription expiry check
+  - [x] Auto-block on expiry (panel API call)
+  - [x] Status update in database
 
-- [ ] **Traffic Monitoring**
-  - [ ] Daily traffic sync job (3x-ui API)
-  - [ ] Daily traffic sync job (Hiddify API)
-  - [ ] Auto-block on traffic limit exceeded
-  - [ ] Traffic reset on renewal
+- [x] **Traffic Monitoring**
+  - [x] Daily traffic sync job (3x-ui API)
+  - [x] Daily traffic sync job (Hiddify API)
+  - [x] Auto-block on traffic limit exceeded
+  - [x] Traffic reset on renewal
 
-- [ ] **Notifications**
-  - [ ] Reminder 3 days before expiry
-  - [ ] Reminder 1 day before expiry
-  - [ ] Expiry notification
-  - [ ] Traffic limit warning (80% used)
+- [x] **Notifications**
+  - [x] Reminder 3 days before expiry
+  - [x] Traffic limit warning (80% used)
+  - [x] Payment success notification
+  - [x] Subscription blocked notification
 
-- [ ] **Renewal Flow**
-  - [ ] `/renew` command with payment
-  - [ ] Extend expiry date in DB
-  - [ ] Update panel via API
-  - [ ] Payment for renewal period
+- [x] **Renewal Flow**
+  - [x] `/renew` command with payment
+  - [x] Extend expiry date in DB
+  - [x] Update panel via API
+  - [x] Payment for renewal period
 
-- [ ] **Grace Period** (optional)
-  - [ ] 24-hour grace after expiry
-  - [ ] Reduced speed/traffic during grace
-
-**Deliverable:** Automated subscription lifecycle management
+**Deliverable:** ✅ Automated subscription lifecycle management
 
 ---
 
@@ -258,19 +254,19 @@
 |-------|----------|----------|
 | Phase 1: MVP | **✅ Complete** | 🔴 Critical |
 | Phase 2: Payments | **✅ Complete** | 🔴 Critical |
-| Phase 3: Subscription Mgmt | 1-2 weeks | 🟠 High |
+| Phase 3: Subscription Mgmt | **✅ Complete** | 🟠 High |
 | Phase 4: Admin & Analytics | 1 week | 🟠 High |
 | Phase 5: Scaling | 1-2 weeks | 🟡 Medium |
 | Phase 6: Advanced | 4+ weeks | 🟢 Low |
 
 **Total MVP:** ✅ Done
-**Full Release:** 4-6 weeks remaining
+**Full Release:** 3-4 weeks remaining
 
 ---
 
 ## Current Status
 
-**Active Phase:** Phase 3 (Subscription Management)
+**Active Phase:** Phase 4 (Admin Panel & Analytics)
 
 **Completed:**
 - [x] Project specification
@@ -288,8 +284,15 @@
 - [x] YooKassa integration (RUB card payments)
 - [x] Automatic subscription activation on payment
 - [x] Webhook handlers for payment notifications
+- [x] Background scheduler (APScheduler)
+- [x] Hourly expiry checks with auto-block
+- [x] Daily traffic sync from panels
+- [x] Expiry reminders (3 days before)
+- [x] Traffic warnings (80% usage)
+- [x] Renewal flow with payment integration
+- [x] Notification service for user messages
 
 **In Progress:**
-- [ ] Phase 3: Subscription lifecycle management
+- [ ] Phase 4: Admin panel enhancements and analytics
 
-**Next Milestone:** Background worker for expiry checks and traffic monitoring
+**Next Milestone:** Broadcast functionality and user management

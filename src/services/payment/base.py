@@ -218,53 +218,87 @@ class PaymentService(ABC):
         payment: Payment,
     ) -> Optional[Subscription]:
         """
-        Activate subscription after successful payment.
+        Activate or renew subscription after successful payment.
 
         Args:
             payment: Payment record
 
         Returns:
-            Created subscription or None
+            Created/renewed subscription or None
         """
         if payment.status != PaymentStatus.paid:
             logger.warning(f"Cannot activate subscription: payment {payment.id} not paid")
             return None
 
         # Parse subscription data from description
-        # Format: "Subscription: {type}_{duration}"
+        # Format: "Subscription: {type}_{duration}" or "Renewal: {type}_{duration}_{sub_id}"
         try:
             parts = payment.description.split(": ")
             if len(parts) < 2:
                 raise ValueError("Invalid description format")
 
+            payment_type = parts[0]  # "Subscription" or "Renewal"
             sub_parts = parts[1].split("_")
-            sub_type = SubscriptionType(sub_parts[0])
-            duration = int(sub_parts[1])
 
-            # Get user
-            result = await self.session.execute(
-                select(User).where(User.id == payment.user_id)
-            )
-            user = result.scalar_one_or_none()
+            # Check if renewal
+            if payment_type == "Renewal" and len(sub_parts) >= 3:
+                sub_type = SubscriptionType(sub_parts[0])
+                duration = int(sub_parts[1])
+                subscription_id = int(sub_parts[2])
 
-            if not user:
-                logger.error(f"User not found: {payment.user_id}")
-                return None
+                # Get existing subscription
+                result = await self.session.execute(
+                    select(Subscription).where(Subscription.id == subscription_id)
+                )
+                subscription = result.scalar_one_or_none()
 
-            # Create subscription
-            service = SubscriptionService(self.session)
-            subscription = await service.create_subscription(
-                user=user,
-                sub_type=sub_type,
-                duration_days=duration * 30,
-            )
+                if not subscription:
+                    logger.error(f"Subscription not found for renewal: {subscription_id}")
+                    return None
 
-            logger.info(
-                f"Subscription activated for payment {payment.id}: "
-                f"subscription_id={subscription.id}"
-            )
+                # Renew subscription
+                service = SubscriptionService(self.session)
+                renewed = await service.renew_subscription(
+                    subscription=subscription,
+                    duration_days=duration * 30,
+                )
 
-            return subscription
+                logger.info(
+                    f"Subscription renewed for payment {payment.id}: "
+                    f"subscription_id={subscription.id}, new_expiry={renewed.expiry_date}"
+                )
+
+                return renewed
+
+            else:
+                # New subscription
+                sub_type = SubscriptionType(sub_parts[0])
+                duration = int(sub_parts[1])
+
+                # Get user
+                result = await self.session.execute(
+                    select(User).where(User.id == payment.user_id)
+                )
+                user = result.scalar_one_or_none()
+
+                if not user:
+                    logger.error(f"User not found: {payment.user_id}")
+                    return None
+
+                # Create subscription
+                service = SubscriptionService(self.session)
+                subscription = await service.create_subscription(
+                    user=user,
+                    sub_type=sub_type,
+                    duration_days=duration * 30,
+                )
+
+                logger.info(
+                    f"Subscription created for payment {payment.id}: "
+                    f"subscription_id={subscription.id}"
+                )
+
+                return subscription
 
         except Exception as e:
             logger.error(f"Failed to activate subscription: {e}", exc_info=True)

@@ -4,11 +4,13 @@ import asyncio
 import logging
 import signal
 
-from aiogram import Dispatcher
+from aiogram import Bot, Dispatcher
 
 from src.bot.config import create_bot, create_dispatcher, on_startup, on_shutdown, setup_routers
+from src.bot.notifications import init_notifications
 from src.core.database import init_db
 from src.core.logging import setup_logging
+from src.workers.scheduler import create_scheduler
 
 logger = logging.getLogger(__name__)
 
@@ -26,13 +28,29 @@ async def main() -> None:
     root_router = setup_routers()
     dispatcher.include_router(root_router)
 
-    # Register startup/shutdown handlers
-    dispatcher.startup.register(on_startup)
-    dispatcher.shutdown.register(on_shutdown)
+    # Initialize notifications
+    notification_service = init_notifications(bot)
+    logger.info("Notification service initialized")
 
     # Initialize database
     await init_db()
     logger.info("Database initialized")
+
+    # Start scheduler
+    scheduler = create_scheduler(bot=bot)
+    scheduler.start()
+    logger.info("Background scheduler started")
+
+    # Register startup/shutdown handlers
+    async def on_startup_wrapper(disp: Dispatcher, b: Bot) -> None:
+        await on_startup(disp, b)
+
+    async def on_shutdown_wrapper(disp: Dispatcher, b: Bot) -> None:
+        scheduler.stop()
+        await on_shutdown(disp, b)
+
+    dispatcher.startup.register(on_startup_wrapper)
+    dispatcher.shutdown.register(on_shutdown_wrapper)
 
     # Setup graceful shutdown
     loop = asyncio.get_running_loop()
@@ -52,6 +70,7 @@ async def main() -> None:
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt received")
     finally:
+        scheduler.stop()
         await dispatcher.shutdown()
         await bot.session.close()
         logger.info("Bot stopped")
