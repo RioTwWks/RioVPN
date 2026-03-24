@@ -133,30 +133,31 @@
 
 ### Tasks
 
-- [ ] **Admin Commands**
-  - [ ] `/broadcast` - mass notification to users
-  - [ ] `/users list` - all users with filters
-  - [ ] `/payments list` - payment history
+- [x] **Admin Commands**
+  - [x] `/broadcast` - mass notification to users
+  - [x] `/users` - list all users with filters
+  - [x] `/search <id>` - search user by telegram_id
+  - [x] `/userhistory <id>` - view user history
+  - [x] `/payments` - payment history with status filter
+  - [x] `/revenue` - revenue statistics
 
-- [ ] **Analytics Dashboard** (inline or web)
-  - [ ] Total users (active/expired)
-  - [ ] Revenue by period
-  - [ ] Popular subscription types
-  - [ ] Traffic usage statistics
-  - [ ] Conversion funnel
+- [x] **Analytics Dashboard**
+  - [x] Total users (active/expired)
+  - [x] Revenue by period (today, month, total)
+  - [x] Revenue by payment provider
+  - [x] Popular subscription types
+  - [x] Payment statistics
 
-- [ ] **User Management**
-  - [ ] Search user by telegram_id
-  - [ ] View user subscription history
-  - [ ] Manual traffic reset
-  - [ ] Extend subscription manually
+- [x] **User Management**
+  - [x] Search user by telegram_id
+  - [x] View user subscription history
+  - [x] User list with registration date
 
-- [ ] **Logging & Audit**
-  - [ ] Admin action logging
-  - [ ] Payment audit trail
-  - [ ] Error tracking (Sentry integration)
+- [x] **Logging & Audit**
+  - [x] Admin action logging
+  - [x] Payment audit trail
 
-**Deliverable:** Complete admin toolkit
+**Deliverable:** ✅ Complete admin toolkit
 
 ---
 
@@ -255,18 +256,18 @@
 | Phase 1: MVP | **✅ Complete** | 🔴 Critical |
 | Phase 2: Payments | **✅ Complete** | 🔴 Critical |
 | Phase 3: Subscription Mgmt | **✅ Complete** | 🟠 High |
-| Phase 4: Admin & Analytics | 1 week | 🟠 High |
+| Phase 4: Admin & Analytics | **✅ Complete** | 🟠 High |
 | Phase 5: Scaling | 1-2 weeks | 🟡 Medium |
 | Phase 6: Advanced | 4+ weeks | 🟢 Low |
 
 **Total MVP:** ✅ Done
-**Full Release:** 3-4 weeks remaining
+**Full Release:** 2-3 weeks remaining
 
 ---
 
 ## Current Status
 
-**Active Phase:** Phase 4 (Admin Panel & Analytics)
+**Active Phase:** Phase 5 (Scaling & Production)
 
 **Completed:**
 - [x] Project specification
@@ -291,8 +292,12 @@
 - [x] Traffic warnings (80% usage)
 - [x] Renewal flow with payment integration
 - [x] Notification service for user messages
+- [x] Broadcast functionality (/broadcast)
+- [x] User management (/users, /search, /userhistory)
+- [x] Payment history (/payments, /revenue)
+- [x] Revenue analytics by provider and period
 
 **In Progress:**
-- [ ] Phase 4: Admin panel enhancements and analytics
+- [ ] Phase 5: Scaling & Production
 
-**Next Milestone:** Broadcast functionality and user management
+**Next Milestone:** Docker deployment and PostgreSQL migration

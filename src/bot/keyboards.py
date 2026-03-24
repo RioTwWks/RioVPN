@@ -105,9 +105,10 @@ def get_admin_keyboard() -> InlineKeyboardMarkup:
     """
     builder = InlineKeyboardBuilder()
     builder.button(text="📊 Статистика", callback_data="admin_stats")
+    builder.button(text="👥 Пользователи", callback_data="admin_users")
+    builder.button(text="💰 Платежи", callback_data="admin_payments")
     builder.button(text="💬 Рассылка", callback_data="admin_broadcast")
-    builder.button(text="⏳ Ожидающие оплаты", callback_data="admin_pending")
-    builder.adjust(1)
+    builder.adjust(2, 2)
     return builder.as_markup()
 
 

@@ -68,10 +68,13 @@ def setup_routers() -> Router:
     """
     from src.bot.handlers import (
         admin_router,
+        broadcast_router,
         callback_router,
         command_router,
+        payment_history_router,
         payment_router,
         renewal_router,
+        user_router,
     )
 
     root_router = Router()
@@ -79,6 +82,9 @@ def setup_routers() -> Router:
     root_router.include_router(callback_router)
     root_router.include_router(payment_router)
     root_router.include_router(renewal_router)
+    root_router.include_router(broadcast_router)
+    root_router.include_router(user_router)
+    root_router.include_router(payment_history_router)
     root_router.include_router(admin_router)
 
     return root_router
