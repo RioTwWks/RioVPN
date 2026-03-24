@@ -1,6 +1,7 @@
 """Test fixtures and utilities."""
 
 import asyncio
+import os
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import AsyncGenerator, Generator
@@ -20,34 +21,33 @@ from src.services.subscription import SubscriptionService
 from src.services.three_xui import ThreeXuiService
 
 
+def pytest_configure(config):
+    """Set environment variables before any tests run."""
+    os.environ["BOT_TOKEN"] = "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
+    os.environ["PANEL_3XUI_URL"] = "http://test:2096"
+    os.environ["PANEL_3XUI_USER"] = "admin"
+    os.environ["PANEL_3XUI_PASS"] = "admin123"
+    os.environ["INBOUND_RU_TAG"] = "xhttp-ru"
+    os.environ["SNI_RU"] = "test.com"
+    os.environ["PUBLIC_KEY_RU"] = "test-public-key"
+    os.environ["SHORT_ID_RU"] = "abcd1234"
+    os.environ["SERVER_ADDRESS_RU"] = "test.com"
+    os.environ["SERVER_PORT_RU"] = "8443"
+    os.environ["PANEL_HIDDIFY_URL"] = "http://test:8080"
+    os.environ["PANEL_HIDDIFY_API_KEY"] = "test-api-key"
+    os.environ["ADMIN_TELEGRAM_ID"] = "123456789"
+    os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
+    os.environ["CRYPTOMUS_API_KEY"] = "test-key"
+    os.environ["YOOKASSA_SHOP_ID"] = "test-shop-id"
+    os.environ["YOOKASSA_SECRET_KEY"] = "test-secret-key"
+
+
 @pytest.fixture(scope="session")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     """Create event loop for tests."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
-
-
-@pytest.fixture(autouse=True)
-def mock_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Mock environment variables for all tests."""
-    monkeypatch.setenv("BOT_TOKEN", "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz")
-    monkeypatch.setenv("PANEL_3XUI_URL", "http://test:2096")
-    monkeypatch.setenv("PANEL_3XUI_USER", "admin")
-    monkeypatch.setenv("PANEL_3XUI_PASS", "admin123")
-    monkeypatch.setenv("INBOUND_RU_TAG", "xhttp-ru")
-    monkeypatch.setenv("SNI_RU", "test.com")
-    monkeypatch.setenv("PUBLIC_KEY_RU", "test-public-key")
-    monkeypatch.setenv("SHORT_ID_RU", "abcd1234")
-    monkeypatch.setenv("SERVER_ADDRESS_RU", "test.com")
-    monkeypatch.setenv("SERVER_PORT_RU", "8443")
-    monkeypatch.setenv("PANEL_HIDDIFY_URL", "http://test:8080")
-    monkeypatch.setenv("PANEL_HIDDIFY_API_KEY", "test-api-key")
-    monkeypatch.setenv("ADMIN_TELEGRAM_ID", "123456789")
-    monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
-    monkeypatch.setenv("CRYPTOMUS_API_KEY", "test-key")
-    monkeypatch.setenv("YOOKASSA_SHOP_ID", "test-shop-id")
-    monkeypatch.setenv("YOOKASSA_SECRET_KEY", "test-secret-key")
 
 
 @pytest.fixture
