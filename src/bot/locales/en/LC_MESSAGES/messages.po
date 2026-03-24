@@ -1,0 +1,135 @@
+# English translations for RioVPN
+# Copyright (C) 2026 RioVPN
+# This file is distributed under the same license as the RioVPN project.
+
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: support@riovpn.example\n"
+"POT-Creation-Date: 2026-03-24\n"
+"PO-Revision-Date: 2026-03-24\n"
+"Last-Translator: \n"
+"Language: en\n"
+"Language-Team: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Welcome message
+msgid "welcome_message"
+msgstr "👋 <b>Welcome to RioVPN!</b>\n\nI'll help you get a reliable VPN subscription."
+
+# Subscription types
+msgid "subscription_type_ru"
+msgstr "🇷🇺 <b>Russia (RU)</b>\n\nConnect to Russian server for bypassing mobile operator whitelists."
+
+msgid "subscription_type_eu"
+msgstr "🇪🇺 <b>Europe (EU)</b>\n\nConnect to European server for global internet access."
+
+# Menu buttons
+msgid "btn_buy_subscription"
+msgstr "🛒 Buy Subscription"
+
+msgid "btn_my_subscription"
+msgstr "📱 My Subscription"
+
+msgid "btn_renew"
+msgstr "💳 Renew"
+
+msgid "btn_support"
+msgstr "❓ Support"
+
+msgid "btn_referral"
+msgstr "🎁 Referrals"
+
+msgid "btn_back"
+msgstr "« Back"
+
+# Subscription status
+msgid "sub_status_active"
+msgstr "✅ Active"
+
+msgid "sub_status_expired"
+msgstr "❌ Expired"
+
+msgid "sub_status_blocked"
+msgstr "🚫 Blocked"
+
+# Traffic
+msgid "traffic_used"
+msgstr "📊 <b>Traffic:</b> {used:.2f} GB of {limit:.2f} GB"
+
+msgid "traffic_unlimited"
+msgstr "♾ <b>Traffic:</b> Unlimited"
+
+# Days remaining
+msgid "days_remaining"
+msgstr "⏳ <b>Days remaining:</b> {days}"
+
+# No subscription
+msgid "no_subscription"
+msgstr "📱 <b>No active subscription</b>\n\nGet a subscription to access VPN."
+
+# Payment
+msgid "payment_success"
+msgstr "✅ <b>Payment successful!</b>"
+
+msgid "payment_failed"
+msgstr "❌ <b>Payment failed</b>"
+
+msgid "payment_pending"
+msgstr "⏳ <b>Waiting for payment...</b>"
+
+# Referral
+msgid "referral_program"
+msgstr "🎁 <b>Referral Program</b>\n\nInvite friends and earn bonuses!"
+
+msgid "referral_bonus"
+msgstr "💰 <b>Conditions:</b>\n• 10% of friend's first payment\n• Maximum 500 ₽ per referral"
+
+msgid "referral_stats"
+msgstr "📊 <b>Your stats:</b>"
+
+msgid "referral_link"
+msgstr "🔗 <b>Your link:</b>"
+
+# Support
+msgid "support_message"
+msgstr "❓ <b>Support</b>\n\nIf you have questions, contact us:\n\n📧 Email: support@riovpn.example\n📱 Telegram: @riovpn_support"
+
+# Admin
+msgid "admin_panel"
+msgstr "🔧 <b>Admin Panel</b>"
+
+msgid "admin_stats"
+msgstr "📊 Statistics"
+
+msgid "admin_users"
+msgstr "👥 Users"
+
+msgid "admin_payments"
+msgstr "💰 Payments"
+
+msgid "admin_broadcast"
+msgstr "💬 Broadcast"
+
+# Errors
+msgid "error_user_not_found"
+msgstr "❌ User not found"
+
+msgid "error_access_denied"
+msgstr "❌ Access denied"
+
+msgid "error_subscription_not_found"
+msgstr "❌ Subscription not found"
+
+# Plurals
+msgid "referral_count"
+msgid_plural "referral_count"
+msgstr[0] "{count} referral"
+msgstr[1] "{count} referrals"
+
+msgid "day_remaining"
+msgid_plural "day_remaining"
+msgstr[0] "{count} day"
+msgstr[1] "{count} days"

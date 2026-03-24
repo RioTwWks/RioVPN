@@ -73,7 +73,9 @@ def setup_routers() -> Router:
         command_router,
         payment_history_router,
         payment_router,
+        referral_router,
         renewal_router,
+        tier_router,
         user_router,
     )
 
@@ -85,6 +87,8 @@ def setup_routers() -> Router:
     root_router.include_router(broadcast_router)
     root_router.include_router(user_router)
     root_router.include_router(payment_history_router)
+    root_router.include_router(referral_router)
+    root_router.include_router(tier_router)
     root_router.include_router(admin_router)
 
     return root_router

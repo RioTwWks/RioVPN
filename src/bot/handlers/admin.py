@@ -1,12 +1,21 @@
 """Admin command handlers."""
 
 import logging
+from datetime import datetime
 
 from aiogram import F, Router
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.types import BufferedInputFile, Message
 from sqlalchemy import select
 
+from src.bot.handlers.export import (
+    export_payments_to_csv,
+    export_subscriptions_to_csv,
+    export_users_to_csv,
+    get_revenue_by_period,
+    get_subscription_statistics,
+    get_user_statistics,
+)
 from src.bot.keyboards import get_admin_keyboard
 from src.core.config import settings
 from src.core.database import get_session
@@ -265,3 +274,87 @@ async def handle_grant(message: Message) -> None:
 
         except Exception as e:
             await message.answer(f"❌ Ошибка: {e}")
+
+
+@admin_router.message(Command("export"))
+async def handle_export(message: Message) -> None:
+    """
+    Handle /export command - export data to CSV.
+
+    Usage: /export [users|subscriptions|payments]
+
+    Args:
+        message: Incoming message
+    """
+    if not await is_admin(message.from_user.id):
+        await message.answer("❌ Доступ запрещён")
+        return
+
+    args = message.text.split()
+    export_type = args[1] if len(args) > 1 else "users"
+
+    await message.answer(f"⏳ <b>Генерация экспорта: {export_type}...</b>")
+
+    try:
+        if export_type == "users":
+            csv_data = await export_users_to_csv()
+            filename = f"users_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+        elif export_type == "subscriptions":
+            csv_data = await export_subscriptions_to_csv()
+            filename = f"subscriptions_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+        elif export_type == "payments":
+            csv_data = await export_payments_to_csv()
+            filename = f"payments_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+        else:
+            await message.answer(
+                "❌ Неверный тип. Доступные: users, subscriptions, payments"
+            )
+            return
+
+        # Send file
+        await message.answer_document(
+            document=BufferedInputFile(csv_data.encode(), filename=filename),
+            caption=f"📊 <b>Экспорт: {export_type}</b>\n{len(csv_data.splitlines()) - 1} записей",
+        )
+
+    except Exception as e:
+        logger.error(f"Export failed: {e}", exc_info=True)
+        await message.answer(f"❌ Ошибка экспорта: {e}")
+
+
+@admin_router.message(Command("analytics"))
+async def handle_analytics(message: Message) -> None:
+    """
+    Handle /analytics command - show detailed analytics.
+
+    Args:
+        message: Incoming message
+    """
+    if not await is_admin(message.from_user.id):
+        await message.answer("❌ Доступ запрещён")
+        return
+
+    # Get statistics
+    user_stats = await get_user_statistics()
+    sub_stats = await get_subscription_statistics()
+    revenue_stats = await get_revenue_by_period(30)
+
+    text = (
+        f"📊 <b>Аналитика</b>\n\n"
+        f"👥 <b>Пользователи</b>\n"
+        f"• Всего: {user_stats.get('total_users', 0)}\n"
+        f"• По рефералке: {user_stats.get('referred_users', 0)} ({user_stats.get('referral_rate', 0):.1f}%)\n\n"
+        f"📱 <b>Подписки</b>\n"
+        f"• Всего: {sub_stats.get('total_subscriptions', 0)}\n"
+        f"• Активных: {sub_stats.get('active_subscriptions', 0)} ({sub_stats.get('activation_rate', 0):.1f}%)\n\n"
+        f"💰 <b>Выручка (30 дней)</b>\n"
+        f"• Всего: {revenue_stats.get('total_revenue', 0):.2f} ₽\n"
+        f"• Платежей: {revenue_stats.get('payment_count', 0)}\n"
+        f"• Средний чек: {revenue_stats.get('average_payment', 0):.2f} ₽\n\n"
+        f"📊 <b>По провайдерам</b>\n"
+    )
+
+    for provider, amount in revenue_stats.get('by_provider', {}).items():
+        text += f"• {provider}: {amount:.2f} ₽\n"
+
+    await message.answer(text)

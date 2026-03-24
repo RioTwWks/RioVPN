@@ -8,6 +8,7 @@ from aiogram.types import Message
 from sqlalchemy import select
 
 from src.bot.keyboards import get_start_keyboard
+from src.bot.handlers.referral import process_referral_start
 from src.core.database import get_session
 from src.models.user import User
 from src.services.subscription import SubscriptionService
@@ -42,6 +43,18 @@ async def handle_start(message: Message) -> None:
             await session.commit()
             await session.refresh(user)
             logger.info(f"New user registered: {message.from_user.id}")
+
+        # Check for referral parameter
+        if message.text and len(message.text.split()) > 1:
+            start_param = message.text.split()[1]
+            referred = await process_referral_start(message, start_param)
+            if referred:
+                await message.answer(
+                    "🎉 <b>Добро пожаловать!</b>\n\n"
+                    "Вы присоединились по реферальной ссылке.\n"
+                    "При первой оплате ваш друг получит бонус, а вы скидку 10%!"
+                )
+                return
 
         await message.answer(
             f"👋 <b>Добро пожаловать в RioVPN!</b>\n\n"
