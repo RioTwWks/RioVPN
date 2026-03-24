@@ -1,5 +1,6 @@
 """Tests for bot handlers."""
 
+import asyncio
 import pytest
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -295,7 +296,3 @@ class TestAdminHandlers:
                 await handle_stats(mock_message)
 
                 mock_message.answer.assert_called_once()
-
-
-# Import asyncio for tests
-import asyncio

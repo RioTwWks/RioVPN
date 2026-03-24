@@ -1,0 +1,654 @@
+﻿2026-03-24T09:10:07.9986766Z Current runner version: '2.332.0'
+2026-03-24T09:10:08.0072818Z ##[group]Runner Image Provisioner
+2026-03-24T09:10:08.0074123Z Hosted Compute Agent
+2026-03-24T09:10:08.0075171Z Version: 20260213.493
+2026-03-24T09:10:08.0076137Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+2026-03-24T09:10:08.0077273Z Build Date: 2026-02-13T00:28:41Z
+2026-03-24T09:10:08.0078249Z Worker ID: {ae1c4d22-619c-4f05-9206-c69d8451e3a4}
+2026-03-24T09:10:08.0079612Z Azure Region: eastus2
+2026-03-24T09:10:08.0080514Z ##[endgroup]
+2026-03-24T09:10:08.0083370Z ##[group]Operating System
+2026-03-24T09:10:08.0084572Z Ubuntu
+2026-03-24T09:10:08.0085353Z 24.04.3
+2026-03-24T09:10:08.0086090Z LTS
+2026-03-24T09:10:08.0086963Z ##[endgroup]
+2026-03-24T09:10:08.0087880Z ##[group]Runner Image
+2026-03-24T09:10:08.0088818Z Image: ubuntu-24.04
+2026-03-24T09:10:08.0089850Z Version: 20260309.50.1
+2026-03-24T09:10:08.0112372Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260309.50/images/ubuntu/Ubuntu2404-Readme.md
+2026-03-24T09:10:08.0115177Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260309.50
+2026-03-24T09:10:08.0116847Z ##[endgroup]
+2026-03-24T09:10:08.0118873Z ##[group]GITHUB_TOKEN Permissions
+2026-03-24T09:10:08.0121906Z Contents: read
+2026-03-24T09:10:08.0122802Z Metadata: read
+2026-03-24T09:10:08.0123763Z Packages: read
+2026-03-24T09:10:08.0124587Z ##[endgroup]
+2026-03-24T09:10:08.0127592Z Secret source: Actions
+2026-03-24T09:10:08.0129187Z Prepare workflow directory
+2026-03-24T09:10:08.1103278Z Prepare all required actions
+2026-03-24T09:10:08.1229496Z Getting action download info
+2026-03-24T09:10:08.4627097Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-03-24T09:10:08.6272512Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-03-24T09:10:08.8537137Z Complete job name: 📏 Lint & Type Check
+2026-03-24T09:10:08.9248001Z ##[group]Run actions/checkout@v4
+2026-03-24T09:10:08.9249268Z with:
+2026-03-24T09:10:08.9249950Z   repository: RioTwWks/RioVPN
+2026-03-24T09:10:08.9251012Z   token: ***
+2026-03-24T09:10:08.9251974Z   ssh-strict: true
+2026-03-24T09:10:08.9252638Z   ssh-user: git
+2026-03-24T09:10:08.9253313Z   persist-credentials: true
+2026-03-24T09:10:08.9254066Z   clean: true
+2026-03-24T09:10:08.9254746Z   sparse-checkout-cone-mode: true
+2026-03-24T09:10:08.9255552Z   fetch-depth: 1
+2026-03-24T09:10:08.9256230Z   fetch-tags: false
+2026-03-24T09:10:08.9256907Z   show-progress: true
+2026-03-24T09:10:08.9257602Z   lfs: false
+2026-03-24T09:10:08.9258240Z   submodules: false
+2026-03-24T09:10:08.9258953Z   set-safe-directory: true
+2026-03-24T09:10:08.9260119Z ##[endgroup]
+2026-03-24T09:10:09.1311681Z Syncing repository: RioTwWks/RioVPN
+2026-03-24T09:10:09.1314335Z ##[group]Getting Git version info
+2026-03-24T09:10:09.1315425Z Working directory is '/home/runner/work/RioVPN/RioVPN'
+2026-03-24T09:10:09.1317020Z [command]/usr/bin/git version
+2026-03-24T09:10:09.1317802Z git version 2.53.0
+2026-03-24T09:10:09.1320377Z ##[endgroup]
+2026-03-24T09:10:09.1326728Z Temporarily overriding HOME='/home/runner/work/_temp/3fbd7822-3c7b-456c-bb95-aa4fa2b514bb' before making global git config changes
+2026-03-24T09:10:09.1329013Z Adding repository directory to the temporary git global config as a safe directory
+2026-03-24T09:10:09.1330832Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/RioVPN/RioVPN
+2026-03-24T09:10:09.1333628Z Deleting the contents of '/home/runner/work/RioVPN/RioVPN'
+2026-03-24T09:10:09.1335171Z ##[group]Initializing the repository
+2026-03-24T09:10:09.1336197Z [command]/usr/bin/git init /home/runner/work/RioVPN/RioVPN
+2026-03-24T09:10:09.1383465Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-03-24T09:10:09.1389501Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-03-24T09:10:09.1441148Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-03-24T09:10:09.1502536Z hint: call:
+2026-03-24T09:10:09.1503163Z hint:
+2026-03-24T09:10:09.1503953Z hint: 	git config --global init.defaultBranch <name>
+2026-03-24T09:10:09.1504897Z hint:
+2026-03-24T09:10:09.1505749Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-03-24T09:10:09.1507232Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-03-24T09:10:09.1508583Z hint:
+2026-03-24T09:10:09.1509202Z hint: 	git branch -m <name>
+2026-03-24T09:10:09.1509927Z hint:
+2026-03-24T09:10:09.1510877Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-03-24T09:10:09.1513037Z Initialized empty Git repository in /home/runner/work/RioVPN/RioVPN/.git/
+2026-03-24T09:10:09.1515561Z [command]/usr/bin/git remote add origin https://github.com/RioTwWks/RioVPN
+2026-03-24T09:10:09.1517962Z ##[endgroup]
+2026-03-24T09:10:09.1519236Z ##[group]Disabling automatic garbage collection
+2026-03-24T09:10:09.1520287Z [command]/usr/bin/git config --local gc.auto 0
+2026-03-24T09:10:09.1522746Z ##[endgroup]
+2026-03-24T09:10:09.1523814Z ##[group]Setting up auth
+2026-03-24T09:10:09.1524876Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-03-24T09:10:09.1528517Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-03-24T09:10:09.1749295Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-03-24T09:10:09.1753776Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-03-24T09:10:09.1956203Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-03-24T09:10:09.1993139Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-03-24T09:10:09.2277858Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-03-24T09:10:09.2318156Z ##[endgroup]
+2026-03-24T09:10:09.2320690Z ##[group]Fetching the repository
+2026-03-24T09:10:09.2329035Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b1513eb51fcbc29a82fd24e40b0d3a2961e11ca2:refs/remotes/origin/main
+2026-03-24T09:10:09.4877190Z From https://github.com/RioTwWks/RioVPN
+2026-03-24T09:10:09.4881319Z  * [new ref]         b1513eb51fcbc29a82fd24e40b0d3a2961e11ca2 -> origin/main
+2026-03-24T09:10:09.4908480Z ##[endgroup]
+2026-03-24T09:10:09.4910274Z ##[group]Determining the checkout info
+2026-03-24T09:10:09.4912807Z ##[endgroup]
+2026-03-24T09:10:09.4916816Z [command]/usr/bin/git sparse-checkout disable
+2026-03-24T09:10:09.4964339Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-03-24T09:10:09.4997407Z ##[group]Checking out the ref
+2026-03-24T09:10:09.5001281Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-03-24T09:10:09.5106418Z Switched to a new branch 'main'
+2026-03-24T09:10:09.5110114Z branch 'main' set up to track 'origin/main'.
+2026-03-24T09:10:09.5120949Z ##[endgroup]
+2026-03-24T09:10:09.5159017Z [command]/usr/bin/git log -1 --format=%H
+2026-03-24T09:10:09.5184763Z b1513eb51fcbc29a82fd24e40b0d3a2961e11ca2
+2026-03-24T09:10:09.5511757Z ##[group]Run actions/setup-python@v5
+2026-03-24T09:10:09.5512947Z with:
+2026-03-24T09:10:09.5513670Z   python-version: 3.11
+2026-03-24T09:10:09.5514521Z   cache: pip
+2026-03-24T09:10:09.5515259Z   check-latest: false
+2026-03-24T09:10:09.5516353Z   token: ***
+2026-03-24T09:10:09.5517120Z   update-environment: true
+2026-03-24T09:10:09.5518055Z   allow-prereleases: false
+2026-03-24T09:10:09.5518976Z   freethreaded: false
+2026-03-24T09:10:09.5519790Z ##[endgroup]
+2026-03-24T09:10:09.7477200Z ##[group]Installed versions
+2026-03-24T09:10:09.7575292Z Successfully set up CPython (3.11.15)
+2026-03-24T09:10:09.7578294Z ##[endgroup]
+2026-03-24T09:10:09.8166755Z [command]/opt/hostedtoolcache/Python/3.11.15/x64/bin/pip cache dir
+2026-03-24T09:10:10.2276590Z /home/runner/.cache/pip
+2026-03-24T09:10:10.3348505Z pip cache is not found
+2026-03-24T09:10:10.3471274Z ##[group]Run python -m pip install --upgrade pip
+2026-03-24T09:10:10.3472152Z [36;1mpython -m pip install --upgrade pip[0m
+2026-03-24T09:10:10.3472512Z [36;1mpip install -r requirements.txt[0m
+2026-03-24T09:10:10.3472834Z [36;1mpip install flake8 black mypy[0m
+2026-03-24T09:10:10.3529339Z shell: /usr/bin/bash -e {0}
+2026-03-24T09:10:10.3529641Z env:
+2026-03-24T09:10:10.3529935Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:10.3530405Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-03-24T09:10:10.3530882Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:10.3531324Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:10.3532197Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:10.3532635Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-03-24T09:10:10.3532995Z ##[endgroup]
+2026-03-24T09:10:10.9935482Z Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages (26.0.1)
+2026-03-24T09:10:11.7390372Z Collecting aiofiles==25.1.0 (from -r requirements.txt (line 1))
+2026-03-24T09:10:11.8059507Z   Downloading aiofiles-25.1.0-py3-none-any.whl.metadata (6.3 kB)
+2026-03-24T09:10:11.8407253Z Collecting aiogram==3.26.0 (from -r requirements.txt (line 2))
+2026-03-24T09:10:11.8496213Z   Downloading aiogram-3.26.0-py3-none-any.whl.metadata (6.7 kB)
+2026-03-24T09:10:11.8729757Z Collecting aiohappyeyeballs==2.6.1 (from -r requirements.txt (line 3))
+2026-03-24T09:10:11.8813120Z   Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl.metadata (5.9 kB)
+2026-03-24T09:10:12.4272771Z Collecting aiohttp==3.13.3 (from -r requirements.txt (line 4))
+2026-03-24T09:10:12.4357668Z   Downloading aiohttp-3.13.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.1 kB)
+2026-03-24T09:10:12.4530616Z Collecting aiosignal==1.4.0 (from -r requirements.txt (line 5))
+2026-03-24T09:10:12.4607282Z   Downloading aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)
+2026-03-24T09:10:12.4852595Z Collecting alembic==1.18.4 (from -r requirements.txt (line 6))
+2026-03-24T09:10:12.4929478Z   Downloading alembic-1.18.4-py3-none-any.whl.metadata (7.2 kB)
+2026-03-24T09:10:12.5099879Z Collecting annotated-types==0.7.0 (from -r requirements.txt (line 7))
+2026-03-24T09:10:12.5177537Z   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+2026-03-24T09:10:12.5402641Z Collecting APScheduler==3.11.2 (from -r requirements.txt (line 8))
+2026-03-24T09:10:12.5492509Z   Downloading apscheduler-3.11.2-py3-none-any.whl.metadata (6.4 kB)
+2026-03-24T09:10:12.5733986Z Collecting attrs==26.1.0 (from -r requirements.txt (line 9))
+2026-03-24T09:10:12.5808874Z   Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+2026-03-24T09:10:12.6008554Z Collecting certifi==2026.2.25 (from -r requirements.txt (line 10))
+2026-03-24T09:10:12.6085828Z   Downloading certifi-2026.2.25-py3-none-any.whl.metadata (2.5 kB)
+2026-03-24T09:10:12.6272138Z Collecting colorama==0.4.6 (from -r requirements.txt (line 11))
+2026-03-24T09:10:12.6342944Z   Downloading colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+2026-03-24T09:10:13.0218163Z Collecting coverage==7.13.5 (from -r requirements.txt (line 12))
+2026-03-24T09:10:13.0294091Z   Downloading coverage-7.13.5-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (8.5 kB)
+2026-03-24T09:10:13.0952782Z Collecting frozenlist==1.8.0 (from -r requirements.txt (line 13))
+2026-03-24T09:10:13.1043254Z   Downloading frozenlist-1.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (20 kB)
+2026-03-24T09:10:13.2298393Z Collecting greenlet==3.3.2 (from -r requirements.txt (line 14))
+2026-03-24T09:10:13.2376592Z   Downloading greenlet-3.3.2-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.7 kB)
+2026-03-24T09:10:13.2541006Z Collecting idna==3.11 (from -r requirements.txt (line 15))
+2026-03-24T09:10:13.2615790Z   Downloading idna-3.11-py3-none-any.whl.metadata (8.4 kB)
+2026-03-24T09:10:13.2759207Z Collecting iniconfig==2.3.0 (from -r requirements.txt (line 16))
+2026-03-24T09:10:13.2838592Z   Downloading iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+2026-03-24T09:10:13.2987023Z Collecting magic-filter==1.0.12 (from -r requirements.txt (line 17))
+2026-03-24T09:10:13.3071172Z   Downloading magic_filter-1.0.12-py3-none-any.whl.metadata (1.5 kB)
+2026-03-24T09:10:13.3247031Z Collecting Mako==1.3.10 (from -r requirements.txt (line 18))
+2026-03-24T09:10:13.3328092Z   Downloading mako-1.3.10-py3-none-any.whl.metadata (2.9 kB)
+2026-03-24T09:10:13.3874085Z Collecting MarkupSafe==3.0.3 (from -r requirements.txt (line 19))
+2026-03-24T09:10:13.3957457Z   Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+2026-03-24T09:10:13.6572283Z Collecting multidict==6.7.1 (from -r requirements.txt (line 20))
+2026-03-24T09:10:13.6652481Z   Downloading multidict-6.7.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
+2026-03-24T09:10:13.6837636Z Collecting packaging==26.0 (from -r requirements.txt (line 21))
+2026-03-24T09:10:13.6912419Z   Downloading packaging-26.0-py3-none-any.whl.metadata (3.3 kB)
+2026-03-24T09:10:13.7060933Z Collecting pluggy==1.6.0 (from -r requirements.txt (line 22))
+2026-03-24T09:10:13.7135593Z   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2026-03-24T09:10:13.7734866Z Collecting propcache==0.4.1 (from -r requirements.txt (line 23))
+2026-03-24T09:10:13.7819101Z   Downloading propcache-0.4.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (13 kB)
+2026-03-24T09:10:13.8859625Z Collecting pydantic==2.12.5 (from -r requirements.txt (line 24))
+2026-03-24T09:10:13.8935437Z   Downloading pydantic-2.12.5-py3-none-any.whl.metadata (90 kB)
+2026-03-24T09:10:13.9196056Z Collecting pydantic-settings==2.13.1 (from -r requirements.txt (line 25))
+2026-03-24T09:10:13.9269527Z   Downloading pydantic_settings-2.13.1-py3-none-any.whl.metadata (3.4 kB)
+2026-03-24T09:10:14.6451038Z Collecting pydantic_core==2.41.5 (from -r requirements.txt (line 26))
+2026-03-24T09:10:14.6539100Z   Downloading pydantic_core-2.41.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
+2026-03-24T09:10:14.6749062Z Collecting Pygments==2.19.2 (from -r requirements.txt (line 27))
+2026-03-24T09:10:14.6824465Z   Downloading pygments-2.19.2-py3-none-any.whl.metadata (2.5 kB)
+2026-03-24T09:10:14.7104569Z Collecting pytest==9.0.2 (from -r requirements.txt (line 28))
+2026-03-24T09:10:14.7179688Z   Downloading pytest-9.0.2-py3-none-any.whl.metadata (7.6 kB)
+2026-03-24T09:10:14.7392360Z Collecting pytest-asyncio==1.3.0 (from -r requirements.txt (line 29))
+2026-03-24T09:10:14.7466287Z   Downloading pytest_asyncio-1.3.0-py3-none-any.whl.metadata (4.1 kB)
+2026-03-24T09:10:14.7654245Z Collecting pytest-cov==7.1.0 (from -r requirements.txt (line 30))
+2026-03-24T09:10:14.7731063Z   Downloading pytest_cov-7.1.0-py3-none-any.whl.metadata (32 kB)
+2026-03-24T09:10:14.7929983Z Collecting python-dotenv==1.2.2 (from -r requirements.txt (line 31))
+2026-03-24T09:10:14.8005090Z   Downloading python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+2026-03-24T09:10:15.0499490Z Collecting SQLAlchemy==2.0.48 (from -r requirements.txt (line 32))
+2026-03-24T09:10:15.0577136Z   Downloading sqlalchemy-2.0.48-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.5 kB)
+2026-03-24T09:10:15.0812074Z Collecting tenacity==9.1.4 (from -r requirements.txt (line 33))
+2026-03-24T09:10:15.0888483Z   Downloading tenacity-9.1.4-py3-none-any.whl.metadata (1.2 kB)
+2026-03-24T09:10:15.1029847Z Collecting typing-inspection==0.4.2 (from -r requirements.txt (line 34))
+2026-03-24T09:10:15.1105842Z   Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
+2026-03-24T09:10:15.1296906Z Collecting typing_extensions==4.15.0 (from -r requirements.txt (line 35))
+2026-03-24T09:10:15.1370656Z   Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+2026-03-24T09:10:15.1527305Z Collecting tzdata==2025.3 (from -r requirements.txt (line 36))
+2026-03-24T09:10:15.1605625Z   Downloading tzdata-2025.3-py2.py3-none-any.whl.metadata (1.4 kB)
+2026-03-24T09:10:15.1768634Z Collecting tzlocal==5.3.1 (from -r requirements.txt (line 37))
+2026-03-24T09:10:15.1841203Z   Downloading tzlocal-5.3.1-py3-none-any.whl.metadata (7.6 kB)
+2026-03-24T09:10:15.5092962Z Collecting yarl==1.23.0 (from -r requirements.txt (line 38))
+2026-03-24T09:10:15.5170778Z   Downloading yarl-1.23.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
+2026-03-24T09:10:15.5638773Z Collecting asyncpg==0.29.0 (from -r requirements.txt (line 39))
+2026-03-24T09:10:15.5714856Z   Downloading asyncpg-0.29.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.4 kB)
+2026-03-24T09:10:15.6313074Z Collecting psycopg2-binary==2.9.9 (from -r requirements.txt (line 40))
+2026-03-24T09:10:15.6387992Z   Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.4 kB)
+2026-03-24T09:10:15.7051349Z Collecting async-timeout>=4.0.3 (from asyncpg==0.29.0->-r requirements.txt (line 39))
+2026-03-24T09:10:15.7174032Z   Downloading async_timeout-5.0.1-py3-none-any.whl.metadata (5.1 kB)
+2026-03-24T09:10:15.7301985Z Downloading aiofiles-25.1.0-py3-none-any.whl (14 kB)
+2026-03-24T09:10:15.7410861Z Downloading aiogram-3.26.0-py3-none-any.whl (716 kB)
+2026-03-24T09:10:15.7582670Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 716.4/716.4 kB 52.6 MB/s  0:00:00
+2026-03-24T09:10:15.7663043Z Downloading aiohttp-3.13.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.7 MB)
+2026-03-24T09:10:15.7806598Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 128.3 MB/s  0:00:00
+2026-03-24T09:10:15.7879728Z Downloading magic_filter-1.0.12-py3-none-any.whl (11 kB)
+2026-03-24T09:10:15.7982283Z Downloading multidict-6.7.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (246 kB)
+2026-03-24T09:10:15.8083619Z Downloading pydantic-2.12.5-py3-none-any.whl (463 kB)
+2026-03-24T09:10:15.8195514Z Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+2026-03-24T09:10:15.8308093Z Downloading yarl-1.23.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (102 kB)
+2026-03-24T09:10:15.8405638Z Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl (15 kB)
+2026-03-24T09:10:15.8507762Z Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+2026-03-24T09:10:15.8596820Z Downloading alembic-1.18.4-py3-none-any.whl (263 kB)
+2026-03-24T09:10:15.8701807Z Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+2026-03-24T09:10:15.8798790Z Downloading apscheduler-3.11.2-py3-none-any.whl (64 kB)
+2026-03-24T09:10:15.8895636Z Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+2026-03-24T09:10:15.8995087Z Downloading certifi-2026.2.25-py3-none-any.whl (153 kB)
+2026-03-24T09:10:15.9097643Z Downloading colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+2026-03-24T09:10:15.9195281Z Downloading coverage-7.13.5-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (252 kB)
+2026-03-24T09:10:15.9296055Z Downloading frozenlist-1.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (231 kB)
+2026-03-24T09:10:15.9426139Z Downloading greenlet-3.3.2-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (594 kB)
+2026-03-24T09:10:15.9488966Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 594.2/594.2 kB 91.4 MB/s  0:00:00
+2026-03-24T09:10:15.9561659Z Downloading idna-3.11-py3-none-any.whl (71 kB)
+2026-03-24T09:10:15.9661135Z Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+2026-03-24T09:10:15.9756225Z Downloading mako-1.3.10-py3-none-any.whl (78 kB)
+2026-03-24T09:10:15.9855302Z Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+2026-03-24T09:10:15.9950176Z Downloading packaging-26.0-py3-none-any.whl (74 kB)
+2026-03-24T09:10:16.0047613Z Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+2026-03-24T09:10:16.0144753Z Downloading propcache-0.4.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (210 kB)
+2026-03-24T09:10:16.0246424Z Downloading pydantic_settings-2.13.1-py3-none-any.whl (58 kB)
+2026-03-24T09:10:16.0343870Z Downloading pydantic_core-2.41.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+2026-03-24T09:10:16.0491946Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 154.5 MB/s  0:00:00
+2026-03-24T09:10:16.0582949Z Downloading pygments-2.19.2-py3-none-any.whl (1.2 MB)
+2026-03-24T09:10:16.0677515Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 153.0 MB/s  0:00:00
+2026-03-24T09:10:16.0754966Z Downloading pytest-9.0.2-py3-none-any.whl (374 kB)
+2026-03-24T09:10:16.0865081Z Downloading pytest_asyncio-1.3.0-py3-none-any.whl (15 kB)
+2026-03-24T09:10:16.0958977Z Downloading pytest_cov-7.1.0-py3-none-any.whl (22 kB)
+2026-03-24T09:10:16.1054023Z Downloading python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+2026-03-24T09:10:16.1152913Z Downloading sqlalchemy-2.0.48-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.3 MB)
+2026-03-24T09:10:16.1316021Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 222.5 MB/s  0:00:00
+2026-03-24T09:10:16.1390034Z Downloading tenacity-9.1.4-py3-none-any.whl (28 kB)
+2026-03-24T09:10:16.1485318Z Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+2026-03-24T09:10:16.1581207Z Downloading tzdata-2025.3-py2.py3-none-any.whl (348 kB)
+2026-03-24T09:10:16.1692020Z Downloading tzlocal-5.3.1-py3-none-any.whl (18 kB)
+2026-03-24T09:10:16.1787081Z Downloading asyncpg-0.29.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.8 MB)
+2026-03-24T09:10:16.1943110Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.8/2.8 MB 202.3 MB/s  0:00:00
+2026-03-24T09:10:16.2020504Z Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+2026-03-24T09:10:16.2180041Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 215.7 MB/s  0:00:00
+2026-03-24T09:10:16.2252694Z Downloading async_timeout-5.0.1-py3-none-any.whl (6.2 kB)
+2026-03-24T09:10:16.4308942Z Installing collected packages: tzlocal, tzdata, typing_extensions, tenacity, python-dotenv, Pygments, psycopg2-binary, propcache, pluggy, packaging, multidict, MarkupSafe, magic-filter, iniconfig, idna, greenlet, frozenlist, coverage, colorama, certifi, attrs, async-timeout, annotated-types, aiohappyeyeballs, aiofiles, yarl, typing-inspection, SQLAlchemy, pytest, pydantic_core, Mako, asyncpg, APScheduler, aiosignal, pytest-cov, pytest-asyncio, pydantic, alembic, aiohttp, pydantic-settings, aiogram
+2026-03-24T09:10:20.5139506Z 
+2026-03-24T09:10:20.5164475Z Successfully installed APScheduler-3.11.2 Mako-1.3.10 MarkupSafe-3.0.3 Pygments-2.19.2 SQLAlchemy-2.0.48 aiofiles-25.1.0 aiogram-3.26.0 aiohappyeyeballs-2.6.1 aiohttp-3.13.3 aiosignal-1.4.0 alembic-1.18.4 annotated-types-0.7.0 async-timeout-5.0.1 asyncpg-0.29.0 attrs-26.1.0 certifi-2026.2.25 colorama-0.4.6 coverage-7.13.5 frozenlist-1.8.0 greenlet-3.3.2 idna-3.11 iniconfig-2.3.0 magic-filter-1.0.12 multidict-6.7.1 packaging-26.0 pluggy-1.6.0 propcache-0.4.1 psycopg2-binary-2.9.9 pydantic-2.12.5 pydantic-settings-2.13.1 pydantic_core-2.41.5 pytest-9.0.2 pytest-asyncio-1.3.0 pytest-cov-7.1.0 python-dotenv-1.2.2 tenacity-9.1.4 typing-inspection-0.4.2 typing_extensions-4.15.0 tzdata-2025.3 tzlocal-5.3.1 yarl-1.23.0
+2026-03-24T09:10:21.5958316Z Collecting flake8
+2026-03-24T09:10:21.6618249Z   Downloading flake8-7.3.0-py2.py3-none-any.whl.metadata (3.8 kB)
+2026-03-24T09:10:21.7386233Z Collecting black
+2026-03-24T09:10:21.7463703Z   Downloading black-26.3.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (91 kB)
+2026-03-24T09:10:21.8818639Z Collecting mypy
+2026-03-24T09:10:21.8896755Z   Downloading mypy-1.19.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.2 kB)
+2026-03-24T09:10:21.9057901Z Collecting mccabe<0.8.0,>=0.7.0 (from flake8)
+2026-03-24T09:10:21.9135972Z   Downloading mccabe-0.7.0-py2.py3-none-any.whl.metadata (5.0 kB)
+2026-03-24T09:10:21.9299629Z Collecting pycodestyle<2.15.0,>=2.14.0 (from flake8)
+2026-03-24T09:10:21.9373349Z   Downloading pycodestyle-2.14.0-py2.py3-none-any.whl.metadata (4.5 kB)
+2026-03-24T09:10:21.9543598Z Collecting pyflakes<3.5.0,>=3.4.0 (from flake8)
+2026-03-24T09:10:21.9619793Z   Downloading pyflakes-3.4.0-py2.py3-none-any.whl.metadata (3.5 kB)
+2026-03-24T09:10:21.9827108Z Collecting click>=8.0.0 (from black)
+2026-03-24T09:10:21.9899132Z   Downloading click-8.3.1-py3-none-any.whl.metadata (2.6 kB)
+2026-03-24T09:10:22.0043282Z Collecting mypy-extensions>=0.4.3 (from black)
+2026-03-24T09:10:22.0121300Z   Downloading mypy_extensions-1.1.0-py3-none-any.whl.metadata (1.1 kB)
+2026-03-24T09:10:22.0162393Z Requirement already satisfied: packaging>=22.0 in /opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages (from black) (26.0)
+2026-03-24T09:10:22.0286385Z Collecting pathspec>=1.0.0 (from black)
+2026-03-24T09:10:22.0356947Z   Downloading pathspec-1.0.4-py3-none-any.whl.metadata (13 kB)
+2026-03-24T09:10:22.0576959Z Collecting platformdirs>=2 (from black)
+2026-03-24T09:10:22.0650757Z   Downloading platformdirs-4.9.4-py3-none-any.whl.metadata (4.7 kB)
+2026-03-24T09:10:22.0838155Z Collecting pytokens~=0.4.0 (from black)
+2026-03-24T09:10:22.0914227Z   Downloading pytokens-0.4.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+2026-03-24T09:10:22.0965879Z Requirement already satisfied: typing_extensions>=4.6.0 in /opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages (from mypy) (4.15.0)
+2026-03-24T09:10:22.1985836Z Collecting librt>=0.6.2 (from mypy)
+2026-03-24T09:10:22.2062409Z   Downloading librt-0.8.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (1.3 kB)
+2026-03-24T09:10:22.2193006Z Downloading flake8-7.3.0-py2.py3-none-any.whl (57 kB)
+2026-03-24T09:10:22.2345999Z Downloading mccabe-0.7.0-py2.py3-none-any.whl (7.3 kB)
+2026-03-24T09:10:22.2440488Z Downloading pycodestyle-2.14.0-py2.py3-none-any.whl (31 kB)
+2026-03-24T09:10:22.2552828Z Downloading pyflakes-3.4.0-py2.py3-none-any.whl (63 kB)
+2026-03-24T09:10:22.2709539Z Downloading black-26.3.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.8 MB)
+2026-03-24T09:10:22.3890027Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 16.3 MB/s  0:00:00
+2026-03-24T09:10:22.4000506Z Downloading pytokens-0.4.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (260 kB)
+2026-03-24T09:10:22.4177870Z Downloading mypy-1.19.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (13.4 MB)
+2026-03-24T09:10:22.6262081Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.4/13.4 MB 66.5 MB/s  0:00:00
+2026-03-24T09:10:22.6338644Z Downloading click-8.3.1-py3-none-any.whl (108 kB)
+2026-03-24T09:10:22.6443561Z Downloading librt-0.8.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (218 kB)
+2026-03-24T09:10:22.6549307Z Downloading mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)
+2026-03-24T09:10:22.6643390Z Downloading pathspec-1.0.4-py3-none-any.whl (55 kB)
+2026-03-24T09:10:22.6739249Z Downloading platformdirs-4.9.4-py3-none-any.whl (21 kB)
+2026-03-24T09:10:22.7558439Z Installing collected packages: pytokens, pyflakes, pycodestyle, platformdirs, pathspec, mypy-extensions, mccabe, librt, click, mypy, flake8, black
+2026-03-24T09:10:24.5288169Z 
+2026-03-24T09:10:24.5313281Z Successfully installed black-26.3.1 click-8.3.1 flake8-7.3.0 librt-0.8.1 mccabe-0.7.0 mypy-1.19.1 mypy-extensions-1.1.0 pathspec-1.0.4 platformdirs-4.9.4 pycodestyle-2.14.0 pyflakes-3.4.0 pytokens-0.4.1
+2026-03-24T09:10:24.6086940Z ##[group]Run flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+2026-03-24T09:10:24.6087563Z [36;1mflake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics[0m
+2026-03-24T09:10:24.6088145Z [36;1mflake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics[0m
+2026-03-24T09:10:24.6139502Z shell: /usr/bin/bash -e {0}
+2026-03-24T09:10:24.6139734Z env:
+2026-03-24T09:10:24.6139980Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:24.6140404Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-03-24T09:10:24.6140815Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:24.6141166Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:24.6141833Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:24.6142218Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-03-24T09:10:24.6142565Z ##[endgroup]
+2026-03-24T09:10:25.6434918Z 0
+2026-03-24T09:10:26.5124846Z src/bot/config.py:3:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5128350Z import logging
+2026-03-24T09:10:26.5128659Z ^
+2026-03-24T09:10:26.5129102Z src/bot/handlers/admin.py:6:1: F401 'aiogram.F' imported but unused
+2026-03-24T09:10:26.5129724Z from aiogram import F, Router
+2026-03-24T09:10:26.5130087Z ^
+2026-03-24T09:10:26.5130549Z src/bot/handlers/broadcast.py:3:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5131142Z import logging
+2026-03-24T09:10:26.5136653Z ^
+2026-03-24T09:10:26.5137367Z src/bot/handlers/broadcast.py:10:1: F401 'aiogram.types.InlineKeyboardButton' imported but unused
+2026-03-24T09:10:26.5138583Z from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+2026-03-24T09:10:26.5139377Z ^
+2026-03-24T09:10:26.5140107Z src/bot/handlers/broadcast.py:11:1: F401 'aiogram.utils.keyboard.InlineKeyboardBuilder' imported but unused
+2026-03-24T09:10:26.5141204Z from aiogram.utils.keyboard import InlineKeyboardBuilder
+2026-03-24T09:10:26.5141975Z ^
+2026-03-24T09:10:26.5142657Z src/bot/handlers/broadcast.py:193:5: F401 'aiogram.types.InlineKeyboardButton' imported but unused
+2026-03-24T09:10:26.5143700Z     from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+2026-03-24T09:10:26.5144340Z     ^
+2026-03-24T09:10:26.5145005Z src/bot/handlers/broadcast.py:193:5: F401 'aiogram.types.InlineKeyboardMarkup' imported but unused
+2026-03-24T09:10:26.5146040Z     from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+2026-03-24T09:10:26.5146670Z     ^
+2026-03-24T09:10:26.5147213Z src/bot/handlers/callback.py:4:1: F401 'datetime.timedelta' imported but unused
+2026-03-24T09:10:26.5148810Z from datetime import timedelta
+2026-03-24T09:10:26.5149242Z ^
+2026-03-24T09:10:26.5149775Z src/bot/handlers/callback.py:5:1: F401 'typing.Optional' imported but unused
+2026-03-24T09:10:26.5150494Z from typing import Optional
+2026-03-24T09:10:26.5150872Z ^
+2026-03-24T09:10:26.5151809Z src/bot/handlers/callback.py:8:1: F401 'aiogram.types.InlineKeyboardButton' imported but unused
+2026-03-24T09:10:26.5152802Z from aiogram.types import CallbackQuery, InlineKeyboardButton
+2026-03-24T09:10:26.5153387Z ^
+2026-03-24T09:10:26.5153947Z src/bot/handlers/callback.py:19:1: F401 'src.core.config.settings' imported but unused
+2026-03-24T09:10:26.5154707Z from src.core.config import settings
+2026-03-24T09:10:26.5155117Z ^
+2026-03-24T09:10:26.5155766Z src/bot/handlers/callback.py:21:1: F401 'src.models.subscription.Subscription' imported but unused
+2026-03-24T09:10:26.5156790Z from src.models.subscription import Subscription, SubscriptionType
+2026-03-24T09:10:26.5157385Z ^
+2026-03-24T09:10:26.5158344Z src/bot/handlers/callback.py:21:1: F401 'src.models.subscription.SubscriptionType' imported but unused
+2026-03-24T09:10:26.5159370Z from src.models.subscription import Subscription, SubscriptionType
+2026-03-24T09:10:26.5160298Z ^
+2026-03-24T09:10:26.5160986Z src/bot/handlers/command.py:5:1: F401 'aiogram.F' imported but unused
+2026-03-24T09:10:26.5161762Z from aiogram import F, Router
+2026-03-24T09:10:26.5162109Z ^
+2026-03-24T09:10:26.5162576Z src/bot/handlers/command.py:60:13: F541 f-string is missing placeholders
+2026-03-24T09:10:26.5163633Z             f"👋 <b>Добро пожаловать в RioVPN!</b>\n\n"
+2026-03-24T09:10:26.5164100Z             ^
+2026-03-24T09:10:26.5164581Z src/bot/handlers/export.py:5:1: F401 'json' imported but unused
+2026-03-24T09:10:26.5165162Z import json
+2026-03-24T09:10:26.5165446Z ^
+2026-03-24T09:10:26.5165919Z src/bot/handlers/export.py:8:1: F401 'typing.List' imported but unused
+2026-03-24T09:10:26.5166588Z from typing import List
+2026-03-24T09:10:26.5166927Z ^
+2026-03-24T09:10:26.5167404Z src/bot/handlers/payments.py:3:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5168030Z import logging
+2026-03-24T09:10:26.5168314Z ^
+2026-03-24T09:10:26.5168830Z src/bot/handlers/payments.py:4:1: F401 'decimal.Decimal' imported but unused
+2026-03-24T09:10:26.5169562Z from decimal import Decimal
+2026-03-24T09:10:26.5169918Z ^
+2026-03-24T09:10:26.5170395Z src/bot/handlers/payments.py:96:16: F541 f-string is missing placeholders
+2026-03-24T09:10:26.5171162Z         text = f"💰 <b>Платежи"
+2026-03-24T09:10:26.5171686Z                ^
+2026-03-24T09:10:26.5172266Z src/bot/handlers/referral.py:6:1: F401 'aiogram.filters.CommandStart' imported but unused
+2026-03-24T09:10:26.5173052Z from aiogram.filters import Command, CommandStart
+2026-03-24T09:10:26.5173503Z ^
+2026-03-24T09:10:26.5174128Z src/bot/handlers/referral.py:7:1: F401 'aiogram.types.InlineKeyboardButton' imported but unused
+2026-03-24T09:10:26.5175190Z from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+2026-03-24T09:10:26.5175938Z ^
+2026-03-24T09:10:26.5176587Z src/bot/handlers/referral.py:7:1: F401 'aiogram.types.InlineKeyboardMarkup' imported but unused
+2026-03-24T09:10:26.5177612Z from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+2026-03-24T09:10:26.5178333Z ^
+2026-03-24T09:10:26.5178876Z src/bot/handlers/referral.py:11:1: F401 'src.bot.keyboards.get_back_keyboard' imported but unused
+2026-03-24T09:10:26.5179632Z from src.bot.keyboards import get_back_keyboard
+2026-03-24T09:10:26.5180051Z ^
+2026-03-24T09:10:26.5180660Z src/bot/handlers/renewal.py:12:1: F401 'src.bot.notifications.get_notification_service' imported but unused
+2026-03-24T09:10:26.5183822Z from src.bot.notifications import get_notification_service
+2026-03-24T09:10:26.5184374Z ^
+2026-03-24T09:10:26.5185044Z src/bot/handlers/renewal.py:14:1: F401 'src.models.subscription.SubscriptionType' imported but unused
+2026-03-24T09:10:26.5186130Z from src.models.subscription import Subscription, SubscriptionStatus, SubscriptionType
+2026-03-24T09:10:26.5186822Z ^
+2026-03-24T09:10:26.5187377Z src/bot/handlers/tiers.py:7:1: F401 'aiogram.types.InlineKeyboardButton' imported but unused
+2026-03-24T09:10:26.5188337Z from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+2026-03-24T09:10:26.5191955Z ^
+2026-03-24T09:10:26.5192492Z src/bot/handlers/tiers.py:10:1: F401 'src.core.database.get_session' imported but unused
+2026-03-24T09:10:26.5193202Z from src.core.database import get_session
+2026-03-24T09:10:26.5193597Z ^
+2026-03-24T09:10:26.5194002Z src/bot/handlers/users.py:3:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5194545Z import logging
+2026-03-24T09:10:26.5194807Z ^
+2026-03-24T09:10:26.5195258Z src/bot/handlers/users.py:4:1: F401 'datetime.datetime' imported but unused
+2026-03-24T09:10:26.5196287Z from datetime import datetime
+2026-03-24T09:10:26.5196623Z ^
+2026-03-24T09:10:26.5196955Z src/bot/i18n.py:4:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5197403Z import logging
+2026-03-24T09:10:26.5197666Z ^
+2026-03-24T09:10:26.5198128Z src/bot/i18n.py:8:1: F401 'aiogram.utils.i18n.FSMI18nMiddleware' imported but unused
+2026-03-24T09:10:26.5198916Z from aiogram.utils.i18n import FSMI18nMiddleware, I18nMiddleware
+2026-03-24T09:10:26.5199647Z ^
+2026-03-24T09:10:26.5200316Z src/bot/keyboards.py:3:1: F401 'aiogram.types.InlineKeyboardButton' imported but unused
+2026-03-24T09:10:26.5201155Z from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+2026-03-24T09:10:26.5201856Z ^
+2026-03-24T09:10:26.5202380Z src/bot/main.py:65:5: F841 local variable 'notification_service' is assigned to but never used
+2026-03-24T09:10:26.5203154Z     notification_service = init_notifications(_bot)
+2026-03-24T09:10:26.5203596Z     ^
+2026-03-24T09:10:26.5203999Z src/bot/notifications.py:3:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5204589Z import logging
+2026-03-24T09:10:26.5204855Z ^
+2026-03-24T09:10:26.5205290Z src/bot/notifications.py:8:1: F401 'sqlalchemy.select' imported but unused
+2026-03-24T09:10:26.5205849Z from sqlalchemy import select
+2026-03-24T09:10:26.5206170Z ^
+2026-03-24T09:10:26.5206529Z src/bot/webhooks.py:4:1: F401 'typing.Tuple' imported but unused
+2026-03-24T09:10:26.5207034Z from typing import Tuple
+2026-03-24T09:10:26.5207322Z ^
+2026-03-24T09:10:26.5207746Z src/bot/webhooks.py:7:1: F401 'aiogram.types.HTTPException' imported but unused
+2026-03-24T09:10:26.5208334Z from aiogram.types import HTTPException
+2026-03-24T09:10:26.5208695Z ^
+2026-03-24T09:10:26.5209144Z src/bot/webhooks.py:82:9: F841 local variable 'content_type' is assigned to but never used
+2026-03-24T09:10:26.5209831Z         content_type = request.headers.get("Content-Type", "")
+2026-03-24T09:10:26.5210279Z         ^
+2026-03-24T09:10:26.5210593Z src/core/config.py:3:1: F401 'os' imported but unused
+2026-03-24T09:10:26.5210989Z import os
+2026-03-24T09:10:26.5211215Z ^
+2026-03-24T09:10:26.5211734Z src/core/config.py:5:1: F401 'pydantic.ConfigDict' imported but unused
+2026-03-24T09:10:26.5212261Z from pydantic import Field, ConfigDict
+2026-03-24T09:10:26.5212604Z ^
+2026-03-24T09:10:26.5212922Z src/core/health.py:3:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5213364Z import logging
+2026-03-24T09:10:26.5213608Z ^
+2026-03-24T09:10:26.5213961Z src/core/health.py:7:1: F401 'typing.List' imported but unused
+2026-03-24T09:10:26.5214464Z from typing import Any, Dict, List, Optional
+2026-03-24T09:10:26.5214834Z ^
+2026-03-24T09:10:26.5215203Z src/core/health.py:7:1: F401 'typing.Optional' imported but unused
+2026-03-24T09:10:26.5215735Z from typing import Any, Dict, List, Optional
+2026-03-24T09:10:26.5216100Z ^
+2026-03-24T09:10:26.5216462Z src/core/logging.py:5:1: F401 'typing.Optional' imported but unused
+2026-03-24T09:10:26.5216980Z from typing import Optional
+2026-03-24T09:10:26.5217274Z ^
+2026-03-24T09:10:26.5217655Z src/models/payment.py:5:1: F401 'typing.Optional' imported but unused
+2026-03-24T09:10:26.5218187Z from typing import TYPE_CHECKING, Optional
+2026-03-24T09:10:26.5218542Z ^
+2026-03-24T09:10:26.5218940Z src/models/payment.py:13:5: F401 'src.models.user.User' imported but unused
+2026-03-24T09:10:26.5219496Z     from src.models.user import User
+2026-03-24T09:10:26.5219825Z     ^
+2026-03-24T09:10:26.5220246Z src/models/referral.py:12:5: F401 'src.models.user.User' imported but unused
+2026-03-24T09:10:26.5220799Z     from src.models.user import User
+2026-03-24T09:10:26.5221130Z     ^
+2026-03-24T09:10:26.5221687Z src/models/settings.py:75:9: F401 'sqlalchemy.insert' imported but unused
+2026-03-24T09:10:26.5222252Z         from sqlalchemy import select, insert
+2026-03-24T09:10:26.5222617Z         ^
+2026-03-24T09:10:26.5223054Z src/models/subscription.py:13:5: F401 'src.models.user.User' imported but unused
+2026-03-24T09:10:26.5223652Z     from src.models.user import User
+2026-03-24T09:10:26.5223987Z     ^
+2026-03-24T09:10:26.5224352Z src/models/user.py:4:1: F401 'typing.Optional' imported but unused
+2026-03-24T09:10:26.5224881Z from typing import TYPE_CHECKING, Optional
+2026-03-24T09:10:26.5225231Z ^
+2026-03-24T09:10:26.5225644Z src/models/user.py:12:5: F401 'src.models.referral.Referral' imported but unused
+2026-03-24T09:10:26.5226222Z     from src.models.referral import Referral
+2026-03-24T09:10:26.5226781Z     ^
+2026-03-24T09:10:26.5227393Z src/models/user.py:13:5: F401 'src.models.subscription.Subscription' imported but unused
+2026-03-24T09:10:26.5228160Z     from src.models.subscription import Subscription
+2026-03-24T09:10:26.5228619Z     ^
+2026-03-24T09:10:26.5229049Z src/services/base.py:4:1: F401 'abc.abstractmethod' imported but unused
+2026-03-24T09:10:26.5229660Z from abc import ABC, abstractmethod
+2026-03-24T09:10:26.5230025Z ^
+2026-03-24T09:10:26.5230455Z src/services/payment/base.py:3:1: F401 'hashlib' imported but unused
+2026-03-24T09:10:26.5231003Z import hashlib
+2026-03-24T09:10:26.5231275Z ^
+2026-03-24T09:10:26.5232121Z src/services/payment/base.py:4:1: F401 'json' imported but unused
+2026-03-24T09:10:26.5232667Z import json
+2026-03-24T09:10:26.5232920Z ^
+2026-03-24T09:10:26.5233395Z src/services/payment/base.py:8:1: F401 'datetime.datetime' imported but unused
+2026-03-24T09:10:26.5234048Z from datetime import datetime
+2026-03-24T09:10:26.5234394Z ^
+2026-03-24T09:10:26.5234912Z src/services/payment/cryptomus.py:9:1: F401 'decimal.Decimal' imported but unused
+2026-03-24T09:10:26.5235589Z from decimal import Decimal
+2026-03-24T09:10:26.5235927Z ^
+2026-03-24T09:10:26.5236365Z src/services/payment/yookassa.py:3:1: F401 'base64' imported but unused
+2026-03-24T09:10:26.5236954Z import base64
+2026-03-24T09:10:26.5237212Z ^
+2026-03-24T09:10:26.5237800Z src/services/payment/yookassa.py:154:13: F841 local variable 'status' is assigned to but never used
+2026-03-24T09:10:26.5238566Z             status = response.get("status")
+2026-03-24T09:10:26.5238941Z             ^
+2026-03-24T09:10:26.5239521Z src/services/subscription.py:12:1: F401 'src.models.payment.PaymentStatus' imported but unused
+2026-03-24T09:10:26.5240280Z from src.models.payment import PaymentStatus
+2026-03-24T09:10:26.5240706Z ^
+2026-03-24T09:10:26.5241058Z src/workers/jobs.py:3:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5241952Z import logging
+2026-03-24T09:10:26.5242209Z ^
+2026-03-24T09:10:26.5243249Z src/workers/jobs.py:5:1: F401 'typing.List' imported but unused
+2026-03-24T09:10:26.5243750Z from typing import List, Optional
+2026-03-24T09:10:26.5244047Z ^
+2026-03-24T09:10:26.5244448Z src/workers/jobs.py:232:47: E711 comparison to None should be 'if cond is not None:'
+2026-03-24T09:10:26.5245066Z             .where(Subscription.traffic_limit != None)
+2026-03-24T09:10:26.5245508Z                                               ^
+2026-03-24T09:10:26.5246073Z src/workers/scheduler.py:4:1: F401 'logging' imported but unused
+2026-03-24T09:10:26.5246633Z import logging
+2026-03-24T09:10:26.5246906Z ^
+2026-03-24T09:10:26.5247411Z src/workers/scheduler.py:13:1: F401 'src.core.database.get_session' imported but unused
+2026-03-24T09:10:26.5248107Z from src.core.database import get_session
+2026-03-24T09:10:26.5248513Z ^
+2026-03-24T09:10:26.5248885Z tests/conftest.py:41:1: W293 blank line contains whitespace
+2026-03-24T09:10:26.5249395Z     
+2026-03-24T09:10:26.5249622Z ^
+2026-03-24T09:10:26.5249961Z tests/conftest.py:44:1: W293 blank line contains whitespace
+2026-03-24T09:10:26.5250421Z     
+2026-03-24T09:10:26.5250646Z ^
+2026-03-24T09:10:26.5250969Z tests/conftest.py:46:1: W293 blank line contains whitespace
+2026-03-24T09:10:26.5251608Z     
+2026-03-24T09:10:26.5251855Z ^
+2026-03-24T09:10:26.5252225Z tests/conftest.py:49:1: W293 blank line contains whitespace
+2026-03-24T09:10:26.5252722Z     
+2026-03-24T09:10:26.5252955Z ^
+2026-03-24T09:10:26.5253331Z tests/conftest.py:63:1: W293 blank line contains whitespace
+2026-03-24T09:10:26.5253823Z     
+2026-03-24T09:10:26.5254071Z ^
+2026-03-24T09:10:26.5254515Z tests/test_handlers.py:4:1: F401 'datetime.datetime' imported but unused
+2026-03-24T09:10:26.5255163Z from datetime import datetime, timedelta
+2026-03-24T09:10:26.5255585Z ^
+2026-03-24T09:10:26.5256032Z tests/test_handlers.py:4:1: F401 'datetime.timedelta' imported but unused
+2026-03-24T09:10:26.5256684Z from datetime import datetime, timedelta
+2026-03-24T09:10:26.5257087Z ^
+2026-03-24T09:10:26.5257528Z tests/test_handlers.py:5:1: F401 'decimal.Decimal' imported but unused
+2026-03-24T09:10:26.5258529Z from decimal import Decimal
+2026-03-24T09:10:26.5258885Z ^
+2026-03-24T09:10:26.5259398Z tests/test_handlers.py:11:1: F401 'src.bot.handlers.admin.is_admin' imported but unused
+2026-03-24T09:10:26.5260210Z from src.bot.handlers.admin import handle_stats, is_admin
+2026-03-24T09:10:26.5260714Z ^
+2026-03-24T09:10:26.5261160Z tests/test_handlers.py:301:1: E402 module level import not at top of file
+2026-03-24T09:10:26.5261913Z import asyncio
+2026-03-24T09:10:26.5262190Z ^
+2026-03-24T09:10:26.5262776Z tests/test_integration.py:55:9: F841 local variable 'original_traffic' is assigned to but never used
+2026-03-24T09:10:26.5263585Z         original_traffic = subscription.traffic_used
+2026-03-24T09:10:26.5264021Z         ^
+2026-03-24T09:10:26.5264607Z tests/test_integration.py:103:9: F401 'src.services.payment.base.PaymentData' imported but unused
+2026-03-24T09:10:26.5265553Z         from src.services.payment.base import PaymentService, PaymentData
+2026-03-24T09:10:26.5266157Z         ^
+2026-03-24T09:10:26.5266671Z tests/test_integration.py:193:9: F401 'src.models.user.User' imported but unused
+2026-03-24T09:10:26.5267369Z         from src.models.user import User
+2026-03-24T09:10:26.5267744Z         ^
+2026-03-24T09:10:26.5268389Z tests/test_integration.py:195:9: F401 'src.services.subscription.SubscriptionService' imported but unused
+2026-03-24T09:10:26.5269293Z         from src.services.subscription import SubscriptionService
+2026-03-24T09:10:26.5269747Z         ^
+2026-03-24T09:10:26.5270214Z tests/test_integration.py:242:9: F401 'src.models.payment.PaymentStatus' imported but unused
+2026-03-24T09:10:26.5270918Z         from src.models.payment import PaymentStatus
+2026-03-24T09:10:26.5271325Z         ^
+2026-03-24T09:10:26.5271917Z tests/test_services.py:4:1: F401 'datetime.datetime' imported but unused
+2026-03-24T09:10:26.5272547Z from datetime import datetime, timedelta
+2026-03-24T09:10:26.5272940Z ^
+2026-03-24T09:10:26.5273393Z tests/test_services.py:4:1: F401 'datetime.timedelta' imported but unused
+2026-03-24T09:10:26.5274071Z from datetime import datetime, timedelta
+2026-03-24T09:10:26.5274482Z ^
+2026-03-24T09:10:26.5274897Z tests/test_services.py:6:1: F401 'unittest.mock.AsyncMock' imported but unused
+2026-03-24T09:10:26.5275524Z from unittest.mock import AsyncMock, patch, MagicMock
+2026-03-24T09:10:26.5275953Z ^
+2026-03-24T09:10:26.5276353Z tests/test_services.py:6:1: F401 'unittest.mock.patch' imported but unused
+2026-03-24T09:10:26.5277029Z from unittest.mock import AsyncMock, patch, MagicMock
+2026-03-24T09:10:26.5277502Z ^
+2026-03-24T09:10:26.5277973Z tests/test_services.py:6:1: F401 'unittest.mock.MagicMock' imported but unused
+2026-03-24T09:10:26.5278692Z from unittest.mock import AsyncMock, patch, MagicMock
+2026-03-24T09:10:26.5279173Z ^
+2026-03-24T09:10:26.5279500Z 1     E402 module level import not at top of file
+2026-03-24T09:10:26.5280071Z 1     E711 comparison to None should be 'if cond is not None:'
+2026-03-24T09:10:26.5280626Z 73    F401 'logging' imported but unused
+2026-03-24T09:10:26.5281084Z 2     F541 f-string is missing placeholders
+2026-03-24T09:10:26.5281867Z 4     F841 local variable 'notification_service' is assigned to but never used
+2026-03-24T09:10:26.5282515Z 5     W293 blank line contains whitespace
+2026-03-24T09:10:26.5282918Z 86
+2026-03-24T09:10:26.5412083Z ##[group]Run black --check src/ tests/
+2026-03-24T09:10:26.5412420Z [36;1mblack --check src/ tests/[0m
+2026-03-24T09:10:26.5462102Z shell: /usr/bin/bash -e {0}
+2026-03-24T09:10:26.5462341Z env:
+2026-03-24T09:10:26.5462591Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:26.5463044Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-03-24T09:10:26.5463473Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:26.5463853Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:26.5464227Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:26.5464618Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-03-24T09:10:26.5465100Z ##[endgroup]
+2026-03-24T09:10:26.7085049Z Warning: Python 3.11 cannot parse code formatted for Python 3.12. To fix this: run Black with Python 3.12, set --target-version to py311, or use --fast to skip the safety check. Black's safety check verifies equivalence by parsing the AST, which fails when the running Python is older than the target version.
+2026-03-24T09:10:26.9822942Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/broadcast.py
+2026-03-24T09:10:27.0737254Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/admin.py
+2026-03-24T09:10:27.1766897Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/callback.py
+2026-03-24T09:10:27.1857739Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/command.py
+2026-03-24T09:10:27.3190486Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/payment.py
+2026-03-24T09:10:27.3615189Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/export.py
+2026-03-24T09:10:27.4670997Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/payments.py
+2026-03-24T09:10:27.4811820Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/referral.py
+2026-03-24T09:10:27.6098675Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/tiers.py
+2026-03-24T09:10:27.7089117Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/renewal.py
+2026-03-24T09:10:27.8189746Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/keyboards.py
+2026-03-24T09:10:27.8952778Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/users.py
+2026-03-24T09:10:27.9056513Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/main.py
+2026-03-24T09:10:28.0102572Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/notifications.py
+2026-03-24T09:10:28.0434321Z would reformat /home/runner/work/RioVPN/RioVPN/src/core/config.py
+2026-03-24T09:10:28.0671169Z would reformat /home/runner/work/RioVPN/RioVPN/src/core/logging.py
+2026-03-24T09:10:28.1265955Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/payment.py
+2026-03-24T09:10:28.1407198Z would reformat /home/runner/work/RioVPN/RioVPN/src/core/health.py
+2026-03-24T09:10:28.1588387Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/referral.py
+2026-03-24T09:10:28.1948280Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/settings.py
+2026-03-24T09:10:28.2359427Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/user.py
+2026-03-24T09:10:28.2404358Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/subscription.py
+2026-03-24T09:10:28.3169800Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/base.py
+2026-03-24T09:10:28.4927180Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/payment/base.py
+2026-03-24T09:10:28.5357362Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/payment/cryptomus.py
+2026-03-24T09:10:28.6396938Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/referral.py
+2026-03-24T09:10:28.7347324Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/payment/yookassa.py
+2026-03-24T09:10:28.8630373Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/subscription.py
+2026-03-24T09:10:28.9041202Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/three_xui.py
+2026-03-24T09:10:29.0967183Z would reformat /home/runner/work/RioVPN/RioVPN/src/workers/jobs.py
+2026-03-24T09:10:29.1610398Z would reformat /home/runner/work/RioVPN/RioVPN/tests/conftest.py
+2026-03-24T09:10:29.2959912Z would reformat /home/runner/work/RioVPN/RioVPN/tests/test_handlers.py
+2026-03-24T09:10:29.4045134Z would reformat /home/runner/work/RioVPN/RioVPN/tests/test_integration.py
+2026-03-24T09:10:29.4189064Z 
+2026-03-24T09:10:29.4189889Z Oh no! 💥 💔 💥
+2026-03-24T09:10:29.4190799Z 33 files would be reformatted, 21 files would be left unchanged.
+2026-03-24T09:10:29.4464530Z ##[error]Process completed with exit code 1.
+2026-03-24T09:10:29.4574701Z Post job cleanup.
+2026-03-24T09:10:29.5561786Z [command]/usr/bin/git version
+2026-03-24T09:10:29.5606346Z git version 2.53.0
+2026-03-24T09:10:29.5658251Z Temporarily overriding HOME='/home/runner/work/_temp/0b596387-1108-434a-b052-3bc69bba844c' before making global git config changes
+2026-03-24T09:10:29.5659634Z Adding repository directory to the temporary git global config as a safe directory
+2026-03-24T09:10:29.5665569Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/RioVPN/RioVPN
+2026-03-24T09:10:29.5719063Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-03-24T09:10:29.5759329Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-03-24T09:10:29.6043173Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-03-24T09:10:29.6071962Z http.https://github.com/.extraheader
+2026-03-24T09:10:29.6086554Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-03-24T09:10:29.6124451Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-03-24T09:10:29.6388669Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-03-24T09:10:29.6426636Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-03-24T09:10:29.6805606Z Cleaning up orphan processes
+2026-03-24T09:10:29.7187643Z ##[warning]Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-python@v5. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

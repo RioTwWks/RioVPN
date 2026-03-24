@@ -1,0 +1,49 @@
+﻿2026-03-24T09:10:26.5412071Z ##[group]Run black --check src/ tests/
+2026-03-24T09:10:26.5412418Z [36;1mblack --check src/ tests/[0m
+2026-03-24T09:10:26.5462095Z shell: /usr/bin/bash -e {0}
+2026-03-24T09:10:26.5462339Z env:
+2026-03-24T09:10:26.5462588Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:26.5463042Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-03-24T09:10:26.5463471Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:26.5463851Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:26.5464225Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-03-24T09:10:26.5464616Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-03-24T09:10:26.5465097Z ##[endgroup]
+2026-03-24T09:10:26.7084924Z Warning: Python 3.11 cannot parse code formatted for Python 3.12. To fix this: run Black with Python 3.12, set --target-version to py311, or use --fast to skip the safety check. Black's safety check verifies equivalence by parsing the AST, which fails when the running Python is older than the target version.
+2026-03-24T09:10:26.9822903Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/broadcast.py
+2026-03-24T09:10:27.0737217Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/admin.py
+2026-03-24T09:10:27.1766850Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/callback.py
+2026-03-24T09:10:27.1857696Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/command.py
+2026-03-24T09:10:27.3190434Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/payment.py
+2026-03-24T09:10:27.3615153Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/export.py
+2026-03-24T09:10:27.4670957Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/payments.py
+2026-03-24T09:10:27.4811785Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/referral.py
+2026-03-24T09:10:27.6098613Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/tiers.py
+2026-03-24T09:10:27.7089073Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/renewal.py
+2026-03-24T09:10:27.8189703Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/keyboards.py
+2026-03-24T09:10:27.8952742Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/handlers/users.py
+2026-03-24T09:10:27.9056483Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/main.py
+2026-03-24T09:10:28.0102528Z would reformat /home/runner/work/RioVPN/RioVPN/src/bot/notifications.py
+2026-03-24T09:10:28.0434287Z would reformat /home/runner/work/RioVPN/RioVPN/src/core/config.py
+2026-03-24T09:10:28.0671127Z would reformat /home/runner/work/RioVPN/RioVPN/src/core/logging.py
+2026-03-24T09:10:28.1265908Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/payment.py
+2026-03-24T09:10:28.1407159Z would reformat /home/runner/work/RioVPN/RioVPN/src/core/health.py
+2026-03-24T09:10:28.1588350Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/referral.py
+2026-03-24T09:10:28.1948199Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/settings.py
+2026-03-24T09:10:28.2359383Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/user.py
+2026-03-24T09:10:28.2404330Z would reformat /home/runner/work/RioVPN/RioVPN/src/models/subscription.py
+2026-03-24T09:10:28.3169760Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/base.py
+2026-03-24T09:10:28.4927133Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/payment/base.py
+2026-03-24T09:10:28.5357320Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/payment/cryptomus.py
+2026-03-24T09:10:28.6396894Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/referral.py
+2026-03-24T09:10:28.7347280Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/payment/yookassa.py
+2026-03-24T09:10:28.8630329Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/subscription.py
+2026-03-24T09:10:28.9041167Z would reformat /home/runner/work/RioVPN/RioVPN/src/services/three_xui.py
+2026-03-24T09:10:29.0966262Z would reformat /home/runner/work/RioVPN/RioVPN/src/workers/jobs.py
+2026-03-24T09:10:29.1610340Z would reformat /home/runner/work/RioVPN/RioVPN/tests/conftest.py
+2026-03-24T09:10:29.2959868Z would reformat /home/runner/work/RioVPN/RioVPN/tests/test_handlers.py
+2026-03-24T09:10:29.4045093Z would reformat /home/runner/work/RioVPN/RioVPN/tests/test_integration.py
+2026-03-24T09:10:29.4189027Z 
+2026-03-24T09:10:29.4189878Z Oh no! 💥 💔 💥
+2026-03-24T09:10:29.4190791Z 33 files would be reformatted, 21 files would be left unchanged.
+2026-03-24T09:10:29.4464505Z ##[error]Process completed with exit code 1.

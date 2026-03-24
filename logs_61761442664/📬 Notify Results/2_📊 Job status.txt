@@ -1,0 +1,5 @@
+﻿2026-03-24T09:10:36.1565803Z ##[group]Run echo "Pipeline completed with status: skipped"
+2026-03-24T09:10:36.1567263Z [36;1mecho "Pipeline completed with status: skipped"[0m
+2026-03-24T09:10:36.2147828Z shell: /usr/bin/bash -e {0}
+2026-03-24T09:10:36.2149187Z ##[endgroup]
+2026-03-24T09:10:36.2933745Z Pipeline completed with status: skipped

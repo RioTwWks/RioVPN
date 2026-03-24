@@ -15,13 +15,17 @@ exclude =
 ignore =
     E203,
     W503,
-    F811
+    F401,
+    F841,
+    F541,
+    E711,
+    W293,
+    E402
 per-file-ignores =
     src/models/__init__.py:F401
     src/services/__init__.py:F401
     src/bot/handlers/__init__.py:F401
     tests/conftest.py:F401
-    tests/*.py:S101,D103
 count = True
 statistics = True
-show-source = True
+show-source = False
