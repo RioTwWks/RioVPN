@@ -156,68 +156,16 @@ async def handle_duration(callback: CallbackQuery) -> None:
 @callback_router.callback_query(F.data.startswith("pay_"))
 async def handle_payment(callback: CallbackQuery) -> None:
     """
-    Handle payment - create subscription (MVP: manual payment).
+    Handle payment - delegate to payment router.
+
+    The payment router handles payment provider selection and processing.
 
     Args:
         callback: Callback query
     """
-    # Parse: pay_ru_3
-    parts = callback.data.split("_")
-    sub_type = parts[1]
-    duration = int(parts[2])
-
-    async for session in get_session():
-        # Get user
-        result = await session.execute(
-            select(User).where(User.telegram_id == callback.from_user.id)
-        )
-        user = result.scalar_one_or_none()
-
-        if not user:
-            await callback.answer("❌ Пользователь не найден", show_alert=True)
-            return
-
-        try:
-            # Create subscription
-            service = SubscriptionService(session)
-            subscription = await service.create_subscription(
-                user=user,
-                sub_type=SubscriptionType(sub_type),
-                duration_days=duration * 30,
-            )
-
-            # Send subscription link
-            type_emoji = "🇷🇺" if sub_type == "ru" else "🇪🇺"
-
-            await callback.message.edit_text(
-                f"✅ <b>Подписка активирована!</b>\n\n"
-                f"{type_emoji} <b>Тип:</b> {sub_type.upper()}\n"
-                f"⏳ <b>Срок:</b> {duration} мес.\n"
-                f"📅 <b>Действует до:</b> {subscription.expiry_date.strftime('%d.%m.%Y')}\n\n"
-                f"🔗 <b>Ваша ссылка для подключения:</b>\n"
-                f"<code>{subscription.link}</code>\n\n"
-                f"💡 <b>Инструкция:</b>\n"
-                f"1. Установите приложение V2Ray/XRay\n"
-                f"2. Добавьте подписку из ссылки выше\n"
-                f"3. Подключитесь к серверу\n\n"
-                f"Ваша подписка также доступна в разделе «Моя подписка»",
-                reply_markup=get_start_keyboard(),
-            )
-
-            logger.info(
-                f"Subscription created for user {user.telegram_id}: "
-                f"type={sub_type}, duration={duration}"
-            )
-
-        except Exception as e:
-            logger.error(f"Failed to create subscription: {e}", exc_info=True)
-            await callback.message.edit_text(
-                "❌ <b>Ошибка при создании подписки</b>\n\n"
-                "Попробуйте позже или обратитесь в поддержку.",
-                reply_markup=get_start_keyboard(),
-            )
-
-    await callback.answer()
+    # This is handled by payment_router
+    # Keep this handler for backward compatibility
+    pass
 
 
 @callback_router.callback_query(F.data == "my_subscription")
