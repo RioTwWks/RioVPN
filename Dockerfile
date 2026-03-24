@@ -1,5 +1,4 @@
-"""RioVPN Telegram Bot - Production Docker Image."""
-
+# RioVPN Telegram Bot - Production Docker Image
 FROM python:3.11-slim
 
 # Set environment variables

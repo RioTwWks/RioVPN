@@ -1,5 +1,4 @@
-"""RioVPN Worker - Background Tasks Docker Image."""
-
+# RioVPN Worker - Background Tasks Docker Image
 FROM python:3.11-slim
 
 # Set environment variables
