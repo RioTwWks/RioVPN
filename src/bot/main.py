@@ -76,27 +76,30 @@ async def main() -> None:
     logger.info("Background scheduler started")
 
     # Register startup/shutdown handlers
-    async def on_startup_wrapper(disp: Dispatcher, b: Bot) -> None:
-        await on_startup(disp, b)
+    async def on_startup_wrapper(bot: Bot) -> None:
+        await on_startup(None, bot)
 
-    async def on_shutdown_wrapper(disp: Dispatcher, b: Bot) -> None:
+    async def on_shutdown_wrapper(bot: Bot) -> None:
         _scheduler.stop()
         await cleanup()
-        await on_shutdown(disp, b)
+        await on_shutdown(None, bot)
 
     dispatcher.startup.register(on_startup_wrapper)
     dispatcher.shutdown.register(on_shutdown_wrapper)
 
-    # Setup graceful shutdown
-    loop = asyncio.get_running_loop()
-    stop_event = asyncio.Event()
+    # Setup graceful shutdown (Unix only)
+    import platform
+    
+    if platform.system() != "Windows":
+        loop = asyncio.get_running_loop()
+        stop_event = asyncio.Event()
 
-    def handle_signal():
-        logger.info("Shutdown signal received")
-        stop_event.set()
+        def handle_signal():
+            logger.info("Shutdown signal received")
+            stop_event.set()
 
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(sig, handle_signal)
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, handle_signal)
 
     try:
         # Start polling

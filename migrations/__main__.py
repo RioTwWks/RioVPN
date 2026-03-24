@@ -25,7 +25,7 @@ def run_alembic_cmd(alembic_cmd: str, *args, **kwargs) -> None:
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python -m migrations <command> [args]")
-        print("Commands: upgrade, downgrade, revision, current, history")
+        print("Commands: upgrade, downgrade, revision, current, history, stamp")
         sys.exit(1)
 
     cmd = sys.argv[1]
@@ -42,6 +42,8 @@ if __name__ == "__main__":
             run_alembic_cmd("current")
         elif cmd == "history":
             run_alembic_cmd("history")
+        elif cmd == "stamp":
+            run_alembic_cmd("stamp", args[0] if args else "head")
         else:
             print(f"Unknown command: {cmd}")
             sys.exit(1)

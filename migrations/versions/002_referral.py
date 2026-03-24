@@ -20,21 +20,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Add referral system tables and columns."""
-    # Add referral columns to users table
-    op.add_column(
-        'users',
-        sa.Column('referral_code', sa.String(length=32), nullable=True)
-    )
-    op.add_column(
-        'users',
-        sa.Column('referred_by', sa.BigInteger(), nullable=True)
-    )
-    op.create_index(op.f('ix_users_referral_code'), 'users', ['referral_code'], unique=True)
-    op.create_foreign_key(
-        'fk_users_referred_by',
-        'users', 'users',
-        ['referred_by'], ['telegram_id']
-    )
+    # Use batch mode for SQLite compatibility
+    # Add referral columns to users table (without FK constraint to avoid circular dependency)
+    with op.batch_alter_table('users', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('referral_code', sa.String(length=32), nullable=True))
+        batch_op.add_column(sa.Column('referred_by', sa.BigInteger(), nullable=True))
+        batch_op.create_index(batch_op.f('ix_users_referral_code'), ['referral_code'], unique=True)
+        # Note: Skipping FK constraint for referred_by to avoid circular dependency in SQLite
 
     # Create referrals table
     op.create_table(
