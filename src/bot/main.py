@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import signal
+from typing import Optional
 
 from aiogram import Bot, Dispatcher
 
@@ -14,14 +15,46 @@ from src.workers.scheduler import create_scheduler
 
 logger = logging.getLogger(__name__)
 
+# Global references for cleanup
+_bot: Optional[Bot] = None
+_scheduler = None
+
+
+async def cleanup() -> None:
+    """
+    Perform cleanup on shutdown.
+
+    Closes database connections, stops scheduler, and cleans up bot session.
+    """
+    logger.info("Starting cleanup...")
+
+    # Stop scheduler
+    if _scheduler:
+        _scheduler.stop()
+        logger.info("Scheduler stopped")
+
+    # Close bot session
+    if _bot:
+        await _bot.session.close()
+        logger.info("Bot session closed")
+
+    # Dispose database engine
+    from src.core.database import engine
+    await engine.dispose()
+    logger.info("Database engine disposed")
+
+    logger.info("Cleanup completed")
+
 
 async def main() -> None:
     """Main bot runner."""
+    global _bot, _scheduler
+
     # Setup logging
     setup_logging("INFO")
 
     # Create bot and dispatcher
-    bot = create_bot()
+    _bot = create_bot()
     dispatcher = create_dispatcher()
 
     # Setup routers
@@ -29,7 +62,7 @@ async def main() -> None:
     dispatcher.include_router(root_router)
 
     # Initialize notifications
-    notification_service = init_notifications(bot)
+    notification_service = init_notifications(_bot)
     logger.info("Notification service initialized")
 
     # Initialize database
@@ -37,8 +70,8 @@ async def main() -> None:
     logger.info("Database initialized")
 
     # Start scheduler
-    scheduler = create_scheduler(bot=bot)
-    scheduler.start()
+    _scheduler = create_scheduler(bot=_bot)
+    _scheduler.start()
     logger.info("Background scheduler started")
 
     # Register startup/shutdown handlers
@@ -46,7 +79,8 @@ async def main() -> None:
         await on_startup(disp, b)
 
     async def on_shutdown_wrapper(disp: Dispatcher, b: Bot) -> None:
-        scheduler.stop()
+        _scheduler.stop()
+        await cleanup()
         await on_shutdown(disp, b)
 
     dispatcher.startup.register(on_startup_wrapper)
@@ -66,13 +100,14 @@ async def main() -> None:
     try:
         # Start polling
         logger.info("Bot starting...")
-        await dispatcher.start_polling(bot)
+        await dispatcher.start_polling(_bot)
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt received")
+    except Exception as e:
+        logger.error(f"Bot error: {e}", exc_info=True)
+        raise
     finally:
-        scheduler.stop()
-        await dispatcher.shutdown()
-        await bot.session.close()
+        await cleanup()
         logger.info("Bot stopped")
 
 
