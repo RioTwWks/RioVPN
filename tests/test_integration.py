@@ -116,7 +116,7 @@ class TestPaymentWorkflow:
         await db_session.commit()
 
         # Mock payment service
-        with patch.object(PaymentService, 'activate_subscription') as mock_activate:
+        with patch.object(PaymentService, "activate_subscription") as mock_activate:
             mock_activate.return_value = MagicMock()
 
             # Update payment to paid
@@ -212,9 +212,7 @@ class TestBotWorkflow:
         # Handle /start
         with patch("src.bot.handlers.command.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=None)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None)))
             mock_session.add = AsyncMock()
             mock_session.commit = AsyncMock()
             mock_session.refresh = AsyncMock()
@@ -319,9 +317,7 @@ class TestSchedulerWorkflow:
         from src.workers.jobs import sync_traffic
 
         # Setup mock traffic data
-        mock_three_xui.get_client_traffic = AsyncMock(
-            return_value={"total": 50 * 1024**3}  # 50 GB used
-        )
+        mock_three_xui.get_client_traffic = AsyncMock(return_value={"total": 50 * 1024**3})  # 50 GB used
 
         # Run traffic sync
         updated_count = await sync_traffic()
@@ -365,9 +361,7 @@ class TestHealthCheckWorkflow:
         from src.core.health import get_health_status
 
         # Mock failed panel
-        mock_three_xui.get_inbounds = AsyncMock(
-            side_effect=Exception("Connection refused")
-        )
+        mock_three_xui.get_inbounds = AsyncMock(side_effect=Exception("Connection refused"))
         mock_hiddify.get_all_users = AsyncMock(return_value=[])
 
         with patch("src.core.health.ThreeXuiService", return_value=mock_three_xui):

@@ -28,9 +28,7 @@ async def handle_start(message: Message) -> None:
     """
     async for session in get_session():
         # Get or create user
-        result = await session.execute(
-            select(User).where(User.telegram_id == message.from_user.id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == message.from_user.id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -75,8 +73,7 @@ async def handle_buy(message: Message) -> None:
         message: Incoming message
     """
     await message.answer(
-        "🛒 <b>Покупка подписки</b>\n\n"
-        "Выберите тип подписки в меню ниже:",
+        "🛒 <b>Покупка подписки</b>\n\n" "Выберите тип подписки в меню ниже:",
         reply_markup=get_start_keyboard(),
     )
 
@@ -91,9 +88,7 @@ async def handle_my(message: Message) -> None:
     """
     async for session in get_session():
         # Get user
-        result = await session.execute(
-            select(User).where(User.telegram_id == message.from_user.id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == message.from_user.id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -105,8 +100,7 @@ async def handle_my(message: Message) -> None:
 
         if not subscription:
             await message.answer(
-                "📱 <b>У вас нет активной подписки</b>\n\n"
-                "Приобретите подписку, чтобы получить доступ к VPN.",
+                "📱 <b>У вас нет активной подписки</b>\n\n" "Приобретите подписку, чтобы получить доступ к VPN.",
                 reply_markup=get_start_keyboard(),
             )
             return
@@ -117,8 +111,8 @@ async def handle_my(message: Message) -> None:
 
         traffic_info = ""
         if subscription.traffic_limit:
-            used_gb = subscription.traffic_used / (1024 ** 3)
-            limit_gb = subscription.traffic_limit / (1024 ** 3)
+            used_gb = subscription.traffic_used / (1024**3)
+            limit_gb = subscription.traffic_limit / (1024**3)
             traffic_info = (
                 f"📊 <b>Трафик:</b> {used_gb:.2f} ГБ из {limit_gb:.2f} ГБ\n"
                 f"     Использовано: {subscription.traffic_used_percent:.1f}%\n"
@@ -164,7 +158,6 @@ async def handle_renew(message: Message) -> None:
         message: Incoming message
     """
     await message.answer(
-        "💳 <b>Продление подписки</b>\n\n"
-        "Перейдите в раздел «Моя подписка» для продления.",
+        "💳 <b>Продление подписки</b>\n\n" "Перейдите в раздел «Моя подписка» для продления.",
         reply_markup=get_start_keyboard(),
     )

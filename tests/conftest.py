@@ -38,15 +38,15 @@ def test_db_url() -> str:
 async def db_engine(test_db_url: str):
     """Create test database engine."""
     engine = create_async_engine(test_db_url, echo=False, future=True)
-    
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     yield engine
-    
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-    
+
     await engine.dispose()
 
 
@@ -60,7 +60,7 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
         autocommit=False,
         autoflush=False,
     )
-    
+
     async with async_session_maker() as session:
         yield session
         await session.rollback()
@@ -156,9 +156,7 @@ def mock_message(mock_bot: MagicMock) -> MagicMock:
 def mock_three_xui() -> MagicMock:
     """Create mock 3x-ui service."""
     service = MagicMock(spec=ThreeXuiService)
-    service.get_inbounds = AsyncMock(return_value=[
-        {"id": 1, "tag": "xhttp-ru", "settings": {"clients": []}}
-    ])
+    service.get_inbounds = AsyncMock(return_value=[{"id": 1, "tag": "xhttp-ru", "settings": {"clients": []}}])
     service.add_client = AsyncMock(return_value=True)
     service.delete_client = AsyncMock(return_value=True)
     service.get_client_traffic = AsyncMock(return_value={"total": 1024})
@@ -170,14 +168,18 @@ def mock_three_xui() -> MagicMock:
 def mock_hiddify() -> MagicMock:
     """Create mock Hiddify service."""
     service = MagicMock(spec=HiddifyService)
-    service.create_user = AsyncMock(return_value={
-        "uuid": "test-uuid-123",
-        "subscription_url": "https://test.com/sub/uuid",
-    })
-    service.get_user = AsyncMock(return_value={
-        "uuid": "test-uuid-123",
-        "used_traffic": 1024,
-    })
+    service.create_user = AsyncMock(
+        return_value={
+            "uuid": "test-uuid-123",
+            "subscription_url": "https://test.com/sub/uuid",
+        }
+    )
+    service.get_user = AsyncMock(
+        return_value={
+            "uuid": "test-uuid-123",
+            "used_traffic": 1024,
+        }
+    )
     service.delete_user = AsyncMock(return_value=True)
     service.update_user = AsyncMock(return_value=True)
     service.get_user_traffic = AsyncMock(return_value={"used": 1024})
@@ -191,7 +193,7 @@ async def subscription_service(
     mock_hiddify: MagicMock,
 ) -> SubscriptionService:
     """Create subscription service with mocked panels."""
-    with patch.object(SubscriptionService, '__init__', lambda self, session: None):
+    with patch.object(SubscriptionService, "__init__", lambda self, session: None):
         service = SubscriptionService(db_session)
         service.three_xui = mock_three_xui
         service.hiddify = mock_hiddify

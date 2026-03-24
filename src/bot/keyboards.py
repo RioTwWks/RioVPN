@@ -29,14 +29,8 @@ def get_subscription_type_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardMarkup with RU/EU options
     """
     builder = InlineKeyboardBuilder()
-    builder.button(
-        text="🇷🇺 Россия (обход белых списков)",
-        callback_data="sub_type_ru"
-    )
-    builder.button(
-        text="🇪🇺 Европа (выход в мировой интернет)",
-        callback_data="sub_type_eu"
-    )
+    builder.button(text="🇷🇺 Россия (обход белых списков)", callback_data="sub_type_ru")
+    builder.button(text="🇪🇺 Европа (выход в мировой интернет)", callback_data="sub_type_eu")
     builder.button(text="« Назад", callback_data="main_menu")
     builder.adjust(1, 1)
     return builder.as_markup()
@@ -75,10 +69,7 @@ def get_payment_keyboard(sub_type: str, duration: int, price: float) -> InlineKe
         InlineKeyboardMarkup with payment options
     """
     builder = InlineKeyboardBuilder()
-    builder.button(
-        text=f"💰 Оплатить {price} ₽",
-        callback_data=f"pay_{sub_type}_{duration}"
-    )
+    builder.button(text=f"💰 Оплатить {price} ₽", callback_data=f"pay_{sub_type}_{duration}")
     builder.button(text="« Назад", callback_data="select_type")
     builder.adjust(1)
     return builder.as_markup()
@@ -124,10 +115,7 @@ def get_subscription_info_keyboard(subscription_id: int) -> InlineKeyboardMarkup
         InlineKeyboardMarkup with renew option
     """
     builder = InlineKeyboardBuilder()
-    builder.button(
-        text="💳 Продлить",
-        callback_data=f"renew_sub_{subscription_id}"
-    )
+    builder.button(text="💳 Продлить", callback_data=f"renew_sub_{subscription_id}")
     builder.button(text="« Назад в меню", callback_data="main_menu")
     builder.adjust(1)
     return builder.as_markup()

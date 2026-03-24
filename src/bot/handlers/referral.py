@@ -28,9 +28,7 @@ async def handle_referral(callback: CallbackQuery) -> None:
     """
     async for session in get_session():
         # Get user
-        result = await session.execute(
-            select(User).where(User.telegram_id == callback.from_user.id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == callback.from_user.id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -69,10 +67,7 @@ async def handle_referral(callback: CallbackQuery) -> None:
 
         # Build keyboard with share button
         builder = InlineKeyboardBuilder()
-        builder.button(
-            text="📤 Поделиться",
-            switch_inline_query=f"Присоединяйся к RioVPN по моей ссылке: {referral_link}"
-        )
+        builder.button(text="📤 Поделиться", switch_inline_query=f"Присоединяйся к RioVPN по моей ссылке: {referral_link}")
         builder.button(text="« Назад", callback_data="main_menu")
         builder.adjust(1)
 
@@ -94,9 +89,7 @@ async def handle_referral_command(message: Message) -> None:
     """
     async for session in get_session():
         # Get user
-        result = await session.execute(
-            select(User).where(User.telegram_id == message.from_user.id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == message.from_user.id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -147,9 +140,7 @@ async def process_referral_start(
 
     async for session in get_session():
         # Get referred user
-        result = await session.execute(
-            select(User).where(User.telegram_id == message.from_user.id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == message.from_user.id))
         referred = result.scalar_one_or_none()
 
         # Don't allow self-referral or re-referral
@@ -180,9 +171,7 @@ async def process_referral_start(
         except Exception as e:
             logger.warning(f"Failed to notify referrer {referrer.telegram_id}: {e}")
 
-        logger.info(
-            f"Referral processed: {referrer.telegram_id} -> {referred.telegram_id}"
-        )
+        logger.info(f"Referral processed: {referrer.telegram_id} -> {referred.telegram_id}")
 
         return True
 

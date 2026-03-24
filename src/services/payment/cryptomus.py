@@ -75,10 +75,7 @@ class CryptomusService(PaymentService):
         Returns:
             SHA256 HMAC signature
         """
-        message = hashlib.sha256(
-            hashlib.sha256(data.encode()).hexdigest().encode()
-            + self.config.api_key.encode()
-        ).hexdigest()
+        message = hashlib.sha256(hashlib.sha256(data.encode()).hexdigest().encode() + self.config.api_key.encode()).hexdigest()
         return message
 
     def _generate_sign_v2(self, data: Dict[str, Any], path: str) -> str:
@@ -180,10 +177,7 @@ class CryptomusService(PaymentService):
                 provider=PaymentProvider.cryptomus,
             )
 
-            logger.info(
-                f"Cryptomus payment created: {external_id}, "
-                f"amount={payment_data.amount}, url={payment_url}"
-            )
+            logger.info(f"Cryptomus payment created: {external_id}, " f"amount={payment_data.amount}, url={payment_url}")
 
             return PaymentResult(
                 success=True,
@@ -258,9 +252,7 @@ class CryptomusService(PaymentService):
         """
         try:
             # Cryptomus sends MD5 hash of the request body + API key
-            expected_sign = hashlib.md5(
-                payload + self.config.api_key.encode()
-            ).hexdigest()
+            expected_sign = hashlib.md5(payload + self.config.api_key.encode()).hexdigest()
 
             return hmac.compare_digest(signature.lower(), expected_sign.lower())
 
@@ -298,10 +290,7 @@ class CryptomusService(PaymentService):
 
             payment_status = status_map.get(status)
 
-            logger.info(
-                f"Webhook received: order_id={order_id}, status={status}, "
-                f"mapped={payment_status}"
-            )
+            logger.info(f"Webhook received: order_id={order_id}, status={status}, " f"mapped={payment_status}")
 
             return order_id, payment_status
 

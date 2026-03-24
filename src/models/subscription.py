@@ -49,20 +49,9 @@ class Subscription(Base):
     __tablename__ = "subscriptions"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
-    )
-    type = Column(
-        Enum(SubscriptionType, name="sub_type"),
-        nullable=False
-    )
-    status = Column(
-        Enum(SubscriptionStatus, name="sub_status"),
-        default=SubscriptionStatus.active,
-        nullable=False
-    )
+    user_id = Column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    type = Column(Enum(SubscriptionType, name="sub_type"), nullable=False)
+    status = Column(Enum(SubscriptionStatus, name="sub_status"), default=SubscriptionStatus.active, nullable=False)
     start_date = Column(DateTime, nullable=False)
     expiry_date = Column(DateTime, nullable=False)
     traffic_limit = Column(BigInteger, nullable=True)
@@ -76,10 +65,7 @@ class Subscription(Base):
 
     def __repr__(self) -> str:
         """Return string representation."""
-        return (
-            f"<Subscription(id={self.id}, user_id={self.user_id}, "
-            f"type={self.type.value}, status={self.status.value})>"
-        )
+        return f"<Subscription(id={self.id}, user_id={self.user_id}, " f"type={self.type.value}, status={self.status.value})>"
 
     @property
     def is_active(self) -> bool:

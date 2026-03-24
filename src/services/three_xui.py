@@ -190,9 +190,7 @@ class ThreeXuiService(BaseService):
                         "clientId": client_uuid,
                     }
 
-                    response = await self.post(
-                        "/panel/api/inbounds/delClient", json=delete_config
-                    )
+                    response = await self.post("/panel/api/inbounds/delClient", json=delete_config)
                     if response.get("success"):
                         logger.info(f"Client {email} deleted from inbound {client_id}")
                         return True

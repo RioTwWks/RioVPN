@@ -53,10 +53,7 @@ async def check_expiring_subscriptions() -> int:
                 await service.block_subscription(sub, reason="expired")
                 blocked_count += 1
 
-                logger.info(
-                    f"Blocked expired subscription: {sub.id}, "
-                    f"user={sub.user_id}, expired_at={sub.expiry_date}"
-                )
+                logger.info(f"Blocked expired subscription: {sub.id}, " f"user={sub.user_id}, expired_at={sub.expiry_date}")
 
             except Exception as e:
                 logger.error(
@@ -83,10 +80,7 @@ async def sync_traffic() -> int:
     """
     async for session in get_session():
         # Get all active subscriptions
-        result = await session.execute(
-            select(Subscription)
-            .where(Subscription.status == SubscriptionStatus.active)
-        )
+        result = await session.execute(select(Subscription).where(Subscription.status == SubscriptionStatus.active))
         subscriptions = result.scalars().all()
 
         updated_count = 0
@@ -126,16 +120,11 @@ async def sync_traffic() -> int:
 
             except Exception as e:
                 error_count += 1
-                logger.warning(
-                    f"Failed to sync traffic for subscription {sub.id}: {e}"
-                )
+                logger.warning(f"Failed to sync traffic for subscription {sub.id}: {e}")
 
         await session.commit()
 
-        logger.info(
-            f"Traffic sync completed: {updated_count} updated, "
-            f"{error_count} errors, {len(subscriptions)} total"
-        )
+        logger.info(f"Traffic sync completed: {updated_count} updated, " f"{error_count} errors, {len(subscriptions)} total")
 
         return updated_count
 
@@ -177,9 +166,7 @@ async def send_reminders() -> int:
         for sub in expiring_subs:
             try:
                 # Get user
-                user_result = await session.execute(
-                    select(User).where(User.id == sub.user_id)
-                )
+                user_result = await session.execute(select(User).where(User.id == sub.user_id))
                 user = user_result.scalar_one_or_none()
 
                 if user and user.telegram_id:
@@ -240,9 +227,7 @@ async def check_traffic_warnings() -> int:
 
                 # Check if in warning zone (80-100%)
                 if 80 <= usage_percent < 100:
-                    user_result = await session.execute(
-                        select(User).where(User.id == sub.user_id)
-                    )
+                    user_result = await session.execute(select(User).where(User.id == sub.user_id))
                     user = user_result.scalar_one_or_none()
 
                     if user and user.telegram_id:
@@ -253,10 +238,7 @@ async def check_traffic_warnings() -> int:
                         )
                         if success:
                             warning_count += 1
-                            logger.info(
-                                f"Traffic warning sent to user {user.telegram_id}: "
-                                f"{usage_percent:.1f}% used"
-                            )
+                            logger.info(f"Traffic warning sent to user {user.telegram_id}: " f"{usage_percent:.1f}% used")
 
         logger.info(f"Sent {warning_count} traffic warnings")
         return warning_count

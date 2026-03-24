@@ -165,10 +165,7 @@ class YooKassaService(PaymentService):
                 provider=PaymentProvider.yookassa,
             )
 
-            logger.info(
-                f"YooKassa payment created: {payment_id}, "
-                f"amount={payment_data.amount}, url={confirmation_url}"
-            )
+            logger.info(f"YooKassa payment created: {payment_id}, " f"amount={payment_data.amount}, url={confirmation_url}")
 
             return PaymentResult(
                 success=True,
@@ -310,8 +307,7 @@ class YooKassaService(PaymentService):
                 payment_status = status_map.get(status, PaymentStatus.pending)
 
             logger.info(
-                f"Webhook received: event={event_type}, payment_id={payment_id}, "
-                f"status={status}, mapped={payment_status}"
+                f"Webhook received: event={event_type}, payment_id={payment_id}, " f"status={status}, mapped={payment_status}"
             )
 
             return payment_id, payment_status

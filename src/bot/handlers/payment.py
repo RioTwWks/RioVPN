@@ -52,8 +52,7 @@ async def handle_payment_selection(callback: CallbackQuery) -> None:
 
         if not providers:
             await callback.answer(
-                "⚠️ Платежные системы временно недоступны. "
-                "Попробуйте позже или обратитесь в поддержку.",
+                "⚠️ Платежные системы временно недоступны. " "Попробуйте позже или обратитесь в поддержку.",
                 show_alert=True,
             )
             return
@@ -63,10 +62,7 @@ async def handle_payment_selection(callback: CallbackQuery) -> None:
 
         for provider in providers:
             provider_name = get_provider_name(provider)
-            builder.button(
-                text=f"💳 {provider_name}",
-                callback_data=f"pay_provider_{sub_type}_{duration}_{provider}"
-            )
+            builder.button(text=f"💳 {provider_name}", callback_data=f"pay_provider_{sub_type}_{duration}_{provider}")
 
         builder.button(text="« Назад", callback_data="select_type")
         builder.adjust(1)
@@ -105,9 +101,7 @@ async def handle_payment_provider(callback: CallbackQuery) -> None:
         from sqlalchemy import select
         from src.models.user import User
 
-        result = await session.execute(
-            select(User).where(User.telegram_id == callback.from_user.id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == callback.from_user.id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -155,12 +149,14 @@ async def handle_payment_provider(callback: CallbackQuery) -> None:
             f"🏦 <b>Платежная система:</b> {provider_name}\n\n"
             f"Нажмите кнопку ниже для оплаты:",
             reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[[
-                    InlineKeyboardButton(
-                        text="💰 Оплатить",
-                        url=result.payment_url,
-                    )
-                ]]
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="💰 Оплатить",
+                            url=result.payment_url,
+                        )
+                    ]
+                ]
             ),
         )
 

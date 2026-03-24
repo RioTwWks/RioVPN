@@ -40,10 +40,7 @@ async def handle_tier_selection(callback: CallbackQuery) -> None:
 
     builder = InlineKeyboardBuilder()
     for tier in tiers:
-        builder.button(
-            text=f"💎 {tier.name}",
-            callback_data=f"tier_{tier.id.value}"
-        )
+        builder.button(text=f"💎 {tier.name}", callback_data=f"tier_{tier.id.value}")
 
     builder.button(text="« Назад", callback_data="select_type")
     builder.adjust(1)
@@ -82,10 +79,7 @@ async def handle_tier_details(callback: CallbackQuery) -> None:
     features_text = "\n".join(f"• {f}" for f in tier.features)
 
     builder = InlineKeyboardBuilder()
-    builder.button(
-        text=f"💰 Выбрать ({tier_price} ₽)",
-        callback_data=f"pay_tier_{tier_id.value}_{sub_type}_{duration}"
-    )
+    builder.button(text=f"💰 Выбрать ({tier_price} ₽)", callback_data=f"pay_tier_{tier_id.value}_{sub_type}_{duration}")
     builder.button(text="« Назад к тарифам", callback_data="select_tier")
     builder.button(text="« Назад", callback_data="select_type")
     builder.adjust(1, 1)
@@ -129,10 +123,7 @@ def get_tier_keyboard(
     for tier in tiers:
         base_price = BASE_PRICES.get(sub_type, {}).get(duration, Decimal("299"))
         tier_price = calculate_tier_price(base_price, tier)
-        builder.button(
-            text=f"💎 {tier.name} - {tier_price} ₽",
-            callback_data=f"tier_{tier.id.value}_{sub_type}_{duration}"
-        )
+        builder.button(text=f"💎 {tier.name} - {tier_price} ₽", callback_data=f"tier_{tier.id.value}_{sub_type}_{duration}")
 
     builder.button(text="« Назад", callback_data="select_type")
     builder.adjust(1)

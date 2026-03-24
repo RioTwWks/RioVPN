@@ -50,10 +50,7 @@ class Settings(BaseSettings):
     ADMIN_TELEGRAM_ID: Optional[int] = Field(None, description="Admin Telegram ID")
 
     # Database
-    DATABASE_URL: str = Field(
-        "sqlite+aiosqlite:///vpn_bot.db",
-        description="Database connection URL"
-    )
+    DATABASE_URL: str = Field("sqlite+aiosqlite:///vpn_bot.db", description="Database connection URL")
 
     # Defaults
     DEFAULT_TRAFFIC_LIMIT_RU: Optional[int] = Field(None, description="RU traffic limit (bytes)")

@@ -52,8 +52,7 @@ async def handle_main_menu(callback: CallbackQuery) -> None:
         callback: Callback query
     """
     await callback.message.edit_text(
-        "👋 <b>Главное меню</b>\n\n"
-        "Выберите действие:",
+        "👋 <b>Главное меню</b>\n\n" "Выберите действие:",
         reply_markup=get_start_keyboard(),
     )
     await callback.answer()
@@ -68,8 +67,7 @@ async def handle_buy(callback: CallbackQuery) -> None:
         callback: Callback query
     """
     await callback.message.edit_text(
-        "🛒 <b>Покупка подписки</b>\n\n"
-        "Выберите тип подписки:",
+        "🛒 <b>Покупка подписки</b>\n\n" "Выберите тип подписки:",
         reply_markup=get_subscription_type_keyboard(),
     )
     await callback.answer()
@@ -84,8 +82,7 @@ async def handle_select_type(callback: CallbackQuery) -> None:
         callback: Callback query
     """
     await callback.message.edit_text(
-        "🛒 <b>Покупка подписки</b>\n\n"
-        "Выберите тип подписки:",
+        "🛒 <b>Покупка подписки</b>\n\n" "Выберите тип подписки:",
         reply_markup=get_subscription_type_keyboard(),
     )
     await callback.answer()
@@ -179,9 +176,7 @@ async def handle_my_subscription(callback: CallbackQuery) -> None:
     """
     async for session in get_session():
         # Get user
-        result = await session.execute(
-            select(User).where(User.telegram_id == callback.from_user.id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == callback.from_user.id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -193,8 +188,7 @@ async def handle_my_subscription(callback: CallbackQuery) -> None:
 
         if not subscription:
             await callback.message.edit_text(
-                "📱 <b>У вас нет активной подписки</b>\n\n"
-                "Приобретите подписку, чтобы получить доступ к VPN.",
+                "📱 <b>У вас нет активной подписки</b>\n\n" "Приобретите подписку, чтобы получить доступ к VPN.",
                 reply_markup=get_start_keyboard(),
             )
         else:
@@ -203,18 +197,13 @@ async def handle_my_subscription(callback: CallbackQuery) -> None:
 
             traffic_info = ""
             if subscription.traffic_limit:
-                used_gb = subscription.traffic_used / (1024 ** 3)
-                limit_gb = subscription.traffic_limit / (1024 ** 3)
-                traffic_info = (
-                    f"📊 <b>Трафик:</b> {used_gb:.2f} ГБ из {limit_gb:.2f} ГБ\n"
-                )
+                used_gb = subscription.traffic_used / (1024**3)
+                limit_gb = subscription.traffic_limit / (1024**3)
+                traffic_info = f"📊 <b>Трафик:</b> {used_gb:.2f} ГБ из {limit_gb:.2f} ГБ\n"
 
             # Build keyboard with renew button
             builder = InlineKeyboardBuilder()
-            builder.button(
-                text="💳 Продлить",
-                callback_data=f"renew_sub_{subscription.id}"
-            )
+            builder.button(text="💳 Продлить", callback_data=f"renew_sub_{subscription.id}")
             builder.button(text="« Назад в меню", callback_data="main_menu")
             builder.adjust(1)
 
@@ -262,8 +251,7 @@ async def handle_renew(callback: CallbackQuery) -> None:
         callback: Callback query
     """
     await callback.message.edit_text(
-        "💳 <b>Продление подписки</b>\n\n"
-        "Перейдите в раздел «Моя подписка» для продления.",
+        "💳 <b>Продление подписки</b>\n\n" "Перейдите в раздел «Моя подписка» для продления.",
         reply_markup=get_back_keyboard(),
     )
     await callback.answer()

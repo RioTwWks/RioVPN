@@ -57,8 +57,7 @@ async def handle_admin(message: Message) -> None:
         return
 
     await message.answer(
-        "🔧 <b>Панель администратора</b>\n\n"
-        "Выберите действие:",
+        "🔧 <b>Панель администратора</b>\n\n" "Выберите действие:",
         reply_markup=get_admin_keyboard(),
     )
 
@@ -94,9 +93,7 @@ async def handle_stats(message: Message) -> None:
 
         paid_payments = sum(1 for p in payments if p.status == PaymentStatus.paid)
         pending_payments = sum(1 for p in payments if p.status == PaymentStatus.pending)
-        total_revenue = sum(
-            float(p.amount) for p in payments if p.status == PaymentStatus.paid
-        )
+        total_revenue = sum(float(p.amount) for p in payments if p.status == PaymentStatus.paid)
 
         await message.answer(
             f"📊 <b>Статистика</b>\n\n"
@@ -151,10 +148,7 @@ async def handle_suspend(message: Message) -> None:
     # Parse telegram_id from command args
     args = message.text.split()
     if len(args) < 2:
-        await message.answer(
-            "❌ Использование: /suspend <telegram_id>\n"
-            "Пример: /suspend 123456789"
-        )
+        await message.answer("❌ Использование: /suspend <telegram_id>\n" "Пример: /suspend 123456789")
         return
 
     try:
@@ -165,9 +159,7 @@ async def handle_suspend(message: Message) -> None:
 
     async for session in get_session():
         # Find user
-        result = await session.execute(
-            select(User).where(User.telegram_id == telegram_id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == telegram_id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -176,9 +168,7 @@ async def handle_suspend(message: Message) -> None:
 
         # Find active subscription
         result = await session.execute(
-            select(Subscription)
-            .where(Subscription.user_id == user.id)
-            .where(Subscription.status == SubscriptionStatus.active)
+            select(Subscription).where(Subscription.user_id == user.id).where(Subscription.status == SubscriptionStatus.active)
         )
         subscription = result.scalar_one_or_none()
 
@@ -190,14 +180,9 @@ async def handle_suspend(message: Message) -> None:
         subscription.status = SubscriptionStatus.blocked
         await session.commit()
 
-        await message.answer(
-            f"✅ Подписка пользователя {telegram_id} заблокирована"
-        )
+        await message.answer(f"✅ Подписка пользователя {telegram_id} заблокирована")
 
-        logger.info(
-            f"Admin {message.from_user.id} suspended subscription "
-            f"{subscription.id} for user {telegram_id}"
-        )
+        logger.info(f"Admin {message.from_user.id} suspended subscription " f"{subscription.id} for user {telegram_id}")
 
 
 @admin_router.message(Command("grant"))
@@ -216,10 +201,7 @@ async def handle_grant(message: Message) -> None:
 
     args = message.text.split()
     if len(args) < 2:
-        await message.answer(
-            "❌ Использование: /grant <telegram_id> [type] [days]\n"
-            "Пример: /grant 123456789 ru 30"
-        )
+        await message.answer("❌ Использование: /grant <telegram_id> [type] [days]\n" "Пример: /grant 123456789 ru 30")
         return
 
     try:
@@ -236,9 +218,7 @@ async def handle_grant(message: Message) -> None:
 
     async for session in get_session():
         # Find or create user
-        result = await session.execute(
-            select(User).where(User.telegram_id == telegram_id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == telegram_id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -268,8 +248,7 @@ async def handle_grant(message: Message) -> None:
             )
 
             logger.info(
-                f"Admin {message.from_user.id} granted subscription "
-                f"to user {telegram_id}: type={sub_type}, days={days}"
+                f"Admin {message.from_user.id} granted subscription " f"to user {telegram_id}: type={sub_type}, days={days}"
             )
 
         except Exception as e:
@@ -306,9 +285,7 @@ async def handle_export(message: Message) -> None:
             csv_data = await export_payments_to_csv()
             filename = f"payments_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
         else:
-            await message.answer(
-                "❌ Неверный тип. Доступные: users, subscriptions, payments"
-            )
+            await message.answer("❌ Неверный тип. Доступные: users, subscriptions, payments")
             return
 
         # Send file
@@ -354,7 +331,7 @@ async def handle_analytics(message: Message) -> None:
         f"📊 <b>По провайдерам</b>\n"
     )
 
-    for provider, amount in revenue_stats.get('by_provider', {}).items():
+    for provider, amount in revenue_stats.get("by_provider", {}).items():
         text += f"• {provider}: {amount:.2f} ₽\n"
 
     await message.answer(text)

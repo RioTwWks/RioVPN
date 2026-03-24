@@ -27,12 +27,7 @@ class Settings(Base):
 
     key = Column(String(255), primary_key=True)
     value = Column(Text, nullable=False)
-    updated_at = Column(
-        DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-        nullable=False
-    )
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     def __repr__(self) -> str:
         """Return string representation."""
@@ -53,9 +48,7 @@ class Settings(Base):
         """
         from sqlalchemy import select
 
-        result = await session.execute(
-            select(cls).where(cls.key == key)
-        )
+        result = await session.execute(select(cls).where(cls.key == key))
         setting = result.scalar_one_or_none()
         return setting.value if setting else default
 
@@ -75,9 +68,7 @@ class Settings(Base):
         from sqlalchemy import select, insert
         from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
-        result = await session.execute(
-            select(cls).where(cls.key == key)
-        )
+        result = await session.execute(select(cls).where(cls.key == key))
         setting = result.scalar_one_or_none()
 
         if setting:
@@ -86,10 +77,7 @@ class Settings(Base):
         else:
             # Use SQLite-specific upsert
             stmt = sqlite_insert(cls).values(key=key, value=value)
-            stmt = stmt.on_conflict_do_update(
-                index_elements=[cls.key],
-                set_={"value": value, "updated_at": datetime.utcnow()}
-            )
+            stmt = stmt.on_conflict_do_update(index_elements=[cls.key], set_={"value": value, "updated_at": datetime.utcnow()})
             await session.execute(stmt)
             result = await session.execute(select(cls).where(cls.key == key))
             setting = result.scalar_one()

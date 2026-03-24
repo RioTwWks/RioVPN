@@ -40,6 +40,7 @@ async def cleanup() -> None:
 
     # Dispose database engine
     from src.core.database import engine
+
     await engine.dispose()
     logger.info("Database engine disposed")
 

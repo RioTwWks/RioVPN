@@ -95,11 +95,7 @@ async def check_subscription_health() -> Dict[str, Any]:
     async for session in get_session():
         try:
             # Count active subscriptions
-            result = await session.execute(
-                select(Subscription).where(
-                    Subscription.status == SubscriptionStatus.active
-                )
-            )
+            result = await session.execute(select(Subscription).where(Subscription.status == SubscriptionStatus.active))
             active_subs = len(result.scalars().all())
 
             # Count expiring soon (within 24 hours)

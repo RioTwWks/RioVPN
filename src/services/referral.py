@@ -85,9 +85,7 @@ class ReferralService:
         Returns:
             Referrer user or None
         """
-        result = await self.session.execute(
-            select(User).where(User.referral_code == referral_code)
-        )
+        result = await self.session.execute(select(User).where(User.referral_code == referral_code))
         return result.scalar_one_or_none()
 
     async def track_referral(
@@ -106,9 +104,7 @@ class ReferralService:
             Created referral or None if already exists
         """
         # Check if already referred
-        existing = await self.session.execute(
-            select(Referral).where(Referral.referred_id == referred.telegram_id)
-        )
+        existing = await self.session.execute(select(Referral).where(Referral.referred_id == referred.telegram_id))
         if existing.scalar_one_or_none():
             logger.warning(f"Referral already exists for user {referred.telegram_id}")
             return None
@@ -126,9 +122,7 @@ class ReferralService:
         self.session.add(referral)
         await self.session.commit()
 
-        logger.info(
-            f"Referral tracked: {referrer.telegram_id} -> {referred.telegram_id}"
-        )
+        logger.info(f"Referral tracked: {referrer.telegram_id} -> {referred.telegram_id}")
 
         return referral
 
@@ -148,11 +142,7 @@ class ReferralService:
             Tuple of (success, bonus_amount)
         """
         # Find referral
-        result = await self.session.execute(
-            select(Referral).where(
-                Referral.referred_id == referred_user.telegram_id
-            )
-        )
+        result = await self.session.execute(select(Referral).where(Referral.referred_id == referred_user.telegram_id))
         referral = result.scalar_one_or_none()
 
         if not referral:
@@ -175,10 +165,7 @@ class ReferralService:
         # 2. Add bonus to their account
         # 3. Send notification
 
-        logger.info(
-            f"Referral bonus paid: {bonus} RUB to {referral.referrer_id} "
-            f"(from {referred_user.telegram_id})"
-        )
+        logger.info(f"Referral bonus paid: {bonus} RUB to {referral.referrer_id} " f"(from {referred_user.telegram_id})")
 
         return True, bonus
 
@@ -196,9 +183,7 @@ class ReferralService:
             Dictionary with referral stats
         """
         # Count referrals
-        result = await self.session.execute(
-            select(Referral).where(Referral.referrer_id == user.telegram_id)
-        )
+        result = await self.session.execute(select(Referral).where(Referral.referrer_id == user.telegram_id))
         referrals = result.scalars().all()
 
         total_referrals = len(referrals)

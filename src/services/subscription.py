@@ -73,9 +73,7 @@ class SubscriptionService:
 
         # Determine traffic limit based on type
         traffic_limit = (
-            settings.default_traffic_limit_ru
-            if sub_type == SubscriptionType.ru
-            else settings.default_traffic_limit_eu
+            settings.default_traffic_limit_ru if sub_type == SubscriptionType.ru else settings.default_traffic_limit_eu
         )
 
         # Create subscription record (pending)
@@ -101,10 +99,7 @@ class SubscriptionService:
             await self.session.commit()
             await self.session.refresh(subscription)
 
-            logger.info(
-                f"Subscription created for user {user.telegram_id}: "
-                f"type={sub_type.value}, expiry={expiry}"
-            )
+            logger.info(f"Subscription created for user {user.telegram_id}: " f"type={sub_type.value}, expiry={expiry}")
 
             return subscription
 
@@ -113,9 +108,7 @@ class SubscriptionService:
             logger.error(f"Failed to create subscription: {e}", exc_info=True)
             raise
 
-    async def _create_ru_client(
-        self, user: User, subscription: Subscription
-    ) -> None:
+    async def _create_ru_client(self, user: User, subscription: Subscription) -> None:
         """
         Create client in 3x-ui panel.
 
@@ -185,16 +178,11 @@ class SubscriptionService:
         query = "&".join(f"{k}={v}" for k, v in params.items())
 
         # Format: vless://uuid@server:port?params#remark
-        link = (
-            f"vless://{uuid}@{settings.server_address_ru}:{settings.server_port_ru}"
-            f"?{query}#{email}"
-        )
+        link = f"vless://{uuid}@{settings.server_address_ru}:{settings.server_port_ru}" f"?{query}#{email}"
 
         return link
 
-    async def _create_eu_user(
-        self, user: User, subscription: Subscription
-    ) -> None:
+    async def _create_eu_user(self, user: User, subscription: Subscription) -> None:
         """
         Create user in Hiddify panel.
 
@@ -217,9 +205,7 @@ class SubscriptionService:
 
         # Extract UUID and link from response
         user_uuid = user_data.get("uuid") or user_data.get("data", {}).get("uuid")
-        subscription_link = user_data.get("subscription_url") or user_data.get(
-            "data", {}
-        ).get("subscription_url")
+        subscription_link = user_data.get("subscription_url") or user_data.get("data", {}).get("subscription_url")
 
         if not user_uuid:
             raise Exception("Failed to get UUID from Hiddify response")
@@ -274,9 +260,7 @@ class SubscriptionService:
             await self.session.commit()
             await self.session.refresh(subscription)
 
-            logger.info(
-                f"Subscription {subscription.id} renewed until {new_expiry}"
-            )
+            logger.info(f"Subscription {subscription.id} renewed until {new_expiry}")
 
             return subscription
 
@@ -313,9 +297,7 @@ class SubscriptionService:
 
             await self.session.commit()
 
-            logger.info(
-                f"Subscription {subscription.id} blocked: {reason}"
-            )
+            logger.info(f"Subscription {subscription.id} blocked: {reason}")
 
             return subscription
 
@@ -324,9 +306,7 @@ class SubscriptionService:
             logger.error(f"Failed to block subscription: {e}", exc_info=True)
             raise
 
-    async def get_user_subscription(
-        self, user: User
-    ) -> Optional[Subscription]:
+    async def get_user_subscription(self, user: User) -> Optional[Subscription]:
         """
         Get active subscription for user.
 
@@ -351,32 +331,22 @@ class SubscriptionService:
         Returns:
             Number of subscriptions updated
         """
-        result = await self.session.execute(
-            select(Subscription).where(
-                Subscription.status == SubscriptionStatus.active
-            )
-        )
+        result = await self.session.execute(select(Subscription).where(Subscription.status == SubscriptionStatus.active))
         subscriptions = result.scalars().all()
 
         updated = 0
         for sub in subscriptions:
             try:
                 if sub.type == SubscriptionType.ru and sub.panel_uuid:
-                    traffic = await self.three_xui.get_client_traffic(
-                        sub.panel_uuid
-                    )
+                    traffic = await self.three_xui.get_client_traffic(sub.panel_uuid)
                     sub.traffic_used = traffic.get("total", 0)
                     updated += 1
                 elif sub.type == SubscriptionType.eu and sub.panel_uuid:
-                    traffic = await self.hiddify.get_user_traffic(
-                        sub.panel_uuid
-                    )
+                    traffic = await self.hiddify.get_user_traffic(sub.panel_uuid)
                     sub.traffic_used = traffic.get("used", 0)
                     updated += 1
             except Exception as e:
-                logger.warning(
-                    f"Failed to sync traffic for subscription {sub.id}: {e}"
-                )
+                logger.warning(f"Failed to sync traffic for subscription {sub.id}: {e}")
 
         await self.session.commit()
         return updated

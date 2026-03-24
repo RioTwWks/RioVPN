@@ -25,9 +25,7 @@ class TestCommandHandlers:
         """Test /start command for new user."""
         with patch("src.bot.handlers.command.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=None)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None)))
             mock_session.add = AsyncMock()
             mock_session.commit = AsyncMock()
             mock_session.refresh = AsyncMock()
@@ -50,9 +48,7 @@ class TestCommandHandlers:
         """Test /start command for existing user."""
         with patch("src.bot.handlers.command.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=user)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user)))
             mock_get_session.return_value.__aiter__.return_value = [mock_session]
 
             await handle_start(mock_message)
@@ -71,16 +67,12 @@ class TestCommandHandlers:
         """Test /my command with active subscription."""
         with patch("src.bot.handlers.command.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=user)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user)))
             mock_get_session.return_value.__aiter__.return_value = [mock_session]
 
             with patch("src.bot.handlers.command.SubscriptionService") as MockService:
                 mock_service = AsyncMock()
-                mock_service.get_user_subscription = AsyncMock(
-                    return_value=subscription
-                )
+                mock_service.get_user_subscription = AsyncMock(return_value=subscription)
                 MockService.return_value = mock_service
 
                 await handle_my(mock_message)
@@ -99,9 +91,7 @@ class TestCommandHandlers:
         """Test /my command without subscription."""
         with patch("src.bot.handlers.command.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=user)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user)))
             mock_get_session.return_value.__aiter__.return_value = [mock_session]
 
             with patch("src.bot.handlers.command.SubscriptionService") as MockService:
@@ -130,16 +120,12 @@ class TestCallbackHandlers:
         """Test my subscription callback."""
         with patch("src.bot.handlers.callback.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=user)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user)))
             mock_get_session.return_value.__aiter__.return_value = [mock_session]
 
             with patch("src.bot.handlers.callback.SubscriptionService") as MockService:
                 mock_service = AsyncMock()
-                mock_service.get_user_subscription = AsyncMock(
-                    return_value=subscription
-                )
+                mock_service.get_user_subscription = AsyncMock(return_value=subscription)
                 MockService.return_value = mock_service
 
                 await handle_my_subscription(mock_callback_query)
@@ -160,9 +146,7 @@ class TestReferralHandlers:
         """Test referral info command."""
         with patch("src.bot.handlers.referral.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=user)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=user)))
             mock_session.commit = AsyncMock()
             mock_get_session.return_value.__aiter__.return_value = [mock_session]
 
@@ -194,9 +178,7 @@ class TestReferralHandlers:
 
         with patch("src.bot.handlers.referral.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=referred)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=referred)))
             mock_get_session.return_value.__aiter__.return_value = [mock_session]
 
             with patch("src.bot.handlers.referral.ReferralService") as MockService:
@@ -227,9 +209,7 @@ class TestReferralHandlers:
 
         with patch("src.bot.handlers.referral.get_session") as mock_get_session:
             mock_session = AsyncMock()
-            mock_session.execute = AsyncMock(return_value=MagicMock(
-                scalar_one_or_none=MagicMock(return_value=referred)
-            ))
+            mock_session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=referred)))
             mock_get_session.return_value.__aiter__.return_value = [mock_session]
 
             with patch("src.bot.handlers.referral.ReferralService") as MockService:
@@ -254,6 +234,7 @@ class TestAdminHandlers:
         # Reload settings
         import importlib
         from src.core import config
+
         importlib.reload(config)
 
         result = asyncio.run(is_admin(123456789))
@@ -265,6 +246,7 @@ class TestAdminHandlers:
 
         import importlib
         from src.core import config
+
         importlib.reload(config)
 
         result = asyncio.run(is_admin(999999999))

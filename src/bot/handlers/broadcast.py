@@ -110,9 +110,7 @@ async def handle_broadcast_confirm(callback: CallbackQuery, state: FSMContext) -
 
     notification_service = get_notification_service()
     if not notification_service:
-        await callback.message.edit_text(
-            "❌ <b>Ошибка: сервис уведомлений не инициализирован</b>"
-        )
+        await callback.message.edit_text("❌ <b>Ошибка: сервис уведомлений не инициализирован</b>")
         await state.clear()
         return
 
@@ -146,9 +144,7 @@ async def handle_broadcast_confirm(callback: CallbackQuery, state: FSMContext) -
             f"👥 <b>Всего пользователей:</b> {len(users)}"
         )
 
-        logger.info(
-            f"Broadcast completed: {sent_count} sent, {failed_count} failed"
-        )
+        logger.info(f"Broadcast completed: {sent_count} sent, {failed_count} failed")
 
     await state.clear()
 
@@ -188,7 +184,7 @@ async def handle_cancel(message: Message, state: FSMContext) -> None:
         )
 
 
-def get_broadcast_confirm_keyboard() -> Optional['InlineKeyboardMarkup']:
+def get_broadcast_confirm_keyboard() -> Optional["InlineKeyboardMarkup"]:
     """Get broadcast confirmation keyboard."""
     builder = InlineKeyboardBuilder()
     builder.button(text="✅ Отправить", callback_data="broadcast_confirm")

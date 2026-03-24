@@ -38,24 +38,14 @@ class User(Base):
     referred_by = Column(BigInteger, ForeignKey("users.telegram_id"), nullable=True)
 
     # Relationships
-    subscriptions = relationship(
-        "Subscription",
-        back_populates="user",
-        lazy="selectin",
-        cascade="all, delete-orphan"
-    )
-    payments = relationship(
-        "Payment",
-        back_populates="user",
-        lazy="selectin",
-        cascade="all, delete-orphan"
-    )
+    subscriptions = relationship("Subscription", back_populates="user", lazy="selectin", cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="user", lazy="selectin", cascade="all, delete-orphan")
     referrals = relationship(
         "Referral",
         back_populates="referrer",
         lazy="selectin",
         cascade="all, delete-orphan",
-        foreign_keys="Referral.referrer_id"
+        foreign_keys="Referral.referrer_id",
     )
 
     def __repr__(self) -> str:

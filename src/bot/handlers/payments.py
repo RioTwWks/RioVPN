@@ -27,9 +27,7 @@ async def handle_admin_payments(callback: CallbackQuery) -> None:
         callback: Callback query
     """
     async for session in get_session():
-        result = await session.execute(
-            select(Payment).order_by(Payment.created_at.desc()).limit(20)
-        )
+        result = await session.execute(select(Payment).order_by(Payment.created_at.desc()).limit(20))
         payments = result.scalars().all()
 
         text = "💰 <b>Платежи (последние 20)</b>\n\n"
@@ -47,9 +45,7 @@ async def handle_admin_payments(callback: CallbackQuery) -> None:
             )
 
         # Calculate totals
-        total_result = await session.execute(
-            select(Payment).where(Payment.status == PaymentStatus.paid)
-        )
+        total_result = await session.execute(select(Payment).where(Payment.status == PaymentStatus.paid))
         paid_payments = total_result.scalars().all()
         total_revenue = sum(p.amount for p in paid_payments)
 
@@ -85,9 +81,7 @@ async def handle_payments_command(message: Message) -> None:
                 status = PaymentStatus(status_filter)
                 query = query.where(Payment.status == status)
             except ValueError:
-                await message.answer(
-                    f"❌ Неверный статус. Доступные: {', '.join(s.value for s in PaymentStatus)}"
-                )
+                await message.answer(f"❌ Неверный статус. Доступные: {', '.join(s.value for s in PaymentStatus)}")
                 return
 
         result = await session.execute(query)
@@ -119,19 +113,13 @@ async def handle_revenue_command(message: Message) -> None:
     """
     async for session in get_session():
         # Total revenue
-        result = await session.execute(
-            select(Payment).where(Payment.status == PaymentStatus.paid)
-        )
+        result = await session.execute(select(Payment).where(Payment.status == PaymentStatus.paid))
         paid_payments = result.scalars().all()
         total_revenue = sum(p.amount for p in paid_payments)
 
         # By provider
-        cryptomus_revenue = sum(
-            p.amount for p in paid_payments if p.provider.value == "cryptomus"
-        )
-        yookassa_revenue = sum(
-            p.amount for p in paid_payments if p.provider.value == "yookassa"
-        )
+        cryptomus_revenue = sum(p.amount for p in paid_payments if p.provider.value == "cryptomus")
+        yookassa_revenue = sum(p.amount for p in paid_payments if p.provider.value == "yookassa")
 
         # Today's revenue
         from datetime import date

@@ -32,25 +32,29 @@ async def export_users_to_csv() -> str:
         writer = csv.writer(output)
 
         # Header
-        writer.writerow([
-            "ID",
-            "Telegram ID",
-            "Username",
-            "Referral Code",
-            "Referred By",
-            "Created At",
-        ])
+        writer.writerow(
+            [
+                "ID",
+                "Telegram ID",
+                "Username",
+                "Referral Code",
+                "Referred By",
+                "Created At",
+            ]
+        )
 
         # Data
         for user in users:
-            writer.writerow([
-                user.id,
-                user.telegram_id,
-                f"@{user.username}" if user.username else "",
-                user.referral_code or "",
-                user.referred_by or "",
-                user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            ])
+            writer.writerow(
+                [
+                    user.id,
+                    user.telegram_id,
+                    f"@{user.username}" if user.username else "",
+                    user.referral_code or "",
+                    user.referred_by or "",
+                    user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                ]
+            )
 
         return output.getvalue()
 
@@ -65,40 +69,42 @@ async def export_subscriptions_to_csv() -> str:
         CSV content as string
     """
     async for session in get_session():
-        result = await session.execute(
-            select(Subscription).order_by(Subscription.created_at.desc())
-        )
+        result = await session.execute(select(Subscription).order_by(Subscription.created_at.desc()))
         subscriptions = result.scalars().all()
 
         output = io.StringIO()
         writer = csv.writer(output)
 
         # Header
-        writer.writerow([
-            "ID",
-            "User ID",
-            "Type",
-            "Status",
-            "Start Date",
-            "Expiry Date",
-            "Traffic Limit",
-            "Traffic Used",
-            "Link",
-        ])
+        writer.writerow(
+            [
+                "ID",
+                "User ID",
+                "Type",
+                "Status",
+                "Start Date",
+                "Expiry Date",
+                "Traffic Limit",
+                "Traffic Used",
+                "Link",
+            ]
+        )
 
         # Data
         for sub in subscriptions:
-            writer.writerow([
-                sub.id,
-                sub.user_id,
-                sub.type.value,
-                sub.status.value,
-                sub.start_date.strftime("%Y-%m-%d %H:%M:%S"),
-                sub.expiry_date.strftime("%Y-%m-%d %H:%M:%S"),
-                sub.traffic_limit or "Unlimited",
-                sub.traffic_used,
-                sub.link[:50] + "..." if sub.link and len(sub.link) > 50 else sub.link,
-            ])
+            writer.writerow(
+                [
+                    sub.id,
+                    sub.user_id,
+                    sub.type.value,
+                    sub.status.value,
+                    sub.start_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    sub.expiry_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    sub.traffic_limit or "Unlimited",
+                    sub.traffic_used,
+                    sub.link[:50] + "..." if sub.link and len(sub.link) > 50 else sub.link,
+                ]
+            )
 
         return output.getvalue()
 
@@ -113,38 +119,40 @@ async def export_payments_to_csv() -> str:
         CSV content as string
     """
     async for session in get_session():
-        result = await session.execute(
-            select(Payment).order_by(Payment.created_at.desc())
-        )
+        result = await session.execute(select(Payment).order_by(Payment.created_at.desc()))
         payments = result.scalars().all()
 
         output = io.StringIO()
         writer = csv.writer(output)
 
         # Header
-        writer.writerow([
-            "ID",
-            "User ID",
-            "Amount",
-            "Currency",
-            "Status",
-            "Provider",
-            "External ID",
-            "Created At",
-        ])
+        writer.writerow(
+            [
+                "ID",
+                "User ID",
+                "Amount",
+                "Currency",
+                "Status",
+                "Provider",
+                "External ID",
+                "Created At",
+            ]
+        )
 
         # Data
         for payment in payments:
-            writer.writerow([
-                payment.id,
-                payment.user_id,
-                float(payment.amount),
-                payment.currency,
-                payment.status.value,
-                payment.provider.value,
-                payment.external_id or "",
-                payment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            ])
+            writer.writerow(
+                [
+                    payment.id,
+                    payment.user_id,
+                    float(payment.amount),
+                    payment.currency,
+                    payment.status.value,
+                    payment.provider.value,
+                    payment.external_id or "",
+                    payment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                ]
+            )
 
         return output.getvalue()
 

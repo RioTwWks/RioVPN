@@ -51,22 +51,11 @@ class Payment(Base):
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
-    )
+    user_id = Column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     amount = Column(Numeric(10, 2), nullable=False)
     currency = Column(String(3), default="RUB", nullable=False)
-    status = Column(
-        Enum(PaymentStatus, name="payment_status"),
-        default=PaymentStatus.pending,
-        nullable=False
-    )
-    provider = Column(
-        Enum(PaymentProvider, name="payment_provider"),
-        nullable=False
-    )
+    status = Column(Enum(PaymentStatus, name="payment_status"), default=PaymentStatus.pending, nullable=False)
+    provider = Column(Enum(PaymentProvider, name="payment_provider"), nullable=False)
     external_id = Column(String(255), nullable=True, index=True)
     description = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

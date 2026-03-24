@@ -96,10 +96,7 @@ class BaseService(ABC):
             async with session.request(method, url, **kwargs) as response:
                 if response.status >= 400:
                     error_text = await response.text()
-                    logger.error(
-                        f"API request failed: {method} {url} - "
-                        f"Status: {response.status}, Response: {error_text}"
-                    )
+                    logger.error(f"API request failed: {method} {url} - " f"Status: {response.status}, Response: {error_text}")
                     raise APIError(
                         f"API request failed with status {response.status}: {error_text}",
                         status_code=response.status,

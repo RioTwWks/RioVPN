@@ -51,9 +51,7 @@ async def handle_renewal_start(callback: CallbackQuery) -> None:
 
     async for session in get_session():
         # Get subscription
-        result = await session.execute(
-            select(Subscription).where(Subscription.id == subscription_id)
-        )
+        result = await session.execute(select(Subscription).where(Subscription.id == subscription_id))
         subscription = result.scalar_one_or_none()
 
         if not subscription:
@@ -61,9 +59,7 @@ async def handle_renewal_start(callback: CallbackQuery) -> None:
             return
 
         # Check ownership
-        user_result = await session.execute(
-            select(User).where(User.id == subscription.user_id)
-        )
+        user_result = await session.execute(select(User).where(User.id == subscription.user_id))
         user = user_result.scalar_one_or_none()
 
         if not user or user.telegram_id != callback.from_user.id:
@@ -87,9 +83,7 @@ async def handle_renewal_start(callback: CallbackQuery) -> None:
             f"📅 <b>Действует до:</b> {subscription.expiry_date.strftime('%d.%m.%Y')}\n"
             f"⏳ <b>Осталось дней:</b> {subscription.days_remaining}\n\n"
             f"Выберите срок продления:",
-            reply_markup=get_renewal_duration_keyboard(
-                subscription.id, subscription.type.value
-            ),
+            reply_markup=get_renewal_duration_keyboard(subscription.id, subscription.type.value),
         )
 
     await callback.answer()
@@ -111,9 +105,7 @@ async def handle_renewal_duration(callback: CallbackQuery) -> None:
 
     async for session in get_session():
         # Get subscription
-        result = await session.execute(
-            select(Subscription).where(Subscription.id == subscription_id)
-        )
+        result = await session.execute(select(Subscription).where(Subscription.id == subscription_id))
         subscription = result.scalar_one_or_none()
 
         if not subscription:
@@ -136,8 +128,7 @@ async def handle_renewal_duration(callback: CallbackQuery) -> None:
         for provider in providers:
             provider_name = get_provider_name(provider)
             builder.button(
-                text=f"💳 {provider_name}",
-                callback_data=f"renew_pay_{subscription_id}_{sub_type}_{duration}_{provider}"
+                text=f"💳 {provider_name}", callback_data=f"renew_pay_{subscription_id}_{sub_type}_{duration}_{provider}"
             )
 
         builder.button(text="« Назад", callback_data=f"renew_sub_{subscription_id}")
@@ -173,9 +164,7 @@ async def handle_renewal_payment(callback: CallbackQuery) -> None:
 
     async for session in get_session():
         # Get subscription
-        result = await session.execute(
-            select(Subscription).where(Subscription.id == subscription_id)
-        )
+        result = await session.execute(select(Subscription).where(Subscription.id == subscription_id))
         subscription = result.scalar_one_or_none()
 
         if not subscription:
@@ -183,9 +172,7 @@ async def handle_renewal_payment(callback: CallbackQuery) -> None:
             return
 
         # Get user
-        user_result = await session.execute(
-            select(User).where(User.id == subscription.user_id)
-        )
+        user_result = await session.execute(select(User).where(User.id == subscription.user_id))
         user = user_result.scalar_one_or_none()
 
         if not user or user.telegram_id != callback.from_user.id:
@@ -233,12 +220,14 @@ async def handle_renewal_payment(callback: CallbackQuery) -> None:
             f"🏦 <b>Платежная система:</b> {provider_name}\n\n"
             f"Нажмите кнопку ниже для оплаты:",
             reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[[
-                    InlineKeyboardButton(
-                        text="💰 Оплатить",
-                        url=result.payment_url,
-                    )
-                ]]
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="💰 Оплатить",
+                            url=result.payment_url,
+                        )
+                    ]
+                ]
             ),
         )
 
@@ -260,22 +249,10 @@ def get_renewal_duration_keyboard(
         InlineKeyboardMarkup with duration options
     """
     builder = InlineKeyboardBuilder()
-    builder.button(
-        text="1 месяц",
-        callback_data=f"renew_duration_{subscription_id}_{sub_type}_1"
-    )
-    builder.button(
-        text="3 месяца",
-        callback_data=f"renew_duration_{subscription_id}_{sub_type}_3"
-    )
-    builder.button(
-        text="6 месяцев",
-        callback_data=f"renew_duration_{subscription_id}_{sub_type}_6"
-    )
-    builder.button(
-        text="12 месяцев",
-        callback_data=f"renew_duration_{subscription_id}_{sub_type}_12"
-    )
+    builder.button(text="1 месяц", callback_data=f"renew_duration_{subscription_id}_{sub_type}_1")
+    builder.button(text="3 месяца", callback_data=f"renew_duration_{subscription_id}_{sub_type}_3")
+    builder.button(text="6 месяцев", callback_data=f"renew_duration_{subscription_id}_{sub_type}_6")
+    builder.button(text="12 месяцев", callback_data=f"renew_duration_{subscription_id}_{sub_type}_12")
     builder.button(text="« Назад", callback_data="main_menu")
     builder.adjust(2, 2, 1)
     return builder.as_markup()

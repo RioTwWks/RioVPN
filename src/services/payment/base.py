@@ -198,9 +198,7 @@ class PaymentService(ABC):
         Returns:
             Updated Payment record
         """
-        result = await self.session.execute(
-            select(Payment).where(Payment.external_id == external_id)
-        )
+        result = await self.session.execute(select(Payment).where(Payment.external_id == external_id))
         payment = result.scalar_one_or_none()
 
         if payment:
@@ -247,9 +245,7 @@ class PaymentService(ABC):
                 subscription_id = int(sub_parts[2])
 
                 # Get existing subscription
-                result = await self.session.execute(
-                    select(Subscription).where(Subscription.id == subscription_id)
-                )
+                result = await self.session.execute(select(Subscription).where(Subscription.id == subscription_id))
                 subscription = result.scalar_one_or_none()
 
                 if not subscription:
@@ -276,9 +272,7 @@ class PaymentService(ABC):
                 duration = int(sub_parts[1])
 
                 # Get user
-                result = await self.session.execute(
-                    select(User).where(User.id == payment.user_id)
-                )
+                result = await self.session.execute(select(User).where(User.id == payment.user_id))
                 user = result.scalar_one_or_none()
 
                 if not user:
@@ -293,10 +287,7 @@ class PaymentService(ABC):
                     duration_days=duration * 30,
                 )
 
-                logger.info(
-                    f"Subscription created for payment {payment.id}: "
-                    f"subscription_id={subscription.id}"
-                )
+                logger.info(f"Subscription created for payment {payment.id}: " f"subscription_id={subscription.id}")
 
                 return subscription
 

@@ -124,8 +124,8 @@ class NotificationService:
         if not user.telegram_id:
             return False
 
-        used_gb = subscription.traffic_used / (1024 ** 3)
-        limit_gb = subscription.traffic_limit / (1024 ** 3) if subscription.traffic_limit else 0
+        used_gb = subscription.traffic_used / (1024**3)
+        limit_gb = subscription.traffic_limit / (1024**3) if subscription.traffic_limit else 0
 
         text = (
             f"⚠️ <b>Предупреждение о трафике</b>\n\n"

@@ -35,9 +35,7 @@ async def handle_admin_users(callback: CallbackQuery) -> None:
 
         for user in users:
             # Count subscriptions
-            sub_result = await session.execute(
-                select(Subscription).where(Subscription.user_id == user.id)
-            )
+            sub_result = await session.execute(select(Subscription).where(Subscription.user_id == user.id))
             subs = sub_result.scalars().all()
             active_subs = sum(1 for s in subs if s.status == SubscriptionStatus.active)
 
@@ -71,9 +69,7 @@ async def handle_users_command(message: Message) -> None:
     limit = int(args[1]) if len(args) > 1 else 20
 
     async for session in get_session():
-        result = await session.execute(
-            select(User).order_by(User.created_at.desc()).limit(limit)
-        )
+        result = await session.execute(select(User).order_by(User.created_at.desc()).limit(limit))
         users = result.scalars().all()
 
         text = f"👥 <b>Пользователи (последние {limit})</b>\n\n"
@@ -108,9 +104,7 @@ async def handle_search_command(message: Message) -> None:
 
     async for session in get_session():
         # Find user
-        result = await session.execute(
-            select(User).where(User.telegram_id == telegram_id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == telegram_id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -118,9 +112,7 @@ async def handle_search_command(message: Message) -> None:
             return
 
         # Get subscriptions
-        sub_result = await session.execute(
-            select(Subscription).where(Subscription.user_id == user.id)
-        )
+        sub_result = await session.execute(select(Subscription).where(Subscription.user_id == user.id))
         subscriptions = sub_result.scalars().all()
 
         # Format user info
@@ -145,8 +137,8 @@ async def handle_search_command(message: Message) -> None:
             )
 
             if sub.traffic_limit:
-                used_gb = sub.traffic_used / (1024 ** 3)
-                limit_gb = sub.traffic_limit / (1024 ** 3)
+                used_gb = sub.traffic_used / (1024**3)
+                limit_gb = sub.traffic_limit / (1024**3)
                 text += f"💾 <b>Трафик:</b> {used_gb:.2f} ГБ / {limit_gb:.2f} ГБ\n"
 
         await message.answer(text)
@@ -175,9 +167,7 @@ async def handle_user_history_command(message: Message) -> None:
 
     async for session in get_session():
         # Find user
-        result = await session.execute(
-            select(User).where(User.telegram_id == telegram_id)
-        )
+        result = await session.execute(select(User).where(User.telegram_id == telegram_id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -186,9 +176,7 @@ async def handle_user_history_command(message: Message) -> None:
 
         # Get all subscriptions (including historical)
         sub_result = await session.execute(
-            select(Subscription)
-            .where(Subscription.user_id == user.id)
-            .order_by(Subscription.created_at.desc())
+            select(Subscription).where(Subscription.user_id == user.id).order_by(Subscription.created_at.desc())
         )
         subscriptions = sub_result.scalars().all()
 
@@ -196,9 +184,7 @@ async def handle_user_history_command(message: Message) -> None:
         from src.models.payment import Payment
 
         payment_result = await session.execute(
-            select(Payment)
-            .where(Payment.user_id == user.id)
-            .order_by(Payment.created_at.desc())
+            select(Payment).where(Payment.user_id == user.id).order_by(Payment.created_at.desc())
         )
         payments = payment_result.scalars().all()
 
@@ -207,10 +193,7 @@ async def handle_user_history_command(message: Message) -> None:
         # Subscriptions
         text += f"📱 <b>Подписки ({len(subscriptions)})</b>\n"
         for sub in subscriptions[:10]:  # Last 10
-            text += (
-                f"  • {sub.type.value.upper()} | {sub.status.value} | "
-                f"{sub.expiry_date.strftime('%d.%m.%Y')}\n"
-            )
+            text += f"  • {sub.type.value.upper()} | {sub.status.value} | " f"{sub.expiry_date.strftime('%d.%m.%Y')}\n"
 
         # Payments
         text += f"\n💰 <b>Платежи ({len(payments)})</b>\n"
