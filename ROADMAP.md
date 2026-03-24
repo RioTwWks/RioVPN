@@ -292,6 +292,11 @@
 - [x] Multi-language support (i18n, RU/EN)
 - [x] Subscription tiers (Basic/Premium/Unlimited)
 - [x] Enhanced admin (/export, /analytics)
+- [x] Test infrastructure (pytest, fixtures, mocks)
+- [x] Model tests (User, Subscription, Payment, Referral)
+- [x] Service tests (Subscription, Referral, Tiers)
+- [x] Handler tests (Commands, Callbacks, Admin)
+- [x] Integration tests (Workflows, Health checks)
 
 **Next Steps:**
 - [ ] Deploy to production server

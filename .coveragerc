@@ -1,0 +1,23 @@
+[run]
+branch = True
+source = src
+omit =
+    */__init__.py
+    */tests/*
+    */migrations/*
+    */locales/*
+    src/bot/main.py
+    src/workers/main.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstractmethod
+
+[html]
+directory = htmlcov

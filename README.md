@@ -73,9 +73,30 @@ pytest
 # Run with coverage
 pytest --cov=src --cov-report=html
 
+# Run specific test file
+pytest tests/test_models.py
+
+# Run test script
+python scripts/test.py --coverage
+
 # Create database migration
 python -m migrations revision --autogenerate -m "description"
 
 # Apply migrations
 python -m migrations upgrade head
+```
+
+## Testing
+
+See [TESTING.md](TESTING.md) for detailed testing guide.
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+python scripts/test.py --coverage
+
+# Run integration tests
+python scripts/test.py --integration
 ```
