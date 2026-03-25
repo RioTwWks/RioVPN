@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     SHORT_ID_RU: str = Field(..., description="Reality short ID")
     SERVER_ADDRESS_RU: str = Field(..., description="RU server IP/domain")
     SERVER_PORT_RU: int = Field(..., description="RU server port")
+    SPX_RU: str = Field("/", description="Reality SPX parameter")
+    PQV_RU: str = Field("", description="Reality PQV parameter (packet queue)")
 
     # Hiddify Panel (EU)
     PANEL_HIDDIFY_URL: str = Field(..., description="Hiddify panel URL")
@@ -114,6 +116,14 @@ class Settings(BaseSettings):
     @property
     def server_port_ru(self) -> int:
         return self.SERVER_PORT_RU
+
+    @property
+    def spx_ru(self) -> str:
+        return self.SPX_RU
+
+    @property
+    def pqv_ru(self) -> str:
+        return self.PQV_RU
 
     @property
     def panel_hiddify_url(self) -> str:

@@ -24,6 +24,7 @@ test_router = Router()
 async def is_admin(user_id: int) -> bool:
     """Check if user is admin."""
     from src.core.config import settings
+
     admin_id = settings.admin_telegram_id
     if admin_id is None:
         return False
@@ -118,6 +119,7 @@ async def handle_test_create_payment(callback: CallbackQuery) -> None:
 
         # Create test payment
         import random
+
         payment = Payment(
             user_id=user.id,
             amount=random.choice([299, 499, 799, 1299, 2699]),
@@ -201,19 +203,13 @@ async def handle_test_cleanup(callback: CallbackQuery) -> None:
 
         if user:
             # Delete subscriptions
-            await session.execute(
-                select(Subscription).where(Subscription.user_id == user.id)
-            )
-            subscriptions = await session.execute(
-                select(Subscription).where(Subscription.user_id == user.id)
-            )
+            await session.execute(select(Subscription).where(Subscription.user_id == user.id))
+            subscriptions = await session.execute(select(Subscription).where(Subscription.user_id == user.id))
             for sub in subscriptions.scalars().all():
                 await session.delete(sub)
 
             # Delete payments
-            payments = await session.execute(
-                select(Payment).where(Payment.user_id == user.id)
-            )
+            payments = await session.execute(select(Payment).where(Payment.user_id == user.id))
             for payment in payments.scalars().all():
                 await session.delete(payment)
 
@@ -242,8 +238,7 @@ async def handle_test_status(callback: CallbackQuery) -> None:
 
         if not user:
             await callback.message.answer(
-                "ℹ️ <b>Тестовый пользователь не найден</b>\n\n"
-                "Создайте тестового пользователя для начала тестирования."
+                "ℹ️ <b>Тестовый пользователь не найден</b>\n\n" "Создайте тестового пользователя для начала тестирования."
             )
             return
 
@@ -264,18 +259,12 @@ async def handle_test_status(callback: CallbackQuery) -> None:
         )
 
         for sub in subscriptions:
-            text += (
-                f"  • {sub.type.value.upper()} | {sub.status.value} | "
-                f"до {sub.expiry_date.strftime('%d.%m.%Y')}\n"
-            )
+            text += f"  • {sub.type.value.upper()} | {sub.status.value} | " f"до {sub.expiry_date.strftime('%d.%m.%Y')}\n"
 
         text += f"\n💰 <b>Платежи ({len(payments)})</b>\n"
 
         for payment in payments:
-            text += (
-                f"  • {payment.amount} {payment.currency} | "
-                f"{payment.status.value} | {payment.provider.value}\n"
-            )
+            text += f"  • {payment.amount} {payment.currency} | " f"{payment.status.value} | {payment.provider.value}\n"
 
         if not subscriptions and not payments:
             text += "\nℹ️ Нет активных тестовых данных"
