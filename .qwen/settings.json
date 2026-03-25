@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(netstat *)",
+      "Bash(findstr *)"
     ]
-  }
+  },
+  "$version": 3
 }

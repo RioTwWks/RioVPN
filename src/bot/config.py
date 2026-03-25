@@ -111,6 +111,9 @@ def create_bot() -> Bot:
 
     if proxy_config:
         session = AiohttpSession(proxy=proxy_config)
+        # Disable SSL verification for proxy connections to handle
+        # self-signed certificates and proxy SSL inspection
+        session._connector_init["ssl"] = False
     else:
         session = AiohttpSession()
 
