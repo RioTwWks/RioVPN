@@ -172,13 +172,15 @@ class SubscriptionService:
             "type": "xhttp",
             "path": "/",
             "mode": "auto",
+            "spx": settings.spx_ru,
+            "pqv": settings.pqv_ru,
         }
 
         # Build query string
         query = "&".join(f"{k}={v}" for k, v in params.items())
 
         # Format: vless://uuid@server:port?params#remark
-        link = f"vless://{uuid}@{settings.server_address_ru}:{settings.server_port_ru}" f"?{query}#{email}"
+        link = f"vless://{uuid}@{settings.server_address_ru}:{settings.server_port_ru}?{query}#{email}"
 
         return link
 
