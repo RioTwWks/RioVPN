@@ -8,7 +8,7 @@ from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 from sqlalchemy import select
 
-from src.bot.keyboards import get_back_keyboard
+from src.bot.keyboards import get_admin_back_keyboard
 from src.core.database import get_session
 from src.core.logging import get_logger
 from src.models.payment import Payment, PaymentStatus
@@ -53,7 +53,7 @@ async def handle_admin_payments(callback: CallbackQuery) -> None:
 
         await callback.message.edit_text(
             text,
-            reply_markup=get_back_keyboard(),
+            reply_markup=get_admin_back_keyboard(),
         )
 
     await callback.answer()

@@ -11,7 +11,7 @@ from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMar
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
 
-from src.bot.keyboards import get_back_keyboard
+from src.bot.keyboards import get_admin_back_keyboard
 from src.bot.notifications import get_notification_service
 from src.core.database import get_session
 from src.core.logging import get_logger
@@ -42,7 +42,7 @@ async def handle_broadcast_start(callback: CallbackQuery) -> None:
         "Отправьте сообщение, которое вы хотите разослать всем пользователям.\n\n"
         "Поддерживается HTML-форматирование.\n\n"
         "Для отмены отправьте /cancel",
-        reply_markup=get_back_keyboard(),
+        reply_markup=get_admin_back_keyboard(),
     )
     await callback.answer()
 
@@ -161,7 +161,7 @@ async def handle_broadcast_cancel(callback: CallbackQuery, state: FSMContext) ->
     await state.clear()
     await callback.message.edit_text(
         "❌ <b>Рассылка отменена</b>",
-        reply_markup=get_back_keyboard(),
+        reply_markup=get_admin_back_keyboard(),
     )
     await callback.answer()
 
@@ -180,7 +180,7 @@ async def handle_cancel(message: Message, state: FSMContext) -> None:
         await state.clear()
         await message.answer(
             "❌ <b>Отменено</b>",
-            reply_markup=get_back_keyboard(),
+            reply_markup=get_admin_back_keyboard(),
         )
 
 

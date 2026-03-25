@@ -223,6 +223,75 @@ async def handle_my_subscription(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
+@callback_router.callback_query(F.data == "admin_stats")
+async def handle_admin_stats(callback: CallbackQuery) -> None:
+    """
+    Handle admin stats button.
+
+    Args:
+        callback: Callback query
+    """
+    from sqlalchemy import select
+    from src.models.payment import Payment, PaymentStatus
+    from src.models.subscription import Subscription, SubscriptionStatus
+    from src.models.user import User
+    from src.bot.keyboards import get_admin_back_keyboard
+
+    async for session in get_session():
+        # Count users
+        user_count = await session.execute(select(User))
+        total_users = len(user_count.scalars().all())
+
+        # Count subscriptions
+        subs_result = await session.execute(select(Subscription))
+        subscriptions = subs_result.scalars().all()
+
+        active_subs = sum(1 for s in subscriptions if s.status == SubscriptionStatus.active)
+        expired_subs = sum(1 for s in subscriptions if s.status == SubscriptionStatus.expired)
+        blocked_subs = sum(1 for s in subscriptions if s.status == SubscriptionStatus.blocked)
+
+        # Count payments
+        payments_result = await session.execute(select(Payment))
+        payments = payments_result.scalars().all()
+
+        paid_payments = sum(1 for p in payments if p.status == PaymentStatus.paid)
+        pending_payments = sum(1 for p in payments if p.status == PaymentStatus.pending)
+        total_revenue = sum(float(p.amount) for p in payments if p.status == PaymentStatus.paid)
+
+        await callback.message.edit_text(
+            f"📊 <b>Статистика</b>\n\n"
+            f"👥 <b>Пользователи:</b> {total_users}\n\n"
+            f"📱 <b>Подписки:</b>\n"
+            f"  • Активные: {active_subs}\n"
+            f"  • Истёкшие: {expired_subs}\n"
+            f"  • Заблокированные: {blocked_subs}\n"
+            f"  • Всего: {len(subscriptions)}\n\n"
+            f"💰 <b>Платежи:</b>\n"
+            f"  • Оплачено: {paid_payments}\n"
+            f"  • Ожидают: {pending_payments}\n"
+            f"  • Выручка: {total_revenue:.2f} ₽",
+            reply_markup=get_admin_back_keyboard(),
+        )
+    await callback.answer()
+
+
+@callback_router.callback_query(F.data == "admin_menu")
+async def handle_admin_menu(callback: CallbackQuery) -> None:
+    """
+    Handle back to admin menu button.
+
+    Args:
+        callback: Callback query
+    """
+    from src.bot.keyboards import get_admin_keyboard
+
+    await callback.message.edit_text(
+        "🔧 <b>Панель администратора</b>\n\n" "Выберите действие:",
+        reply_markup=get_admin_keyboard(),
+    )
+    await callback.answer()
+
+
 @callback_router.callback_query(F.data == "support")
 async def handle_support(callback: CallbackQuery) -> None:
     """

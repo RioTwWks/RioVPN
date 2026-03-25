@@ -88,6 +88,19 @@ def get_back_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+def get_admin_back_keyboard() -> InlineKeyboardMarkup:
+    """
+    Get back button keyboard for admin panel.
+
+    Returns:
+        InlineKeyboardMarkup with back to admin button
+    """
+    builder = InlineKeyboardBuilder()
+    builder.button(text="« Назад в админ-панель", callback_data="admin_menu")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
 def get_admin_keyboard() -> InlineKeyboardMarkup:
     """
     Get admin panel keyboard.
