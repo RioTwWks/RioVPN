@@ -1,5 +1,19 @@
 # RioVPN - Telegram VPN Subscription Bot
 
+## Recent Changes (2026-03-25)
+
+### Latest Updates
+- **Proxy Support**: All services now route through SOCKS5 proxy with disabled SSL verification
+- **3x-ui Authentication**: Fixed session-based auth (cookies) for 3x-ui panel API
+- **Admin Panel**: Fixed navigation - "Back" button now returns to admin panel, not user menu
+- **Test Panel**: New `/test` command for admin testing (create test users, payments, subscriptions)
+- **Graceful Shutdown**: Fixed Ctrl+C handling - no more tracebacks on shutdown
+- **API Fix**: 3x-ui `addClient` now sends `settings` as JSON string (not object)
+
+See `.qwen/session_summary_2026-03-25.md` for detailed changelog.
+
+---
+
 ## Project Overview
 
 **RioVPN** is a full-featured Telegram bot that automates the sale of VPN subscriptions. The bot integrates with two VPN panel systems to provide users with ready-to-use VPN connections after payment.

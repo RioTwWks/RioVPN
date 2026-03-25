@@ -159,40 +159,103 @@ alembic current
 
 | Ошибка | Причина | Решение |
 |--------|---------|---------|
+| `404 Not Found` | 3x-ui использует session cookies, не BasicAuth | Используйте POST на `/login` с CookieJar |
 | `401 Unauthorized` | Неверный логин/пароль | Проверьте `PANEL_3XUI_USER` и `PANEL_3XUI_PASS` |
-| `403 Forbidden` | Недостаточно прав | Убедитесь что пользователь — администратор |
 | `Connection refused` | Неверный URL или порт | Проверьте `PANEL_3XUI_URL` (должен включать порт) |
+| `SSL: CERTIFICATE_VERIFY_FAILED` | Самоподписанный сертификат | Используйте `ssl=False` в aiohttp |
+| `getaddrinfo failed` | DNS не работает через прокси | Настройте SOCKS5 прокси для запросов |
 
 **Диагностика:**
-```bash
-# Проверка доступности API
-curl -u user:pass http://panel-url:2096/panel/api/inbounds/list
+```python
+# ✅ ПРАВИЛЬНО: Session-based auth с cookies
+import aiohttp
+from aiohttp_socks import ProxyConnector
+import ssl
 
-# Проверка с aiohttp
-python -c "
-import aiohttp, asyncio, os
-async def test():
-    auth = aiohttp.BasicAuth(os.getenv('PANEL_3XUI_USER'), os.getenv('PANEL_3XUI_PASS'))
-    async with aiohttp.ClientSession(auth=auth) as s:
-        async with s.get(os.getenv('PANEL_3XUI_URL') + '/panel/api/inbounds/list') as r:
-            print(f'Status: {r.status}')
-            print(await r.json())
-asyncio.run(test())
-"
+async def test_3xui():
+    # Создаём CookieJar для сессии
+    cookie_jar = aiohttp.CookieJar()
+    
+    # Создаём прокси коннектор (если нужно)
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    connector = ProxyConnector.from_url(
+        "socks5://127.0.0.1:10808",
+        ssl=ssl_context
+    )
+    
+    async with aiohttp.ClientSession(
+        cookie_jar=cookie_jar,
+        connector=connector
+    ) as session:
+        # Логин
+        login_data = {
+            "username": "your_user",
+            "password": "your_pass"
+        }
+        async with session.post(
+            "https://panel-url:port/login",
+            json=login_data,
+            ssl=False
+        ) as resp:
+            result = await resp.json()
+            print(f"Login: {result.get('success')}")
+        
+        # API запрос с сессионными куками
+        async with session.get(
+            "https://panel-url:port/panel/api/inbounds/list",
+            ssl=False
+        ) as resp:
+            print(f"Status: {resp.status}")
+            inbounds = await resp.json()
+            print(f"Inbounds: {inbounds}")
+
+asyncio.run(test_3xui())
 ```
+
+**Важно**:
+- 3x-ui **не использует** BasicAuth — только session cookies
+- После логина куки сохраняются в `CookieJar` и используются автоматически
+- Все запросы должны идти через один `ClientSession` с одним `CookieJar`
+- Для прокси используйте `ProxyConnector` с `ssl=False`
 
 ### 3.2. Ошибки создания клиента
 
 | Ошибка | Причина | Решение |
 |--------|---------|---------|
+| `json: cannot unmarshal object into Go struct field Inbound.settings of type string` | `settings` передан как object, а не JSON string | Используйте `json.dumps()` для `settings` |
 | `Client already exists` | Email уже используется | Используйте уникальный email: `user_<telegram_id>_<timestamp>` |
-| `Inbound not found` | Неверный inbound_tag | Проверьте список инбаундов через API |
+| `Inbound not found` | Неверный inbound_tag | Поиск работает по `tag` **или** `remark` |
 | `Invalid UUID` | Неверный формат UUID | Генерируйте UUID через `uuid.uuid4()` |
 
-**Генерация UUID:**
+**Правильный формат addClient:**
 ```python
-import uuid
-client_uuid = str(uuid.uuid4())  # ✅ Правильно
+import json
+
+client_config = {
+    "id": inbound_id,
+    "settings": json.dumps({  # ✅ JSON STRING, не object!
+        "clients": [
+            {
+                "id": uuid,
+                "email": email,
+                "limitIp": 0,
+                "totalGB": traffic_limit or 0,
+                "expiryTime": expiry_time or 0,
+                "enable": True,
+                "tgId": "",
+                "subId": "",
+            }
+        ]
+    }),
+}
+
+response = await session.post(
+    f"{base_url}/panel/api/inbounds/addClient",
+    json=client_config,
+    ssl=False
+)
 ```
 
 ### 3.3. Проблемы с VLESS ссылкой
@@ -206,6 +269,86 @@ client_uuid = str(uuid.uuid4())  # ✅ Правильно
 **Шаблон VLESS ссылки:**
 ```
 vless://<uuid>@<server>:<port>?encryption=none&flow=xtls-rprx-vision&security=reality&sni=<sni>&fp=chrome&pbk=<public_key>&sid=<short_id>&type=xhttp&path=%2F&mode=auto#<tag>
+```
+
+---
+
+## 3a. Проблемы с Proxy (SOCKS5)
+
+### 3a.1. Бот не подключается через прокси
+
+| Ошибка | Причина | Решение |
+|--------|---------|---------|
+| `ClientOSError: [WinError 64]` | SOCKS5 handshake failed | Проверьте что прокси запущен и принимает соединения |
+| `getaddrinfo failed` | DNS не работает | Прокси должен резолвить DNS удалённо (`rdns=True`) |
+| `SSL: CERTIFICATE_VERIFY_FAILED` | SSL проверка не проходит | Используйте `ssl=False` или отключите проверку |
+
+**Диагностика:**
+```python
+# Проверка SOCKS5 прокси
+async def test_proxy():
+    from aiohttp_socks import ProxyConnector
+    import ssl
+    
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    
+    connector = ProxyConnector.from_url(
+        "socks5://127.0.0.1:10808",
+        ssl=ssl_context
+    )
+    
+    async with aiohttp.ClientSession(connector=connector) as session:
+        async with session.get("https://api.telegram.org/bot<TOKEN>/getMe") as resp:
+            print(f"Status: {resp.status}")
+            print(await resp.json())
+
+asyncio.run(test_proxy())
+```
+
+**Настройка SSH tunnel для прокси:**
+```bash
+# PuTTY: Connection → SSH → Tunnels
+# - Select: Dynamic (не Local!)
+# - Source port: 10808
+# - Click: Add
+
+# Или командная строка:
+ssh -D 10808 user@server -N
+```
+
+### 3a.2. Прокси работает для Telegram, но не для 3x-ui
+
+| Причина | Решение |
+|---------|---------|
+| Разные ClientSession | Используйте один `ClientSession` с `CookieJar` и `ProxyConnector` |
+| SSL проверка включена | Установите `ssl=False` для всех запросов |
+| Прокси не для всех запросов | Настройте `BaseService._get_connector()` для использования прокси |
+
+**Правильная конфигурация BaseService:**
+```python
+class BaseService(ABC):
+    def __init__(
+        self,
+        base_url: str,
+        headers: Optional[Dict[str, str]] = None,
+        use_proxy: bool = True,      # ✅ Включить прокси
+        verify_ssl: bool = False,    # ✅ Отключить SSL проверку
+        auth: Optional[aiohttp.BasicAuth] = None,
+    ):
+        self.use_proxy = use_proxy
+        self.verify_ssl = verify_ssl
+    
+    def _get_connector(self):
+        if self.use_proxy:
+            from aiohttp_socks import ProxyConnector
+            proxy_url = self._get_proxy_url()  # из settings
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            return ProxyConnector.from_url(proxy_url, ssl=ssl_context)
+        return aiohttp.TCPConnector(ssl=False)
 ```
 
 ---

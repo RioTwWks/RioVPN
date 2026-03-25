@@ -1,6 +1,7 @@
 """Base service class with retry logic."""
 
 import logging
+import ssl
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
@@ -44,16 +45,82 @@ class BaseService(ABC):
     Provides retry logic, session management, and common HTTP methods.
     """
 
-    def __init__(self, base_url: str, headers: Optional[Dict[str, str]] = None):
+    def __init__(
+        self,
+        base_url: str,
+        headers: Optional[Dict[str, str]] = None,
+        use_proxy: bool = True,
+        verify_ssl: bool = False,
+        auth: Optional[aiohttp.BasicAuth] = None,
+    ):
         """
         Initialize base service.
 
         Args:
             base_url: Base URL for the API
             headers: Optional default headers
+            use_proxy: Use proxy for connections (default True)
+            verify_ssl: Verify SSL certificates (default False for self-signed certs)
+            auth: Optional aiohttp.BasicAuth for authentication
         """
         self.base_url = base_url.rstrip("/")
         self.default_headers = headers or {}
+        self.use_proxy = use_proxy
+        self.verify_ssl = verify_ssl
+        self.auth = auth
+
+    def _get_connector(self) -> Optional[aiohttp.TCPConnector]:
+        """
+        Get TCP connector with proxy and SSL settings.
+
+        Returns:
+            TCPConnector or None for default
+        """
+        if not self.use_proxy:
+            # No proxy - just disable SSL verification if needed
+            if not self.verify_ssl:
+                connector = aiohttp.TCPConnector(ssl=False)
+                return connector
+            return None
+
+        # Use proxy with SSL disabled
+        from aiohttp_socks import ProxyConnector
+
+        proxy_url = self._get_proxy_url()
+        if not proxy_url:
+            return None
+
+        try:
+            if self.verify_ssl:
+                connector = ProxyConnector.from_url(proxy_url)
+            else:
+                # Disable SSL verification
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+                connector = ProxyConnector.from_url(proxy_url, ssl=ssl_context)
+            return connector
+        except ImportError:
+            logger.warning("aiohttp_socks not installed, using direct connection")
+            return None
+
+    def _get_proxy_url(self) -> Optional[str]:
+        """
+        Get proxy URL from settings.
+
+        Returns:
+            Proxy URL or None
+        """
+        from src.core.config import settings
+
+        if settings.proxy_mode == "direct":
+            return None
+
+        # For ssh_tunnel and socks5 modes, use the proxy URL
+        if settings.proxy_url:
+            return settings.proxy_url
+
+        return None
 
     def _get_retry_decorator(self):
         """
@@ -89,14 +156,31 @@ class BaseService(ABC):
         Raises:
             APIError: If request fails
         """
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        # Join URLs properly - handle both absolute and relative endpoints
+        if endpoint.startswith(("http://", "https://")):
+            url = endpoint
+        elif endpoint.startswith("/"):
+            url = f"{self.base_url}{endpoint}"
+        else:
+            url = f"{self.base_url}/{endpoint}"
+
         headers = {**self.default_headers, **kwargs.pop("headers", {})}
 
-        async with aiohttp.ClientSession(headers=headers) as session:
+        connector = self._get_connector()
+
+        # Prepare auth
+        auth = kwargs.pop("auth", self.auth)
+
+        async with aiohttp.ClientSession(
+            headers=headers, connector=connector, auth=auth
+        ) as session:
             async with session.request(method, url, **kwargs) as response:
                 if response.status >= 400:
                     error_text = await response.text()
-                    logger.error(f"API request failed: {method} {url} - " f"Status: {response.status}, Response: {error_text}")
+                    logger.error(
+                        f"API request failed: {method} {url} - "
+                        f"Status: {response.status}, Response: {error_text}"
+                    )
                     raise APIError(
                         f"API request failed with status {response.status}: {error_text}",
                         status_code=response.status,

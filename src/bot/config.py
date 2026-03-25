@@ -174,6 +174,7 @@ def setup_routers() -> Router:
         payment_router,
         referral_router,
         renewal_router,
+        test_router,
         tier_router,
         user_router,
     )
@@ -189,5 +190,6 @@ def setup_routers() -> Router:
     root_router.include_router(referral_router)
     root_router.include_router(tier_router)
     root_router.include_router(admin_router)
+    root_router.include_router(test_router)
 
     return root_router

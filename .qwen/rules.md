@@ -186,31 +186,68 @@ await session.commit()  # no rollback on error
 
 ### 11. 3x-ui API
 ```python
-# ✅ ПРАВИЛЬНО
-BASE_URL = os.getenv("PANEL_3XUI_URL")
-AUTH = aiohttp.BasicAuth(
-    login=os.getenv("PANEL_3XUI_USER"),
-    password=os.getenv("PANEL_3XUI_PASS")
-)
+# ✅ ПРАВИЛЬНО (Session-based auth с cookies)
+class ThreeXuiService(BaseService):
+    def __init__(self):
+        super().__init__(
+            base_url=settings.panel_3xui_url,
+            use_proxy=True,      # Использовать SOCKS5 прокси
+            verify_ssl=False,    # Самоподписанные сертификаты
+        )
+        self._session_cookies = None
+    
+    async def login(self) -> bool:
+        self._session_cookies = aiohttp.CookieJar()
+        connector = self._get_session_connector()  # Прокси + SSL=false
+        
+        async with aiohttp.ClientSession(
+            cookie_jar=self._session_cookies,
+            connector=connector
+        ) as session:
+            async with session.post(
+                f"{self.base_url}/login",
+                json={"username": self.username, "password": self.password},
+                ssl=False
+            ) as resp:
+                return (await resp.json()).get("success")
 
-async def get_inbounds(self) -> list:
-    async with aiohttp.ClientSession(auth=AUTH) as session:
-        async with session.get(f"{BASE_URL}/panel/api/inbounds/list") as resp:
-            resp.raise_for_status()
-            return await resp.json()
+    async def add_client(self, inbound_id: int, email: str, uuid: str) -> bool:
+        # settings должен быть JSON STRING, не object!
+        import json
+        client_config = {
+            "id": inbound_id,
+            "settings": json.dumps({
+                "clients": [{"id": uuid, "email": email, ...}]
+            }),
+        }
+        response = await self._api_request(
+            "POST", 
+            "/panel/api/inbounds/addClient", 
+            json=client_config
+        )
+        return response.get("success")
 
 # ❌ НЕПРАВИЛЬНО
-requests.get(f"http://{BASE_URL}/...")  # no auth, sync
+# BasicAuth вместо session cookies
+# settings как object вместо JSON string
+# Без прокси и SSL=false
 ```
 
 **Эндпоинты**:
 | Метод | Эндпоинт | Назначение |
 |-------|----------|------------|
+| POST | `/login` | Авторизация (session cookies) |
 | GET | `/panel/api/inbounds/list` | Список инбаундов |
 | POST | `/panel/api/inbounds/addClient` | Добавить клиента |
 | POST | `/panel/api/inbounds/updateClient` | Обновить клиента |
 | POST | `/panel/api/inbounds/delClient` | Удалить клиента |
 | GET | `/panel/api/inbounds/getClientTraffic/:email` | Трафик |
+
+**Важно**:
+- 3x-ui использует **session-based auth** через cookies, не BasicAuth
+- Поле `settings` в `addClient` должно быть **JSON string**, не object
+- Поиск inbound работает по `tag` **или** `remark`
+- Все запросы через SOCKS5 прокси с `ssl=False`
 
 ### 12. Hiddify API
 ```python

@@ -8,6 +8,7 @@ from src.bot.handlers.payment import payment_router
 from src.bot.handlers.payments import payment_history_router
 from src.bot.handlers.referral import referral_router
 from src.bot.handlers.renewal import renewal_router
+from src.bot.handlers.test import test_router
 from src.bot.handlers.tiers import tier_router
 from src.bot.handlers.users import user_router
 
@@ -22,4 +23,5 @@ __all__ = [
     "payment_history_router",
     "referral_router",
     "tier_router",
+    "test_router",
 ]

@@ -84,7 +84,6 @@ async def main() -> None:
         await on_startup(None, bot)
 
     async def on_shutdown_wrapper(bot: Bot) -> None:
-        _scheduler.stop()
         await cleanup()
         await on_shutdown(None, bot)
 
@@ -109,13 +108,12 @@ async def main() -> None:
         # Start polling
         logger.info("Bot starting...")
         await dispatcher.start_polling(_bot)
-    except KeyboardInterrupt:
-        logger.info("Keyboard interrupt received")
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        logger.info("Shutdown signal received")
     except Exception as e:
         logger.error(f"Bot error: {e}", exc_info=True)
         raise
     finally:
-        await cleanup()
         logger.info("Bot stopped")
 
 

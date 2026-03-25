@@ -22,23 +22,17 @@ class ThreeXuiService(BaseService):
 
     def __init__(self):
         """Initialize 3x-ui service with authentication."""
-        self.auth = aiohttp.BasicAuth(
-            login=settings.panel_3xui_user,
-            password=settings.panel_3xui_pass,
-        )
         super().__init__(
             base_url=settings.panel_3xui_url,
             headers={"Content-Type": "application/json"},
         )
+        self.username = settings.panel_3xui_user
+        self.password = settings.panel_3xui_pass
+        self._session_cookies: Optional[aiohttp.CookieJar] = None
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        reraise=True,
-    )
     async def login(self) -> bool:
         """
-        Authenticate with 3x-ui panel.
+        Authenticate with 3x-ui panel using session-based auth.
 
         Returns:
             True if authentication successful
@@ -47,13 +41,88 @@ class ThreeXuiService(BaseService):
             APIError: If authentication fails
         """
         try:
-            async with aiohttp.ClientSession(auth=self.auth) as session:
-                async with session.get(f"{self.base_url}/panel/api/inbounds/list") as resp:
+            # Create cookie jar for session
+            self._session_cookies = aiohttp.CookieJar()
+            
+            # Get connector with proxy support
+            connector = self._get_session_connector()
+            
+            async with aiohttp.ClientSession(
+                cookie_jar=self._session_cookies,
+                connector=connector
+            ) as session:
+                # 3x-ui uses POST to /login with JSON body
+                login_data = {
+                    "username": self.username,
+                    "password": self.password,
+                }
+                
+                async with session.post(
+                    f"{self.base_url}/login",
+                    json=login_data,
+                    ssl=False  # Disable SSL verification for self-signed certs
+                ) as resp:
                     if resp.status == 200:
-                        return True
-                    raise APIError(f"Authentication failed: {resp.status}", resp.status)
+                        result = await resp.json()
+                        if result.get("success"):
+                            logger.info("3x-ui login successful")
+                            return True
+                    
+                    error_text = await resp.text()
+                    logger.error(f"3x-ui login failed: {resp.status} - {error_text}")
+                    raise APIError(f"Login failed: {resp.status}", resp.status)
+                    
         except aiohttp.ClientError as e:
             raise APIError(f"Connection error: {e}")
+
+    def _get_session_connector(self):
+        """Get connector for session-based requests."""
+        if self.use_proxy:
+            from aiohttp_socks import ProxyConnector
+            proxy_url = self._get_proxy_url()
+            if proxy_url:
+                import ssl
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+                return ProxyConnector.from_url(proxy_url, ssl=ssl_context)
+        
+        return aiohttp.TCPConnector(ssl=False)
+
+    async def _api_request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+        """
+        Make API request with session authentication.
+
+        Args:
+            method: HTTP method
+            endpoint: API endpoint
+            **kwargs: Additional request arguments
+
+        Returns:
+            JSON response
+
+        Raises:
+            APIError: If request fails
+        """
+        # Ensure we're logged in
+        if self._session_cookies is None:
+            await self.login()
+
+        connector = self._get_session_connector()
+        url = f"{self.base_url}{endpoint}"
+
+        async with aiohttp.ClientSession(
+            connector=connector,
+            cookie_jar=self._session_cookies,
+            headers=self.default_headers
+        ) as session:
+            async with session.request(method, url, ssl=False, **kwargs) as resp:
+                if resp.status != 200:
+                    error_text = await resp.text()
+                    logger.error(f"API request failed: {method} {endpoint} - {resp.status} - {error_text}")
+                    raise APIError(f"API request failed: {resp.status}", resp.status)
+
+                return await resp.json()
 
     async def get_inbounds(self) -> List[Dict[str, Any]]:
         """
@@ -62,24 +131,25 @@ class ThreeXuiService(BaseService):
         Returns:
             List of inbound configurations with clients
         """
-        response = await self.get("/panel/api/inbounds/list")
+        response = await self._api_request("GET", "/panel/api/inbounds/list")
         if response.get("success"):
             return response.get("obj", [])
         raise APIError("Failed to get inbounds")
 
     async def get_inbound_by_tag(self, tag: str) -> Optional[Dict[str, Any]]:
         """
-        Get inbound configuration by tag.
+        Get inbound configuration by tag (or remark).
 
         Args:
-            tag: Inbound tag to search for
+            tag: Inbound tag or remark to search for
 
         Returns:
             Inbound configuration or None if not found
         """
         inbounds = await self.get_inbounds()
         for inbound in inbounds:
-            if inbound.get("tag") == tag:
+            # Try to match by tag first, then by remark
+            if inbound.get("tag") == tag or inbound.get("remark") == tag:
                 return inbound
         return None
 
@@ -107,9 +177,12 @@ class ThreeXuiService(BaseService):
         Raises:
             APIError: If adding client fails
         """
+        import json
+        
+        # 3x-ui expects settings as a JSON string, not object
         client_config = {
             "id": inbound_id,
-            "settings": {
+            "settings": json.dumps({
                 "clients": [
                     {
                         "id": uuid,
@@ -122,10 +195,10 @@ class ThreeXuiService(BaseService):
                         "subId": "",
                     }
                 ]
-            },
+            }),
         }
 
-        response = await self.post("/panel/api/inbounds/addClient", json=client_config)
+        response = await self._api_request("POST", "/panel/api/inbounds/addClient", json=client_config)
         if response.get("success"):
             logger.info(f"Client {email} added to inbound {inbound_id}")
             return True
@@ -190,7 +263,7 @@ class ThreeXuiService(BaseService):
                         "clientId": client_uuid,
                     }
 
-                    response = await self.post("/panel/api/inbounds/delClient", json=delete_config)
+                    response = await self._api_request("POST", "/panel/api/inbounds/delClient", json=delete_config)
                     if response.get("success"):
                         logger.info(f"Client {email} deleted from inbound {client_id}")
                         return True
