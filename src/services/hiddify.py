@@ -1,6 +1,7 @@
 """Hiddify-Manager API client for European VPS management."""
 
 import logging
+import time
 from typing import Any, Dict, List, Optional
 
 from src.core.config import settings
@@ -48,19 +49,24 @@ class HiddifyService(BaseService):
         Raises:
             APIError: If user creation fails
         """
-        # Hiddify API v2 - try with minimal required fields first
-        # Required: username
-        # Optional: expiry_time (Unix seconds), data_limit (bytes), enabled, mode
+        # Hiddify API v2 - PostUserSchema
+        # Required: name
+        # Optional: enable, usage_limit_GB, package_days, telegram_id, comment, mode, lang
+        # Note: Use 'name' not 'username', 'enable' not 'enabled'
         user_data = {
-            "username": username,
-            "enabled": True,
+            "name": username,  # Use 'name' field (required)
+            "enable": True,    # Use 'enable' not 'enabled'
         }
         
-        # Only add optional fields if they have values
+        # Add optional fields
         if expiry_time:
-            user_data["expiry_time"] = expiry_time
+            # Convert to package_days (approximate)
+            days = max(1, (expiry_time - int(time.time())) // 86400)
+            user_data["package_days"] = days
+        
         if traffic_limit:
-            user_data["data_limit"] = traffic_limit
+            # Convert bytes to GB
+            user_data["usage_limit_GB"] = traffic_limit / (1024 ** 3)
 
         if extra_data:
             user_data.update(extra_data)

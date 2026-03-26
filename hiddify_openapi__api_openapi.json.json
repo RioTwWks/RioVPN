@@ -1,0 +1,2991 @@
+{
+  "components": {
+    "schemas": {
+      "AdminInputLogfileSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "description": "The log file name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "type": "object"
+      },
+      "AdminSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "can_add_admin": {
+            "description": "Whether the admin can add other admins",
+            "type": "boolean"
+          },
+          "comment": {
+            "description": "A comment related to the admin",
+            "nullable": true,
+            "type": "string"
+          },
+          "lang": {
+            "enum": [
+              "en",
+              "fa",
+              "ru",
+              "pt",
+              "zh",
+              "my"
+            ],
+            "type": "string"
+          },
+          "max_active_users": {
+            "description": "The maximum number of active users allowed",
+            "nullable": true,
+            "type": "integer"
+          },
+          "max_users": {
+            "description": "The maximum number of users allowed",
+            "nullable": true,
+            "type": "integer"
+          },
+          "mode": {
+            "description": "The mode for the admin",
+            "enum": [
+              "super_admin",
+              "admin",
+              "agent"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the admin",
+            "type": "string"
+          },
+          "parent_admin_uuid": {
+            "description": "The unique identifier for the parent admin",
+            "nullable": true
+          },
+          "telegram_id": {
+            "description": "The Telegram ID associated with the admin",
+            "nullable": true,
+            "type": "integer"
+          },
+          "uuid": {
+            "description": "The unique identifier for the admin",
+            "nullable": true
+          }
+        },
+        "required": [
+          "can_add_admin",
+          "lang",
+          "mode",
+          "name"
+        ],
+        "type": "object"
+      },
+      "AppInstall": {
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "description": "The platform that provides the app to download",
+            "enum": [
+              "google_play",
+              "app_store",
+              "appimage",
+              "snapcraft",
+              "microsoft_store",
+              "apk",
+              "dmg",
+              "setup",
+              "portable",
+              "other"
+            ],
+            "type": "string"
+          },
+          "url": {
+            "description": "The url to download the app",
+            "format": "url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "url"
+        ],
+        "type": "object"
+      },
+      "AppSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "deeplink": {
+            "description": "The deeplink of the app to imoprt configs",
+            "format": "url",
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the app",
+            "type": "string"
+          },
+          "guide_url": {
+            "description": "The guide url of the app",
+            "format": "url",
+            "type": "string"
+          },
+          "icon_url": {
+            "description": "The icon url of the app",
+            "format": "url",
+            "type": "string"
+          },
+          "install": {
+            "description": "The install url of the app",
+            "items": {
+              "$ref": "#/components/schemas/AppInstall"
+            },
+            "type": "array"
+          },
+          "title": {
+            "description": "The title of the app",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deeplink",
+          "description",
+          "icon_url",
+          "install",
+          "title"
+        ],
+        "type": "object"
+      },
+      "ConfigSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "protocol": {
+            "type": "string"
+          },
+          "security": {
+            "type": "string"
+          },
+          "transport": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "domain",
+          "link",
+          "name",
+          "protocol",
+          "security",
+          "transport",
+          "type"
+        ],
+        "type": "object"
+      },
+      "HTTPError": {
+        "properties": {
+          "detail": {
+            "type": "object"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "MtproxySchema": {
+        "additionalProperties": false,
+        "properties": {
+          "link": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "link",
+          "title"
+        ],
+        "type": "object"
+      },
+      "PanelInfoOutputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "description": "The panel version",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PatchAdminSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "can_add_admin": {
+            "description": "Whether the admin can add other admins",
+            "type": "boolean"
+          },
+          "comment": {
+            "description": "A comment related to the admin",
+            "nullable": true,
+            "type": "string"
+          },
+          "lang": {
+            "enum": [
+              "en",
+              "fa",
+              "ru",
+              "pt",
+              "zh",
+              "my"
+            ],
+            "type": "string"
+          },
+          "max_active_users": {
+            "description": "The maximum number of active users allowed",
+            "nullable": true,
+            "type": "integer"
+          },
+          "max_users": {
+            "description": "The maximum number of users allowed",
+            "nullable": true,
+            "type": "integer"
+          },
+          "mode": {
+            "description": "The mode for the admin",
+            "enum": [
+              "super_admin",
+              "admin",
+              "agent"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the admin",
+            "type": "string"
+          },
+          "parent_admin_uuid": {
+            "description": "The unique identifier for the parent admin",
+            "nullable": true
+          },
+          "telegram_id": {
+            "description": "The Telegram ID associated with the admin",
+            "nullable": true,
+            "type": "integer"
+          },
+          "uuid": {
+            "description": "The unique identifier for the admin",
+            "nullable": true
+          }
+        },
+        "type": "object"
+      },
+      "PatchUserSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "added_by_uuid": {
+            "description": "UUID of the admin who added this user",
+            "nullable": true
+          },
+          "comment": {
+            "default": null,
+            "description": "An optional comment about the user",
+            "nullable": true,
+            "type": "string"
+          },
+          "current_usage_GB": {
+            "description": "The current data usage of the user in gigabytes",
+            "nullable": true,
+            "type": "number"
+          },
+          "ed25519_private_key": {
+            "description": "If empty, it will be created automatically, The user's private key using the Ed25519 algorithm",
+            "nullable": true,
+            "type": "string"
+          },
+          "ed25519_public_key": {
+            "description": "If empty, it will be created automatically,The user's public key using the Ed25519 algorithm",
+            "nullable": true,
+            "type": "string"
+          },
+          "enable": {
+            "description": "Whether the user is enabled or not",
+            "type": "boolean"
+          },
+          "is_active": {
+            "description": "Whether the user is active for using hiddify",
+            "type": "boolean"
+          },
+          "lang": {
+            "description": "The language of the user",
+            "enum": [
+              "en",
+              "fa",
+              "ru",
+              "pt",
+              "zh",
+              "my",
+              null
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "last_online": {
+            "description": "The last time the user was online, converted to a JSON-friendly format",
+            "nullable": true
+          },
+          "last_reset_time": {
+            "description": "The last time the user's data usage was reset, in a JSON-friendly format",
+            "nullable": true
+          },
+          "mode": {
+            "description": "The mode of the user's account, which dictates access level or type",
+            "enum": [
+              "no_reset",
+              "monthly",
+              "weekly",
+              "daily",
+              null
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the user",
+            "nullable": true,
+            "type": "string"
+          },
+          "package_days": {
+            "description": "The number of days in the user's package",
+            "nullable": true,
+            "type": "integer"
+          },
+          "start_date": {
+            "description": "The start date of the user's package, in a JSON-friendly format",
+            "format": "date",
+            "nullable": true,
+            "type": "string"
+          },
+          "telegram_id": {
+            "description": "The Telegram ID associated with the user",
+            "nullable": true,
+            "type": "integer"
+          },
+          "usage_limit_GB": {
+            "description": "The data usage limit for the user in gigabytes",
+            "nullable": true,
+            "type": "number"
+          },
+          "uuid": {
+            "description": "Unique identifier for the user",
+            "nullable": true
+          },
+          "wg_pk": {
+            "description": "If empty, it will be created automatically, The user's WireGuard private key",
+            "nullable": true,
+            "type": "string"
+          },
+          "wg_psk": {
+            "description": "If empty, it will be created automatically, The user's WireGuard preshared key",
+            "nullable": true,
+            "type": "string"
+          },
+          "wg_pub": {
+            "description": "If empty, it will be created automatically, The user's WireGuard public key",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PongOutputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "msg": {
+            "description": "Pong Response",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PostUserSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "added_by_uuid": {
+            "description": "UUID of the admin who added this user",
+            "nullable": true
+          },
+          "comment": {
+            "default": null,
+            "description": "An optional comment about the user",
+            "nullable": true,
+            "type": "string"
+          },
+          "current_usage_GB": {
+            "description": "The current data usage of the user in gigabytes",
+            "nullable": true,
+            "type": "number"
+          },
+          "ed25519_private_key": {
+            "description": "If empty, it will be created automatically, The user's private key using the Ed25519 algorithm",
+            "nullable": true,
+            "type": "string"
+          },
+          "ed25519_public_key": {
+            "description": "If empty, it will be created automatically,The user's public key using the Ed25519 algorithm",
+            "nullable": true,
+            "type": "string"
+          },
+          "enable": {
+            "description": "Whether the user is enabled or not",
+            "type": "boolean"
+          },
+          "is_active": {
+            "description": "Whether the user is active for using hiddify",
+            "type": "boolean"
+          },
+          "lang": {
+            "description": "The language of the user",
+            "enum": [
+              "en",
+              "fa",
+              "ru",
+              "pt",
+              "zh",
+              "my",
+              null
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "last_online": {
+            "description": "The last time the user was online, converted to a JSON-friendly format",
+            "nullable": true
+          },
+          "last_reset_time": {
+            "description": "The last time the user's data usage was reset, in a JSON-friendly format",
+            "nullable": true
+          },
+          "mode": {
+            "description": "The mode of the user's account, which dictates access level or type",
+            "enum": [
+              "no_reset",
+              "monthly",
+              "weekly",
+              "daily",
+              null
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the user",
+            "type": "string"
+          },
+          "package_days": {
+            "description": "The number of days in the user's package",
+            "nullable": true,
+            "type": "integer"
+          },
+          "start_date": {
+            "description": "The start date of the user's package, in a JSON-friendly format",
+            "format": "date",
+            "nullable": true,
+            "type": "string"
+          },
+          "telegram_id": {
+            "description": "The Telegram ID associated with the user",
+            "nullable": true,
+            "type": "integer"
+          },
+          "usage_limit_GB": {
+            "description": "The data usage limit for the user in gigabytes",
+            "nullable": true,
+            "type": "number"
+          },
+          "uuid": {
+            "description": "Unique identifier for the user",
+            "nullable": true
+          },
+          "wg_pk": {
+            "description": "If empty, it will be created automatically, The user's WireGuard private key",
+            "nullable": true,
+            "type": "string"
+          },
+          "wg_psk": {
+            "description": "If empty, it will be created automatically, The user's WireGuard preshared key",
+            "nullable": true,
+            "type": "string"
+          },
+          "wg_pub": {
+            "description": "If empty, it will be created automatically, The user's WireGuard public key",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "ProfileSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "admin_message_html": {
+            "type": "string"
+          },
+          "admin_message_url": {
+            "format": "url",
+            "type": "string"
+          },
+          "brand_icon_url": {
+            "format": "url",
+            "type": "string"
+          },
+          "brand_title": {
+            "type": "string"
+          },
+          "doh": {
+            "format": "url",
+            "type": "string"
+          },
+          "lang": {
+            "enum": [
+              "en",
+              "fa",
+              "ru",
+              "pt",
+              "zh",
+              "my"
+            ],
+            "type": "string"
+          },
+          "profile_remaining_days": {
+            "type": "integer"
+          },
+          "profile_reset_days": {
+            "type": "integer"
+          },
+          "profile_title": {
+            "type": "string"
+          },
+          "profile_url": {
+            "format": "url",
+            "type": "string"
+          },
+          "profile_usage_current": {
+            "type": "number"
+          },
+          "profile_usage_total": {
+            "type": "number"
+          },
+          "speedtest_enable": {
+            "type": "boolean"
+          },
+          "telegram_bot_url": {
+            "type": "string"
+          },
+          "telegram_id": {
+            "type": "integer"
+          },
+          "telegram_proxy_enable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "lang",
+          "profile_remaining_days",
+          "profile_title",
+          "profile_url",
+          "profile_usage_current",
+          "profile_usage_total",
+          "speedtest_enable",
+          "telegram_proxy_enable"
+        ],
+        "type": "object"
+      },
+      "ServerStatusOutputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "stats": {
+            "additionalProperties": {},
+            "description": "System stats",
+            "type": "object"
+          },
+          "usage_history": {
+            "additionalProperties": {},
+            "description": "System usage history",
+            "type": "object"
+          }
+        },
+        "required": [
+          "stats",
+          "usage_history"
+        ],
+        "type": "object"
+      },
+      "ShortSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "expire_in": {
+            "description": "expire_in is in seconds",
+            "type": "integer"
+          },
+          "full_url": {
+            "description": "full short url",
+            "type": "string"
+          },
+          "short": {
+            "description": "the short url slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expire_in",
+          "full_url",
+          "short"
+        ],
+        "type": "object"
+      },
+      "String": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "SuccessfulSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "msg": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "UserInfoChangableSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "language": {
+            "enum": [
+              "en",
+              "fa",
+              "ru",
+              "pt",
+              "zh",
+              "my"
+            ],
+            "type": "string"
+          },
+          "telegram_id": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "UserSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "added_by_uuid": {
+            "description": "UUID of the admin who added this user",
+            "nullable": true
+          },
+          "comment": {
+            "default": null,
+            "description": "An optional comment about the user",
+            "nullable": true,
+            "type": "string"
+          },
+          "current_usage_GB": {
+            "description": "The current data usage of the user in gigabytes",
+            "nullable": true,
+            "type": "number"
+          },
+          "ed25519_private_key": {
+            "description": "If empty, it will be created automatically, The user's private key using the Ed25519 algorithm",
+            "nullable": true,
+            "type": "string"
+          },
+          "ed25519_public_key": {
+            "description": "If empty, it will be created automatically,The user's public key using the Ed25519 algorithm",
+            "nullable": true,
+            "type": "string"
+          },
+          "enable": {
+            "description": "Whether the user is enabled or not",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "never use it, only for better presentation",
+            "type": "integer"
+          },
+          "is_active": {
+            "description": "Whether the user is active for using hiddify",
+            "type": "boolean"
+          },
+          "lang": {
+            "description": "The language of the user",
+            "enum": [
+              "en",
+              "fa",
+              "ru",
+              "pt",
+              "zh",
+              "my",
+              null
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "last_online": {
+            "description": "The last time the user was online, converted to a JSON-friendly format",
+            "nullable": true
+          },
+          "last_reset_time": {
+            "description": "The last time the user's data usage was reset, in a JSON-friendly format",
+            "nullable": true
+          },
+          "mode": {
+            "description": "The mode of the user's account, which dictates access level or type",
+            "enum": [
+              "no_reset",
+              "monthly",
+              "weekly",
+              "daily",
+              null
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the user",
+            "type": "string"
+          },
+          "package_days": {
+            "description": "The number of days in the user's package",
+            "nullable": true,
+            "type": "integer"
+          },
+          "start_date": {
+            "description": "The start date of the user's package, in a JSON-friendly format",
+            "format": "date",
+            "nullable": true,
+            "type": "string"
+          },
+          "telegram_id": {
+            "description": "The Telegram ID associated with the user",
+            "nullable": true,
+            "type": "integer"
+          },
+          "usage_limit_GB": {
+            "description": "The data usage limit for the user in gigabytes",
+            "nullable": true,
+            "type": "number"
+          },
+          "uuid": {
+            "description": "Unique identifier for the user"
+          },
+          "wg_pk": {
+            "description": "If empty, it will be created automatically, The user's WireGuard private key",
+            "nullable": true,
+            "type": "string"
+          },
+          "wg_psk": {
+            "description": "If empty, it will be created automatically, The user's WireGuard preshared key",
+            "nullable": true,
+            "type": "string"
+          },
+          "wg_pub": {
+            "description": "If empty, it will be created automatically, The user's WireGuard public key",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "uuid"
+        ],
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "detail": {
+            "properties": {
+              "<location>": {
+                "properties": {
+                  "<field_name>": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "Hiddify-API-Key": {
+        "in": "header",
+        "name": "Hiddify-API-Key",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "email": "panel@hiddify.com",
+      "name": "API Support",
+      "url": "https://www.hiddify.com/support"
+    },
+    "description": "Hiddify is a free and open source software. It is as it is.",
+    "license": {
+      "name": "Creative Commons Zero v1.0 Universal",
+      "url": "https://github.com/hiddify/Hiddify-Manager/blob/main/LICENSE"
+    },
+    "termsOfService": "https://hiddify.com",
+    "title": "Hiddify API",
+    "version": "2.2.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/{proxy_path}/api/v2/admin/admin_user/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminSchema"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Admin: Get all admins",
+        "tags": [
+          "Api_Admin"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Admin: Create an admin",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/admin/admin_user/{uuid}/": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessfulSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Admin: Delete an admin",
+        "tags": [
+          "Api_Admin"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Admin: Get an admin",
+        "tags": [
+          "Api_Admin"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchAdminSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Admin: Update an admin",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/admin/all-configs/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "System: All Configs for configuration",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/admin/log/": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminInputLogfileSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/String"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "System: View Log file",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/admin/me/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Current Admin Info",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/admin/server_status/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerStatusOutputSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "System: ServerStatus",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/admin/update_user_usage/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "System: Update User Usage",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/admin/user/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserSchema"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "User: List users of current admin",
+        "tags": [
+          "Api_Admin"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUserSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "User: Create a user",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/admin/user/{uuid}/": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessfulSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "User: Delete a User",
+        "tags": [
+          "Api_Admin"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "User: Get details of a user",
+        "tags": [
+          "Api_Admin"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchUserSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "User: Update a user",
+        "tags": [
+          "Api_Admin"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/panel/info/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PanelInfoOutputSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get PanelInfoApi",
+        "tags": [
+          "Api_Panel"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/panel/ping/": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PongOutputSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Ping Pong: Delete",
+        "tags": [
+          "Api_Panel"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PongOutputSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Ping Pong: Get",
+        "tags": [
+          "Api_Panel"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PongOutputSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Ping Pong: Patch",
+        "tags": [
+          "Api_Panel"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PongOutputSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Ping Pong: Post",
+        "tags": [
+          "Api_Panel"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PongOutputSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Ping Pong: Put",
+        "tags": [
+          "Api_Panel"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/user/all-configs/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConfigSchema"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get AllConfigsAPI",
+        "tags": [
+          "Api_User"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/user/apps/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The platform (Operating System) to know what clients should be send. Possible values are: all, android, ios, windows, linux, mac, auto.",
+            "in": "query",
+            "name": "platform",
+            "required": false,
+            "schema": {
+              "default": "auto",
+              "enum": [
+                "all",
+                "android",
+                "ios",
+                "windows",
+                "linux",
+                "mac",
+                "auto"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AppSchema"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get AppAPI",
+        "tags": [
+          "Api_User"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/user/me/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get InfoAPI",
+        "tags": [
+          "Api_User"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInfoChangableSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Patch InfoAPI",
+        "tags": [
+          "Api_User"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/user/mtproxies/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MtproxySchema"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get MTProxiesAPI",
+        "tags": [
+          "Api_User"
+        ]
+      }
+    },
+    "/{proxy_path}/api/v2/user/short/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get ShortAPI",
+        "tags": [
+          "Api_User"
+        ]
+      }
+    },
+    "/{proxy_path}/{secret_uuid}/api/v2/user/all-configs/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "secret_uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConfigSchema"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get AllConfigsAPI",
+        "tags": [
+          "Api_User_By_Uuid"
+        ]
+      }
+    },
+    "/{proxy_path}/{secret_uuid}/api/v2/user/apps/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "secret_uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The platform (Operating System) to know what clients should be send. Possible values are: all, android, ios, windows, linux, mac, auto.",
+            "in": "query",
+            "name": "platform",
+            "required": false,
+            "schema": {
+              "default": "auto",
+              "enum": [
+                "all",
+                "android",
+                "ios",
+                "windows",
+                "linux",
+                "mac",
+                "auto"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AppSchema"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get AppAPI",
+        "tags": [
+          "Api_User_By_Uuid"
+        ]
+      }
+    },
+    "/{proxy_path}/{secret_uuid}/api/v2/user/me/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "secret_uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get InfoAPI",
+        "tags": [
+          "Api_User_By_Uuid"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "secret_uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInfoChangableSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Patch InfoAPI",
+        "tags": [
+          "Api_User_By_Uuid"
+        ]
+      }
+    },
+    "/{proxy_path}/{secret_uuid}/api/v2/user/mtproxies/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "secret_uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MtproxySchema"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get MTProxiesAPI",
+        "tags": [
+          "Api_User_By_Uuid"
+        ]
+      }
+    },
+    "/{proxy_path}/{secret_uuid}/api/v2/user/short/": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proxy_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "secret_uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortSchema"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Authentication error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "Hiddify-API-Key": []
+          }
+        ],
+        "summary": "Get ShortAPI",
+        "tags": [
+          "Api_User_By_Uuid"
+        ]
+      }
+    }
+  },
+  "servers": {
+    "name": "current",
+    "url": ""
+  },
+  "tags": [
+    {
+      "name": "Api_Admin"
+    },
+    {
+      "name": "Api_User"
+    },
+    {
+      "name": "Api_User_By_Uuid"
+    },
+    {
+      "name": "Api_Panel"
+    }
+  ]
+}
