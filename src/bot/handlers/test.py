@@ -165,11 +165,7 @@ async def handle_test_create_subscription_eu(callback: CallbackQuery) -> None:
     await create_test_subscription(callback, SubscriptionType.eu, "🇪🇺 EU")
 
 
-async def create_test_subscription(
-    callback: CallbackQuery,
-    sub_type: SubscriptionType,
-    type_emoji: str
-) -> None:
+async def create_test_subscription(callback: CallbackQuery, sub_type: SubscriptionType, type_emoji: str) -> None:
     """Create test subscription helper."""
     async for session in get_session():
         # Find or create test user

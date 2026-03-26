@@ -148,7 +148,9 @@ async def handle_suspend(message: Message) -> None:
     # Parse telegram_id from command args
     args = message.text.split()
     if len(args) < 2:
-        await message.answer("❌ Использование: /suspend &lt;telegram_id&gt;\n" "Пример: /suspend 123456789", parse_mode="HTML")
+        await message.answer(
+            "❌ Использование: /suspend &lt;telegram_id&gt;\n" "Пример: /suspend 123456789", parse_mode="HTML"
+        )
         return
 
     try:
@@ -184,11 +186,11 @@ async def handle_suspend(message: Message) -> None:
 
         await session.commit()
 
-        await message.answer(f"✅ Подписка пользователя {telegram_id} заблокирована\n"
-                            f"Заблокировано подписок: {blocked_count}")
+        await message.answer(
+            f"✅ Подписка пользователя {telegram_id} заблокирована\n" f"Заблокировано подписок: {blocked_count}"
+        )
 
-        logger.info(f"Admin {message.from_user.id} suspended {blocked_count} subscription(s) "
-                   f"for user {telegram_id}")
+        logger.info(f"Admin {message.from_user.id} suspended {blocked_count} subscription(s) " f"for user {telegram_id}")
 
 
 @admin_router.message(Command("grant"))
@@ -207,7 +209,9 @@ async def handle_grant(message: Message) -> None:
 
     args = message.text.split()
     if len(args) < 2:
-        await message.answer("❌ Использование: /grant &lt;telegram_id&gt; [type] [days]\n" "Пример: /grant 123456789 ru 30", parse_mode="HTML")
+        await message.answer(
+            "❌ Использование: /grant &lt;telegram_id&gt; [type] [days]\n" "Пример: /grant 123456789 ru 30", parse_mode="HTML"
+        )
         return
 
     try:

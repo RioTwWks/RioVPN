@@ -46,6 +46,7 @@ def setup_logging(
 
         # Create log filename with date for rotation by day
         from datetime import datetime
+
         current_date = datetime.now().strftime("%Y-%m-%d")
         log_file = log_path / f"riovpn_{current_date}.log"
 

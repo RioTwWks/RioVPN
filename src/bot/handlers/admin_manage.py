@@ -355,9 +355,7 @@ async def handle_delete_confirm(message: Message, state: FSMContext) -> None:
     async for session in get_session():
         try:
             # Get subscriptions before deletion
-            subs_result = await session.execute(
-                select(Subscription).where(Subscription.user_id == db_user_id)
-            )
+            subs_result = await session.execute(select(Subscription).where(Subscription.user_id == db_user_id))
             subscriptions = subs_result.scalars().all()
             sub_count = len(subscriptions)
 
@@ -379,9 +377,7 @@ async def handle_delete_confirm(message: Message, state: FSMContext) -> None:
 
             from src.models.payment import Payment
 
-            payments_result = await session.execute(
-                select(Payment).where(Payment.user_id == db_user_id)
-            )
+            payments_result = await session.execute(select(Payment).where(Payment.user_id == db_user_id))
             payments = payments_result.scalars().all()
             payment_count = len(payments)
 
