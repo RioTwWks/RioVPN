@@ -134,10 +134,26 @@ class ThreeXuiService(BaseService):
                 response = json.loads(response)
             except json.JSONDecodeError:
                 raise APIError(f"Invalid JSON response from get_inbounds: {response}")
+
+        if not response.get("success"):
+            raise APIError("Failed to get inbounds")
         
-        if response.get("success"):
-            return response.get("obj", [])
-        raise APIError("Failed to get inbounds")
+        # Get obj which should be a list of inbounds
+        obj = response.get("obj", [])
+        
+        # Parse each inbound if it's a string
+        inbounds = []
+        for inbound in obj:
+            if isinstance(inbound, str):
+                try:
+                    import json
+                    inbound = json.loads(inbound)
+                except json.JSONDecodeError:
+                    logger.warning(f"Failed to parse inbound as JSON: {inbound}")
+                    continue
+            inbounds.append(inbound)
+        
+        return inbounds
 
     async def get_inbound_by_tag(self, tag: str) -> Optional[Dict[str, Any]]:
         """
