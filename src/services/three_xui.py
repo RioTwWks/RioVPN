@@ -127,6 +127,14 @@ class ThreeXuiService(BaseService):
             List of inbound configurations with clients
         """
         response = await self._api_request("GET", "/panel/api/inbounds/list")
+        # Handle both dict and string responses
+        if isinstance(response, str):
+            import json
+            try:
+                response = json.loads(response)
+            except json.JSONDecodeError:
+                raise APIError(f"Invalid JSON response from get_inbounds: {response}")
+        
         if response.get("success"):
             return response.get("obj", [])
         raise APIError("Failed to get inbounds")
