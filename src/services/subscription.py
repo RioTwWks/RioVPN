@@ -215,7 +215,18 @@ class SubscriptionService:
             raise Exception("Failed to get UUID from Hiddify response")
 
         subscription.panel_uuid = user_uuid
-        subscription.link = subscription_link or f"hiddify://{user_uuid}"
+        
+        # If subscription_link not provided, build it from panel URL
+        if not subscription_link:
+            # Extract proxy_path from PANEL_HIDDIFY_URL
+            # Format: https://domain.com/{proxy_path} -> https://domain.com/{proxy_path}/{uuid}
+            from urllib.parse import urlparse
+            panel_url = settings.panel_hiddify_url
+            parsed = urlparse(panel_url)
+            # Reconstruct URL with UUID
+            subscription_link = f"{panel_url}/{user_uuid}"
+        
+        subscription.link = subscription_link
 
     async def renew_subscription(
         self,
