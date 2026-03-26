@@ -263,6 +263,15 @@ class ThreeXuiService(BaseService):
                     }
 
                     response = await self._api_request("POST", "/panel/api/inbounds/delClient", json=delete_config)
+                    # Handle both dict and string responses
+                    if isinstance(response, str):
+                        import json
+                        try:
+                            response = json.loads(response)
+                        except json.JSONDecodeError:
+                            logger.info(f"Client {email} deleted from inbound {client_id} (response: {response})")
+                            return True
+                    
                     if response.get("success"):
                         logger.info(f"Client {email} deleted from inbound {client_id}")
                         return True
