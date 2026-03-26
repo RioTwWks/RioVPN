@@ -63,6 +63,7 @@ async def handle_admin_users_menu(callback: CallbackQuery) -> None:
     await callback.message.edit_text(
         "👥 <b>Управление пользователями</b>\n\n" "Выберите действие:",
         reply_markup=get_admin_users_keyboard(),
+        parse_mode="HTML",
     )
     await callback.answer()
 
@@ -88,6 +89,7 @@ async def handle_admin_manage_menu(callback: CallbackQuery) -> None:
         "  /export [type] - Экспорт данных\n\n"
         "Выберите раздел:",
         reply_markup=get_admin_users_keyboard(),
+        parse_mode="HTML",
     )
     await callback.answer()
 
@@ -111,6 +113,7 @@ async def handle_user_list(callback: CallbackQuery) -> None:
         await callback.message.edit_text(
             text,
             reply_markup=get_admin_back_keyboard(),
+            parse_mode="HTML",
         )
     await callback.answer()
 
@@ -125,6 +128,7 @@ async def handle_user_search_start(callback: CallbackQuery, state: FSMContext) -
     await callback.message.edit_text(
         "🔍 <b>Поиск пользователя</b>\n\n" "Отправьте Telegram ID пользователя:",
         reply_markup=get_admin_back_keyboard(),
+        parse_mode="HTML",
     )
     await state.set_state(AdminMessageState.waiting_for_user_id)
     await callback.answer()
@@ -187,6 +191,7 @@ async def handle_admin_message_menu(callback: CallbackQuery) -> None:
     await callback.message.edit_text(
         "📩 <b>Отправка сообщений</b>\n\n" "Выберите тип рассылки:",
         reply_markup=get_admin_message_keyboard(),
+        parse_mode="HTML",
     )
     await callback.answer()
 
@@ -201,6 +206,7 @@ async def handle_send_message_to_user_start(callback: CallbackQuery, state: FSMC
     await callback.message.edit_text(
         "📩 <b>Отправить сообщение пользователю</b>\n\n" "Отправьте Telegram ID пользователя:",
         reply_markup=get_admin_back_keyboard(),
+        parse_mode="HTML",
     )
     await state.set_state(AdminMessageState.waiting_for_user_id)
     await callback.answer()
@@ -276,6 +282,7 @@ async def handle_delete_user_start(callback: CallbackQuery, state: FSMContext) -
         "• Все платежи пользователя\n\n"
         "Отправьте Telegram ID пользователя для удаления:",
         reply_markup=get_admin_back_keyboard(),
+        parse_mode="HTML",
     )
     await state.set_state(AdminDeleteState.waiting_for_delete_user_id)
     await callback.answer()
@@ -395,11 +402,12 @@ async def handle_subscription_manage_menu(callback: CallbackQuery) -> None:
     await callback.message.edit_text(
         "⚙️ <b>Управление подписками</b>\n\n"
         "Доступные команды:\n\n"
-        "🔹 /suspend <telegram_id> - Заблокировать подписку\n"
-        "🔹 /grant <telegram_id> [type] [days] - Выдать подписку\n"
-        "🔹 /search <telegram_id> - Найти пользователя\n\n"
+        "🔹 /suspend &lt;telegram_id&gt; - Заблокировать подписку\n"
+        "🔹 /grant &lt;telegram_id&gt; [type] [days] - Выдать подписку\n"
+        "🔹 /search &lt;telegram_id&gt; - Найти пользователя\n\n"
         "Пример: /grant 123456789 ru 30",
         reply_markup=get_admin_back_keyboard(),
+        parse_mode="HTML",
     )
     await callback.answer()
 
