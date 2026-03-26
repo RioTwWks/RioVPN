@@ -67,6 +67,31 @@ async def handle_admin_users_menu(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
+@admin_manage_router.callback_query(F.data == "admin_manage")
+async def handle_admin_manage_menu(callback: CallbackQuery) -> None:
+    """Handle admin manage menu."""
+    if not await is_admin(callback.from_user.id):
+        await callback.answer("❌ Доступ запрещён", show_alert=True)
+        return
+
+    await callback.message.edit_text(
+        "⚙️ <b>Администрирование</b>\n\n"
+        "🔹 <b>Управление пользователями</b>:\n"
+        "  • Просмотр списка пользователей\n"
+        "  • Поиск по Telegram ID\n"
+        "  • Удаление пользователя\n"
+        "  • Управление подписками\n\n"
+        "🔹 <b>Команды</b>:\n"
+        "  /suspend <id> - Заблокировать подписку\n"
+        "  /grant <id> [type] [days] - Выдать подписку\n"
+        "  /search <id> - Найти пользователя\n"
+        "  /export [type] - Экспорт данных\n\n"
+        "Выберите раздел:",
+        reply_markup=get_admin_users_keyboard(),
+    )
+    await callback.answer()
+
+
 @admin_manage_router.callback_query(F.data == "admin_user_list")
 async def handle_user_list(callback: CallbackQuery) -> None:
     """Handle user list view."""
