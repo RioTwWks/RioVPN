@@ -166,6 +166,7 @@ def setup_routers() -> Router:
         Root router with all handlers
     """
     from src.bot.handlers import (
+        admin_manage_router,
         admin_router,
         broadcast_router,
         callback_router,
@@ -190,6 +191,7 @@ def setup_routers() -> Router:
     root_router.include_router(referral_router)
     root_router.include_router(tier_router)
     root_router.include_router(admin_router)
+    root_router.include_router(admin_manage_router)
     root_router.include_router(test_router)
 
     return root_router

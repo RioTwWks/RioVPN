@@ -137,6 +137,7 @@ class SubscriptionService:
             uuid=client_uuid,
             traffic_limit=subscription.traffic_limit,
             expiry_time=expiry_ms,
+            telegram_id=user.telegram_id,
         )
 
         # Generate vless:// link

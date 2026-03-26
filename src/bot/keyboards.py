@@ -113,7 +113,40 @@ def get_admin_keyboard() -> InlineKeyboardMarkup:
     builder.button(text="👥 Пользователи", callback_data="admin_users")
     builder.button(text="💰 Платежи", callback_data="admin_payments")
     builder.button(text="💬 Рассылка", callback_data="admin_broadcast")
-    builder.adjust(2, 2)
+    builder.button(text="📩 Сообщение", callback_data="admin_message")
+    builder.button(text="⚙️ Управление", callback_data="admin_manage")
+    builder.adjust(2, 2, 2)
+    return builder.as_markup()
+
+
+def get_admin_users_keyboard() -> InlineKeyboardMarkup:
+    """
+    Get admin users management keyboard.
+
+    Returns:
+        InlineKeyboardMarkup with user management options
+    """
+    builder = InlineKeyboardBuilder()
+    builder.button(text="📋 Список пользователей", callback_data="admin_user_list")
+    builder.button(text="🔍 Поиск пользователя", callback_data="admin_user_search")
+    builder.button(text="⚙️ Управление подпиской", callback_data="admin_sub_manage")
+    builder.button(text="« Назад в админ-панель", callback_data="admin_menu")
+    builder.adjust(1, 1, 1)
+    return builder.as_markup()
+
+
+def get_admin_message_keyboard() -> InlineKeyboardMarkup:
+    """
+    Get admin message sending keyboard.
+
+    Returns:
+        InlineKeyboardMarkup with message options
+    """
+    builder = InlineKeyboardBuilder()
+    builder.button(text="📩 Отправить пользователю", callback_data="admin_msg_user")
+    builder.button(text="📢 Массовая рассылка", callback_data="admin_broadcast")
+    builder.button(text="« Назад в админ-панель", callback_data="admin_menu")
+    builder.adjust(1, 1)
     return builder.as_markup()
 
 

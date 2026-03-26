@@ -155,6 +155,7 @@ class ThreeXuiService(BaseService):
         uuid: str,
         traffic_limit: Optional[int] = None,
         expiry_time: Optional[int] = None,
+        telegram_id: Optional[int] = None,
     ) -> bool:
         """
         Add client to existing inbound.
@@ -165,6 +166,7 @@ class ThreeXuiService(BaseService):
             uuid: Client UUID for VLESS
             traffic_limit: Traffic limit in bytes (None = unlimited)
             expiry_time: Expiry timestamp in milliseconds (None = unlimited)
+            telegram_id: Telegram user ID (optional, for tracking)
 
         Returns:
             True if client added successfully
@@ -187,7 +189,7 @@ class ThreeXuiService(BaseService):
                             "totalGB": traffic_limit or 0,
                             "expiryTime": expiry_time or 0,
                             "enable": True,
-                            "tgId": "",
+                            "tgId": telegram_id or "",
                             "subId": "",
                         }
                     ]

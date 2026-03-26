@@ -44,7 +44,10 @@ def setup_logging(
         log_path = Path(log_dir)
         log_path.mkdir(parents=True, exist_ok=True)
 
-        log_file = log_path / "riovpn.log"
+        # Create log filename with date for rotation by day
+        from datetime import datetime
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        log_file = log_path / f"riovpn_{current_date}.log"
 
         # TimedRotatingFileHandler - rotates at midnight
         file_handler = TimedRotatingFileHandler(
@@ -56,8 +59,6 @@ def setup_logging(
         )
         file_handler.setFormatter(log_format)
         file_handler.setLevel(getattr(logging, level.upper()))
-        # Filename with date: riovpn.log.2026-03-24
-        file_handler.namer = lambda name: name.replace(".log", "") + ".log."
         root_logger.addHandler(file_handler)
 
     # Set third-party loggers to WARNING

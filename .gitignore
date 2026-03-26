@@ -31,3 +31,6 @@ htmlcov/
 
 # Docker
 docker/postgres_data/
+
+# Project
+temp/
