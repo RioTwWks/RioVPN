@@ -354,26 +354,46 @@ async def handle_delete_confirm(message: Message, state: FSMContext) -> None:
 
     async for session in get_session():
         try:
-            # Get counts before deletion
-            subs_result = await session.execute(select(Subscription).where(Subscription.user_id == db_user_id))
+            # Get subscriptions before deletion
+            subs_result = await session.execute(
+                select(Subscription).where(Subscription.user_id == db_user_id)
+            )
             subscriptions = subs_result.scalars().all()
             sub_count = len(subscriptions)
 
+            # Delete clients from 3x-ui panel
+            from src.services.three_xui import ThreeXuiService
+
+            three_xui = ThreeXuiService()
+            deleted_from_panel = 0
+
+            for sub in subscriptions:
+                if sub.type.value == "ru" and sub.panel_uuid:
+                    try:
+                        # panel_uuid contains email for 3x-ui
+                        await three_xui.delete_client(sub.panel_uuid)
+                        deleted_from_panel += 1
+                        logger.info(f"Deleted client {sub.panel_uuid} from 3x-ui")
+                    except Exception as e:
+                        logger.warning(f"Failed to delete client {sub.panel_uuid} from 3x-ui: {e}")
+
             from src.models.payment import Payment
 
-            payments_result = await session.execute(select(Payment).where(Payment.user_id == db_user_id))
+            payments_result = await session.execute(
+                select(Payment).where(Payment.user_id == db_user_id)
+            )
             payments = payments_result.scalars().all()
             payment_count = len(payments)
 
-            # Delete subscriptions
+            # Delete subscriptions from database
             for sub in subscriptions:
                 await session.delete(sub)
 
-            # Delete payments
+            # Delete payments from database
             for payment in payments:
                 await session.delete(payment)
 
-            # Delete user
+            # Delete user from database
             user = await session.get(User, db_user_id)
             if user:
                 await session.delete(user)
@@ -382,7 +402,8 @@ async def handle_delete_confirm(message: Message, state: FSMContext) -> None:
 
             await message.answer(
                 f"✅ Пользователь {user_id} успешно удалён\n"
-                f"Удалено подписок: {sub_count}\n"
+                f"Удалено подписок из БД: {sub_count}\n"
+                f"Удалено клиентов из 3x-ui: {deleted_from_panel}\n"
                 f"Удалено платежей: {payment_count}"
             )
         except Exception as e:
