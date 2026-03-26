@@ -93,7 +93,7 @@ async def handle_search_command(message: Message) -> None:
     """
     args = message.text.split()
     if len(args) < 2:
-        await message.answer("❌ Использование: /search <telegram_id>")
+        await message.answer("❌ Использование: /search &lt;telegram_id&gt;", parse_mode="HTML")
         return
 
     try:
@@ -141,7 +141,7 @@ async def handle_search_command(message: Message) -> None:
                 limit_gb = sub.traffic_limit / (1024**3)
                 text += f"💾 <b>Трафик:</b> {used_gb:.2f} ГБ / {limit_gb:.2f} ГБ\n"
 
-        await message.answer(text)
+        await message.answer(text, parse_mode="HTML")
 
 
 @user_router.message(Command("userhistory"))
@@ -156,7 +156,7 @@ async def handle_user_history_command(message: Message) -> None:
     """
     args = message.text.split()
     if len(args) < 2:
-        await message.answer("❌ Использование: /userhistory <telegram_id>")
+        await message.answer("❌ Использование: /userhistory &lt;telegram_id&gt;", parse_mode="HTML")
         return
 
     try:
@@ -203,4 +203,4 @@ async def handle_user_history_command(message: Message) -> None:
                 f"{payment.status.value} | {payment.created_at.strftime('%d.%m.%Y')}\n"
             )
 
-        await message.answer(text)
+        await message.answer(text, parse_mode="HTML")

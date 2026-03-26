@@ -148,7 +148,7 @@ async def handle_suspend(message: Message) -> None:
     # Parse telegram_id from command args
     args = message.text.split()
     if len(args) < 2:
-        await message.answer("❌ Использование: /suspend <telegram_id>\n" "Пример: /suspend 123456789")
+        await message.answer("❌ Использование: /suspend &lt;telegram_id&gt;\n" "Пример: /suspend 123456789", parse_mode="HTML")
         return
 
     try:
@@ -166,23 +166,29 @@ async def handle_suspend(message: Message) -> None:
             await message.answer(f"❌ Пользователь {telegram_id} не найден")
             return
 
-        # Find active subscription
+        # Find active subscription (get first one if multiple)
         result = await session.execute(
             select(Subscription).where(Subscription.user_id == user.id).where(Subscription.status == SubscriptionStatus.active)
         )
-        subscription = result.scalar_one_or_none()
+        subscriptions = result.scalars().all()
 
-        if not subscription:
+        if not subscriptions:
             await message.answer("❌ У пользователя нет активной подписки")
             return
 
-        # Block subscription
-        subscription.status = SubscriptionStatus.blocked
+        # Block all active subscriptions
+        blocked_count = 0
+        for subscription in subscriptions:
+            subscription.status = SubscriptionStatus.blocked
+            blocked_count += 1
+
         await session.commit()
 
-        await message.answer(f"✅ Подписка пользователя {telegram_id} заблокирована")
+        await message.answer(f"✅ Подписка пользователя {telegram_id} заблокирована\n"
+                            f"Заблокировано подписок: {blocked_count}")
 
-        logger.info(f"Admin {message.from_user.id} suspended subscription " f"{subscription.id} for user {telegram_id}")
+        logger.info(f"Admin {message.from_user.id} suspended {blocked_count} subscription(s) "
+                   f"for user {telegram_id}")
 
 
 @admin_router.message(Command("grant"))
@@ -201,7 +207,7 @@ async def handle_grant(message: Message) -> None:
 
     args = message.text.split()
     if len(args) < 2:
-        await message.answer("❌ Использование: /grant <telegram_id> [type] [days]\n" "Пример: /grant 123456789 ru 30")
+        await message.answer("❌ Использование: /grant &lt;telegram_id&gt; [type] [days]\n" "Пример: /grant 123456789 ru 30", parse_mode="HTML")
         return
 
     try:
