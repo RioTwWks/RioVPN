@@ -48,15 +48,19 @@ class HiddifyService(BaseService):
         Raises:
             APIError: If user creation fails
         """
-        # Hiddify API v2 requires specific field names
-        # Based on OpenAPI spec: username, expiry_time (Unix seconds), data_limit (bytes)
+        # Hiddify API v2 - try with minimal required fields first
+        # Required: username
+        # Optional: expiry_time (Unix seconds), data_limit (bytes), enabled, mode
         user_data = {
             "username": username,
-            "expiry_time": expiry_time,  # Unix timestamp in seconds
-            "data_limit": traffic_limit or 0,  # 0 = unlimited
-            "mode": "full",  # full = full access
-            "enabled": True,  # Use 'enabled' (boolean)
+            "enabled": True,
         }
+        
+        # Only add optional fields if they have values
+        if expiry_time:
+            user_data["expiry_time"] = expiry_time
+        if traffic_limit:
+            user_data["data_limit"] = traffic_limit
 
         if extra_data:
             user_data.update(extra_data)
