@@ -162,7 +162,13 @@ async def handle_test_create_subscription_eu(callback: CallbackQuery) -> None:
         await callback.answer("❌ Доступ запрещён", show_alert=True)
         return
 
-    await create_test_subscription(callback, SubscriptionType.eu, "🇪🇺 EU")
+    await callback.message.answer(
+        "⚠️ <b>EU подписки временно недоступны</b>\n\n"
+        "Hiddify API требует обновления ключа аутентификации.\n\n"
+        "Пожалуйста, используйте RU подписки (3x-ui) для тестирования.",
+        reply_markup=get_admin_back_keyboard(),
+    )
+    await callback.answer()
 
 
 async def create_test_subscription(callback: CallbackQuery, sub_type: SubscriptionType, type_emoji: str) -> None:
