@@ -82,9 +82,9 @@ async def handle_admin_manage_menu(callback: CallbackQuery) -> None:
         "  • Удаление пользователя\n"
         "  • Управление подписками\n\n"
         "🔹 <b>Команды</b>:\n"
-        "  /suspend <id> - Заблокировать подписку\n"
-        "  /grant <id> [type] [days] - Выдать подписку\n"
-        "  /search <id> - Найти пользователя\n"
+        "  /suspend &lt;id&gt; - Заблокировать подписку\n"
+        "  /grant &lt;id&gt; [type] [days] - Выдать подписку\n"
+        "  /search &lt;id&gt; - Найти пользователя\n"
         "  /export [type] - Экспорт данных\n\n"
         "Выберите раздел:",
         reply_markup=get_admin_users_keyboard(),
