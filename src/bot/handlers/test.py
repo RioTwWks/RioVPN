@@ -41,18 +41,20 @@ async def handle_test(message: Message) -> None:
     builder = InlineKeyboardBuilder()
     builder.button(text="🧪 Тестовый пользователь", callback_data="test_create_user")
     builder.button(text="💳 Тестовая оплата", callback_data="test_create_payment")
-    builder.button(text="📱 Тестовая подписка", callback_data="test_create_subscription")
+    builder.button(text="📱 RU Подписка", callback_data="test_create_subscription_ru")
+    builder.button(text="🇪🇺 EU Подписка", callback_data="test_create_subscription_eu")
     builder.button(text="🗑 Очистить тест", callback_data="test_cleanup")
     builder.button(text="📊 Статус", callback_data="test_status")
     builder.button(text="« Назад в админ-панель", callback_data="admin_menu")
-    builder.adjust(1)
+    builder.adjust(2, 2, 2, 1)
 
     await message.answer(
         "🧪 <b>Тестовая панель</b>\n\n"
         "Инструменты для тестирования платежных потоков:\n\n"
         "• <b>Тестовый пользователь</b> - создаёт тестового юзера\n"
         "• <b>Тестовая оплата</b> - имитирует успешную оплату\n"
-        "• <b>Тестовая подписка</b> - создаёт тестовую подписку\n"
+        "• <b>RU Подписка</b> - создаёт российскую подписку (3x-ui)\n"
+        "• <b>EU Подписка</b> - создаёт европейскую подписку (Hiddify)\n"
         "• <b>Очистить тест</b> - удаляет тестовые данные\n"
         "• <b>Статус</b> - показывает текущее состояние",
         reply_markup=builder.as_markup(),
@@ -143,13 +145,32 @@ async def handle_test_create_payment(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
-@test_router.callback_query(F.data == "test_create_subscription")
-async def handle_test_create_subscription(callback: CallbackQuery) -> None:
-    """Handle test subscription creation."""
+@test_router.callback_query(F.data == "test_create_subscription_ru")
+async def handle_test_create_subscription_ru(callback: CallbackQuery) -> None:
+    """Handle test RU subscription creation."""
     if not await is_admin(callback.from_user.id):
         await callback.answer("❌ Доступ запрещён", show_alert=True)
         return
 
+    await create_test_subscription(callback, SubscriptionType.ru, "🇷🇺 RU")
+
+
+@test_router.callback_query(F.data == "test_create_subscription_eu")
+async def handle_test_create_subscription_eu(callback: CallbackQuery) -> None:
+    """Handle test EU subscription creation."""
+    if not await is_admin(callback.from_user.id):
+        await callback.answer("❌ Доступ запрещён", show_alert=True)
+        return
+
+    await create_test_subscription(callback, SubscriptionType.eu, "🇪🇺 EU")
+
+
+async def create_test_subscription(
+    callback: CallbackQuery,
+    sub_type: SubscriptionType,
+    type_emoji: str
+) -> None:
+    """Create test subscription helper."""
     async for session in get_session():
         # Find or create test user
         test_telegram_id = 999999999
@@ -166,15 +187,14 @@ async def handle_test_create_subscription(callback: CallbackQuery) -> None:
         service = SubscriptionService(session)
 
         try:
-            # Create RU subscription
             subscription = await service.create_subscription(
                 user=user,
-                sub_type=SubscriptionType.ru,
+                sub_type=sub_type,
                 duration_days=30,
             )
 
             await callback.message.answer(
-                "✅ <b>Тестовая подписка создана</b>\n\n"
+                f"✅ <b>Тестовая {type_emoji} подписка создана</b>\n\n"
                 f"ID: <code>{subscription.id}</code>\n"
                 f"Тип: {subscription.type.value.upper()}\n"
                 f"Статус: {subscription.status.value}\n"
@@ -183,7 +203,8 @@ async def handle_test_create_subscription(callback: CallbackQuery) -> None:
                 f"🔗 <b>Ссылка:</b>\n<code>{subscription.link}</code>"
             )
         except Exception as e:
-            await callback.message.answer(f"❌ Ошибка создания подписки: {e}")
+            logger.exception(f"Failed to create {sub_type.value} subscription")
+            await callback.message.answer(f"❌ Ошибка создания {type_emoji} подписки: {e}")
 
     await callback.answer()
 

@@ -127,11 +127,14 @@ class ThreeXuiService(BaseService):
             List of inbound configurations with clients
         """
         response = await self._api_request("GET", "/panel/api/inbounds/list")
+        logger.info(f"get_inbounds response type: {type(response)}, first 200 chars: {str(response)[:200]}")
+        
         # Handle both dict and string responses
         if isinstance(response, str):
             import json
             try:
                 response = json.loads(response)
+                logger.info(f"Parsed response from string to dict")
             except json.JSONDecodeError:
                 raise APIError(f"Invalid JSON response from get_inbounds: {response}")
 
@@ -140,6 +143,9 @@ class ThreeXuiService(BaseService):
         
         # Get obj which should be a list of inbounds
         obj = response.get("obj", [])
+        logger.info(f"obj type: {type(obj)}, length: {len(obj) if hasattr(obj, '__len__') else 'N/A'}")
+        if isinstance(obj, list) and len(obj) > 0:
+            logger.info(f"First obj element type: {type(obj[0])}, first 100 chars: {str(obj[0])[:100]}")
         
         # Parse each inbound if it's a string
         inbounds = []
@@ -148,11 +154,13 @@ class ThreeXuiService(BaseService):
                 try:
                     import json
                     inbound = json.loads(inbound)
+                    logger.info(f"Parsed inbound from string")
                 except json.JSONDecodeError:
                     logger.warning(f"Failed to parse inbound as JSON: {inbound}")
                     continue
             inbounds.append(inbound)
         
+        logger.info(f"Returning {len(inbounds)} inbounds")
         return inbounds
 
     async def get_inbound_by_tag(self, tag: str) -> Optional[Dict[str, Any]]:
@@ -273,20 +281,36 @@ class ThreeXuiService(BaseService):
             True if client deleted successfully
         """
         inbounds = await self.get_inbounds()
+        logger.info(f"delete_client: got {len(inbounds)} inbounds, types: {[type(i).__name__ for i in inbounds]}")
 
-        for inbound in inbounds:
-            clients = inbound.get("settings", {}).get("clients", [])
+        for i, inbound in enumerate(inbounds):
+            logger.info(f"Processing inbound[{i}] type: {type(inbound).__name__}")
+            
+            # Get settings - it may be a JSON string
+            settings = inbound.get("settings", {})
+            if isinstance(settings, str):
+                try:
+                    import json
+                    settings = json.loads(settings)
+                    logger.info(f"Parsed settings from string")
+                except json.JSONDecodeError:
+                    logger.warning(f"Failed to parse settings as JSON: {settings}")
+                    continue
+            
+            clients = settings.get("clients", [])
+            logger.info(f"Found {len(clients)} clients in inbound[{i}]")
             for client in clients:
                 if client.get("email") == email:
                     client_id = inbound.get("id")
                     client_uuid = client.get("id")
+                    
+                    logger.info(f"Found client {email} in inbound {client_id}, uuid={client_uuid}")
 
-                    delete_config = {
-                        "id": client_id,
-                        "clientId": client_uuid,
-                    }
-
-                    response = await self._api_request("POST", "/panel/api/inbounds/delClient", json=delete_config)
+                    # 3x-ui delClient API: POST /panel/api/inbounds/{id}/delClient/{clientId}
+                    # No request body needed - parameters in URL
+                    logger.info(f"Deleting client {email} via /panel/api/inbounds/{client_id}/delClient/{client_uuid}")
+                    
+                    response = await self._api_request("POST", f"/panel/api/inbounds/{client_id}/delClient/{client_uuid}")
                     # Handle both dict and string responses
                     if isinstance(response, str):
                         import json
