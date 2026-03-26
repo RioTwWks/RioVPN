@@ -375,7 +375,7 @@ async def handle_delete_confirm(message: Message, state: FSMContext) -> None:
                         deleted_from_panel += 1
                         logger.info(f"Deleted client {sub.panel_uuid} from 3x-ui")
                     except Exception as e:
-                        logger.warning(f"Failed to delete client {sub.panel_uuid} from 3x-ui: {e}")
+                        logger.warning(f"Failed to delete client {sub.panel_uuid} from 3x-ui: {e}", exc_info=True)
 
             from src.models.payment import Payment
 
