@@ -22,6 +22,8 @@ class HiddifyService(BaseService):
         super().__init__(
             base_url=f"{settings.panel_hiddify_url}/api/v2/",
             headers={"Hiddify-API-Key": settings.panel_hiddify_api_key},
+            use_proxy=True,  # Use proxy for Hiddify API
+            verify_ssl=False,  # Disable SSL verification for self-signed certs
         )
 
     async def create_user(

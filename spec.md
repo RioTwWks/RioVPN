@@ -58,7 +58,7 @@
 
 ### 3.2. Hiddify-Manager API
 
-- **Документация**: https://github.com/hiddify/hiddify-manager/wiki/API-Reference
+- **Документация**: https://hiddify.com/manager/contribution/How-to-use-API-in-HiddifyManager-project https://rio2skadi.pro/aav6Vcx7HYsY6hnk5K2226jQ9ZDS2N/api/openapi.json https://rio2skadi.pro/aav6Vcx7HYsY6hnk5K2226jQ9ZDS2N/api/docs
 - **API версии 2**, эндпоинт: `https://<domain>/api/v2/`
 - **Аутентификация**: передача заголовка `Hiddify-API-Key: <UUID администратора>`.
 - **Основные операции**:
