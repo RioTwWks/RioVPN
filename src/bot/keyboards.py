@@ -129,9 +129,10 @@ def get_admin_users_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="📋 Список пользователей", callback_data="admin_user_list")
     builder.button(text="🔍 Поиск пользователя", callback_data="admin_user_search")
+    builder.button(text="🗑 Удалить пользователя", callback_data="admin_user_delete")
     builder.button(text="⚙️ Управление подпиской", callback_data="admin_sub_manage")
     builder.button(text="« Назад в админ-панель", callback_data="admin_menu")
-    builder.adjust(1, 1, 1)
+    builder.adjust(1, 1, 1, 1)
     return builder.as_markup()
 
 
