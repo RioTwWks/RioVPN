@@ -75,6 +75,21 @@ class HiddifyService(BaseService):
         
         response = await self.post("/admin/user/", json=user_data)
         logger.info(f"Hiddify response: {response}")
+        
+        # After creating user, fetch full user data which includes subscription_url
+        user_uuid = response.get("uuid") or response.get("data", {}).get("uuid")
+        if user_uuid:
+            logger.info(f"Fetching full user data for {user_uuid}...")
+            try:
+                full_data = await self.get(f"/admin/user/{user_uuid}")
+                logger.info(f"Full user data: {full_data}")
+                # Merge subscription_url from full_data into response
+                if "subscription_url" in full_data:
+                    response["subscription_url"] = full_data["subscription_url"]
+                elif "data" in full_data and "subscription_url" in full_data["data"]:
+                    response["subscription_url"] = full_data["data"]["subscription_url"]
+            except Exception as e:
+                logger.warning(f"Failed to fetch full user data: {e}")
 
         if response.get("status") == "success" or "uuid" in response or "data" in response:
             logger.info(f"User {username} created in Hiddify")
