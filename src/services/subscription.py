@@ -216,14 +216,22 @@ class SubscriptionService:
 
         subscription.panel_uuid = user_uuid
         
-        # If subscription_link not provided, build it from panel URL
-        if not subscription_link:
-            # Extract proxy_path from PANEL_HIDDIFY_URL
-            # Format: https://domain.com/{proxy_path} -> https://domain.com/{proxy_path}/{uuid}
+        # Build subscription URL from user path (not admin panel path)
+        # Format: https://domain.com/{user_path}/{uuid}
+        if settings.panel_hiddify_user_path:
+            # Use configured user path
             from urllib.parse import urlparse
             panel_url = settings.panel_hiddify_url
             parsed = urlparse(panel_url)
-            # Reconstruct URL with UUID
+            # Reconstruct: https://domain.com/{user_path}/{uuid}
+            subscription_link = f"{parsed.scheme}://{parsed.netloc}/{settings.panel_hiddify_user_path}/{user_uuid}"
+        elif subscription_link:
+            # Use subscription_url from API response
+            pass
+        else:
+            # Fallback to panel URL + uuid
+            from urllib.parse import urlparse
+            panel_url = settings.panel_hiddify_url
             subscription_link = f"{panel_url}/{user_uuid}"
         
         subscription.link = subscription_link

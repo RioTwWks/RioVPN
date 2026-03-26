@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     # Hiddify Panel (EU)
     PANEL_HIDDIFY_URL: str = Field(..., description="Hiddify panel URL")
     PANEL_HIDDIFY_API_KEY: str = Field(..., description="Hiddify API key")
+    PANEL_HIDDIFY_USER_PATH: str = Field("", description="Hiddify user subscription path (proxy_path)")
 
     # Payments
     CRYPTOMUS_API_KEY: Optional[str] = Field(None, description="Cryptomus API key")
@@ -132,6 +133,10 @@ class Settings(BaseSettings):
     @property
     def panel_hiddify_api_key(self) -> str:
         return self.PANEL_HIDDIFY_API_KEY
+
+    @property
+    def panel_hiddify_user_path(self) -> str:
+        return self.PANEL_HIDDIFY_USER_PATH
 
     @property
     def cryptomus_api_key(self) -> Optional[str]:
