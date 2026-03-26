@@ -38,7 +38,7 @@ class HiddifyService(BaseService):
 
         Args:
             username: Unique username for the user
-            expiry_time: Expiry timestamp in milliseconds
+            expiry_time: Expiry timestamp in seconds (Unix timestamp)
             traffic_limit: Traffic limit in bytes (None = unlimited)
             extra_data: Additional user data
 
@@ -48,19 +48,24 @@ class HiddifyService(BaseService):
         Raises:
             APIError: If user creation fails
         """
+        # Hiddify API v2 expects specific field names
         user_data = {
             "username": username,
-            "expiry_time": expiry_time,
-            "data_limit": traffic_limit or 0,
-            "enabled": True,
+            "expiry_time": expiry_time,  # Unix timestamp in seconds
+            "data_limit": traffic_limit or 0,  # 0 = unlimited
+            "mode": "full",  # full = full access
+            "enable": True,  # Note: 'enable' not 'enabled'
         }
 
         if extra_data:
             user_data.update(extra_data)
 
+        logger.info(f"Creating Hiddify user: {username}, expiry={expiry_time}, limit={traffic_limit}")
+        
         response = await self.post("/admin/user/", json=user_data)
+        logger.info(f"Hiddify response: {response}")
 
-        if response.get("status") == "success" or "uuid" in response:
+        if response.get("status") == "success" or "uuid" in response or "data" in response:
             logger.info(f"User {username} created in Hiddify")
             return response
 

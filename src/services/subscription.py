@@ -196,13 +196,14 @@ class SubscriptionService:
         # Generate unique username
         username = f"eu_{user.telegram_id}_{uuid.uuid4().hex[:8]}"
 
-        # Calculate expiry time in milliseconds
-        expiry_ms = int(subscription.expiry_date.timestamp() * 1000)
+        # Calculate expiry time in seconds (Unix timestamp)
+        # Hiddify API expects seconds, not milliseconds
+        expiry_seconds = int(subscription.expiry_date.timestamp())
 
         # Create user in Hiddify
         user_data = await self.hiddify.create_user(
             username=username,
-            expiry_time=expiry_ms,
+            expiry_time=expiry_seconds,
             traffic_limit=subscription.traffic_limit,
         )
 
