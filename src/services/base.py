@@ -176,18 +176,19 @@ class BaseService(ABC):
                 if response.status >= 400:
                     error_text = await response.text()
                     logger.error(f"API request failed: {method} {url} - Status: {response.status}, Response: {error_text}")
-                    
+
                     # Try to parse and log detailed error from JSON
                     try:
                         import json
+
                         error_json = json.loads(error_text)
                         logger.error(f"Error details: {error_json}")
                         # Hiddify API often returns 'data' with validation errors
-                        if 'data' in error_json:
+                        if "data" in error_json:
                             logger.error(f"Validation errors: {error_json.get('data', {})}")
                     except Exception as e:
                         logger.debug(f"Could not parse error JSON: {e}")
-                    
+
                     raise APIError(
                         f"API request failed with status {response.status}: {error_text}",
                         status_code=response.status,

@@ -3,7 +3,12 @@
     "allow": [
       "Bash(python3 *)",
       "Bash(netstat *)",
-      "Bash(findstr *)"
+      "Bash(findstr *)",
+      "Bash(c:\\qwen_code\\riovpn\\.venv\\scripts\\python.exe *)",
+      "Bash(select-object *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   },
   "$version": 3

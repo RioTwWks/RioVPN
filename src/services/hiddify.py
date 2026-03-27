@@ -55,27 +55,27 @@ class HiddifyService(BaseService):
         # Note: Use 'name' not 'username', 'enable' not 'enabled'
         user_data = {
             "name": username,  # Use 'name' field (required)
-            "enable": True,    # Use 'enable' not 'enabled'
+            "enable": True,  # Use 'enable' not 'enabled'
         }
-        
+
         # Add optional fields
         if expiry_time:
             # Convert to package_days (approximate)
             days = max(1, (expiry_time - int(time.time())) // 86400)
             user_data["package_days"] = days
-        
+
         if traffic_limit:
             # Convert bytes to GB
-            user_data["usage_limit_GB"] = traffic_limit / (1024 ** 3)
+            user_data["usage_limit_GB"] = traffic_limit / (1024**3)
 
         if extra_data:
             user_data.update(extra_data)
 
         logger.info(f"Creating Hiddify user: {username}, expiry={expiry_time}, limit={traffic_limit}")
-        
+
         response = await self.post("/admin/user/", json=user_data)
         logger.info(f"Hiddify response: {response}")
-        
+
         # After creating user, fetch full user data which includes subscription_url
         user_uuid = response.get("uuid") or response.get("data", {}).get("uuid")
         if user_uuid:
