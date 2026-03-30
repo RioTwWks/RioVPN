@@ -93,9 +93,24 @@ async def sync_traffic() -> int:
         for sub in subscriptions:
             try:
                 if sub.type == SubscriptionType.ru and sub.panel_uuid:
-                    # Get traffic from 3x-ui
-                    traffic = await three_xui.get_client_traffic(sub.panel_uuid)
-                    new_traffic = traffic.get("total", 0)
+                    # Check if panel_uuid contains Hiddify UUID (format: email|hiddify_uuid)
+                    if "|" in sub.panel_uuid:
+                        email, hiddify_uuid = sub.panel_uuid.split("|", 1)
+
+                        # Try to get traffic from Hiddify first (more reliable)
+                        try:
+                            traffic = await hiddify.get_user_traffic(hiddify_uuid)
+                            new_traffic = int(traffic.get("used", 0) * 1024 * 1024 * 1024)  # Convert GB to bytes
+                            logger.debug(f"RU subscription {sub.id}: got traffic from Hiddify: {new_traffic} bytes")
+                        except Exception as hiddify_error:
+                            # Fallback to 3x-ui if Hiddify fails
+                            logger.warning(f"Hiddify traffic sync failed for {email}, using 3x-ui: {hiddify_error}")
+                            traffic = await three_xui.get_client_traffic(email)
+                            new_traffic = traffic.get("total", 0)
+                    else:
+                        # Old format - just email, use 3x-ui
+                        traffic = await three_xui.get_client_traffic(sub.panel_uuid)
+                        new_traffic = traffic.get("total", 0)
 
                 elif sub.type == SubscriptionType.eu and sub.panel_uuid:
                     # Get traffic from Hiddify

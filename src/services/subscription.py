@@ -110,7 +110,7 @@ class SubscriptionService:
 
     async def _create_ru_client(self, user: User, subscription: Subscription) -> None:
         """
-        Create client in 3x-ui panel.
+        Create client in 3x-ui panel and corresponding user in Hiddify.
 
         Args:
             user: User model instance
@@ -140,13 +140,42 @@ class SubscriptionService:
             telegram_id=user.telegram_id,
         )
 
+        # Create corresponding user in Hiddify for traffic control
+        hiddify_username = f"ru_{user.telegram_id}_{uuid.uuid4().hex[:8]}"
+        expiry_seconds = int(subscription.expiry_date.timestamp())
+
+        try:
+            hiddify_user_data = await self.hiddify.create_user(
+                username=hiddify_username,
+                expiry_time=expiry_seconds,
+                traffic_limit=subscription.traffic_limit,
+            )
+
+            # Extract Hiddify UUID and subscription URL
+            hiddify_uuid = hiddify_user_data.get("uuid") or hiddify_user_data.get("data", {}).get("uuid")
+            hiddify_subscription_url = hiddify_user_data.get("subscription_url") or hiddify_user_data.get("data", {}).get(
+                "subscription_url"
+            )
+
+            if hiddify_uuid:
+                # Store Hiddify UUID in subscription for traffic tracking
+                subscription.panel_uuid = f"{email}|{hiddify_uuid}"  # Store both IDs
+                logger.info(f"Created Hiddify user {hiddify_username} for RU client {email}")
+            else:
+                logger.warning(f"Hiddify user created but UUID not returned for {hiddify_username}")
+                subscription.panel_uuid = email
+
+        except Exception as e:
+            logger.warning(f"Failed to create Hiddify user for RU client {email}: {e}")
+            # Continue anyway - 3x-ui client was created successfully
+            subscription.panel_uuid = email
+
         # Generate vless:// link
         link = self._generate_ru_link(
             uuid=client_uuid,
             email=email,
         )
 
-        subscription.panel_uuid = email  # Use email as identifier for 3x-ui
         subscription.inbound_tag = settings.inbound_ru_tag
         subscription.link = link
 
@@ -269,11 +298,35 @@ class SubscriptionService:
             # Update in panel
             if subscription.type == SubscriptionType.ru:
                 expiry_ms = int(new_expiry.timestamp() * 1000)
-                await self.three_xui.update_client(
-                    email=subscription.panel_uuid,
-                    traffic_limit=subscription.traffic_limit,
-                    expiry_time=expiry_ms,
-                )
+
+                # Check if panel_uuid contains Hiddify UUID (format: email|hiddify_uuid)
+                if "|" in subscription.panel_uuid:
+                    email, hiddify_uuid = subscription.panel_uuid.split("|", 1)
+
+                    # Update Hiddify user
+                    try:
+                        await self.hiddify.update_user(
+                            uuid=hiddify_uuid,
+                            expiry_time=expiry_ms,
+                            traffic_limit=subscription.traffic_limit,
+                        )
+                        logger.info(f"Updated Hiddify user {hiddify_uuid} for RU subscription renewal")
+                    except Exception as hiddify_error:
+                        logger.warning(f"Failed to update Hiddify user {hiddify_uuid}: {hiddify_error}")
+
+                    # Update 3x-ui client
+                    await self.three_xui.update_client(
+                        email=email,
+                        traffic_limit=subscription.traffic_limit,
+                        expiry_time=expiry_ms,
+                    )
+                else:
+                    # Old format - just email
+                    await self.three_xui.update_client(
+                        email=subscription.panel_uuid,
+                        traffic_limit=subscription.traffic_limit,
+                        expiry_time=expiry_ms,
+                    )
             else:
                 expiry_ms = int(new_expiry.timestamp() * 1000)
                 await self.hiddify.update_user(
@@ -315,7 +368,27 @@ class SubscriptionService:
             # Remove from panel
             if subscription.type == SubscriptionType.ru:
                 if subscription.panel_uuid:
-                    await self.three_xui.delete_client(subscription.panel_uuid)
+                    # Check if panel_uuid contains Hiddify UUID (format: email|hiddify_uuid)
+                    if "|" in subscription.panel_uuid:
+                        email, hiddify_uuid = subscription.panel_uuid.split("|", 1)
+
+                        # Delete from Hiddify
+                        try:
+                            await self.hiddify.delete_user(hiddify_uuid)
+                            logger.info(f"Deleted Hiddify user {hiddify_uuid} for RU subscription {subscription.id}")
+                        except Exception as hiddify_error:
+                            logger.warning(f"Failed to delete Hiddify user {hiddify_uuid}: {hiddify_error}")
+
+                        # Delete from 3x-ui using email
+                        try:
+                            await self.three_xui.delete_client(email)
+                            logger.info(f"Deleted 3x-ui client {email} for subscription {subscription.id}")
+                        except Exception as three_xui_error:
+                            logger.warning(f"Failed to delete 3x-ui client {email}: {three_xui_error}")
+                    else:
+                        # Old format - just email
+                        await self.three_xui.delete_client(subscription.panel_uuid)
+
             else:
                 if subscription.panel_uuid:
                     await self.hiddify.delete_user(subscription.panel_uuid)

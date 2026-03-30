@@ -304,8 +304,9 @@
 - [x] Scheduled dependency checks
 
 **Next Steps:**
+- [ ] Create Indound user on EU server for each user on RU server
 - [ ] Deploy to production server
 - [ ] Configure monitoring and alerts
 - [ ] Set up automated backups
-- [ ] Optional: Web admin panel
-- [ ] Optional: Multi-server load balancing
+- [ ] Web admin panel
+- [ ] Multi-server load balancing

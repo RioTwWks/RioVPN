@@ -569,7 +569,7 @@ docker-compose up -d --build
 
 ### 3x-ui API
 
-**Документация:** [GitHub](https://github.com/MHSanaei/3x-ui/wiki/Configuration#api)
+**Документация:** [GitHub](https://github.com/MHSanaei/3x-ui/wiki/Configuration) [getPostman](https://documenter.getpostman.com/view/5146551/2sB3QCTuB6) [Postman](https://www.postman.com/hsanaei/3x-ui/documentation/q1l5l0u/3x-ui)
 
 | Endpoint | Метод | Описание |
 |----------|-------|----------|
@@ -583,7 +583,7 @@ docker-compose up -d --build
 
 ### Hiddify API
 
-**Документация:** [GitHub](https://github.com/hiddify/hiddify-manager/wiki/API-Reference)
+**Документация:** [Hiddify](https://hiddify.com/manager/contribution/How-to-use-API-in-HiddifyManager-project) [Swagger JSON](https://rio2skadi.pro/aav6Vcx7HYsY6hnk5K2226jQ9ZDS2N/api/openapi.json) [Swagger Docs](https://rio2skadi.pro/aav6Vcx7HYsY6hnk5K2226jQ9ZDS2N/api/docs)
 
 | Endpoint | Метод | Описание |
 |----------|-------|----------|
