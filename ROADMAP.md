@@ -302,9 +302,7 @@
 - [x] Security scanning (bandit, safety)
 - [x] Docker build automation
 - [x] Scheduled dependency checks
-
-**Next Steps:**
-- [ ] Create Indound user on EU server for each user on RU server
+- [x] **Hiddify user creation for RU subscriptions** - Automatic EU user creation for traffic control
 - [ ] Deploy to production server
 - [ ] Configure monitoring and alerts
 - [ ] Set up automated backups
